@@ -81,7 +81,7 @@ export default function DashboardPage() {
               <button onClick={() => navigate("/inventory")} className="text-left" style={{ fontSize: 12, color: T.red, fontWeight: 600 }}>+{expiringSoon.length - MAX_ALERTS} productos más por caducar → Inventario</button>
             )}
             {clientsWithDebt.slice(0, MAX_ALERTS).map((c) => (
-              <button key={c.id} onClick={() => navigate(`/clients?clientId=${c.id}`)} className="flex items-center gap-2 text-left" style={{ background: T.blueSoft, borderRadius: 10, padding: "9px 11px", fontSize: 12.5 }}>
+              <button key={c.id} onClick={() => navigate(`/clients/show/${c.id}`)} className="flex items-center gap-2 text-left" style={{ background: T.blueSoft, borderRadius: 10, padding: "9px 11px", fontSize: 12.5 }}>
                 <Receipt size={14} color={T.blue} /><span><b>{c.name}</b> tiene deuda pendiente de {money(c.debt)}.</span>
               </button>
             ))}

@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Eye, Pencil, Plus, Search } from "lucide-react";
 import { daysUntil, inputStyle, money, T } from "../../lib/constants";
 import { useVetStore } from "../../states/app.state";
 import { Badge, Btn, Card, Pager, SectionHead } from "../../components/ui";
-import { NewProductModal } from "./components/new-product-modal";
 import { RestockModal } from "./components/restock-modal";
 
 /* ================================================================
@@ -14,7 +14,8 @@ const PAGE_SIZE = 5;
 
 export default function InventoryPage() {
   const s = useVetStore();
-  const [modal, setModal] = useState<"new" | { restockId: string } | null>(null);
+  const navigate = useNavigate();
+  const [restockId, setRestockId] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("Todas");
   const [page, setPage] = useState(0);
@@ -26,7 +27,7 @@ export default function InventoryPage() {
   return (
     <div>
       <SectionHead title="Inventario" sub="Doble entrada: cada aplicación clínica descuenta stock y carga la cuenta del cliente en tiempo real."
-        action={<Btn onClick={() => setModal("new")}><Plus size={14} /> Nuevo producto</Btn>} />
+        action={<Btn onClick={() => navigate("/inventory/new")}><Plus size={14} /> Nuevo producto</Btn>} />
       <div className="flex gap-2 flex-wrap mb-3">
         <div className="flex items-center gap-2 flex-1" style={{ ...inputStyle, padding: "8px 11px", minWidth: 200 }}>
           <Search size={14} color={T.sub} className="shrink-0" />
@@ -67,8 +68,12 @@ export default function InventoryPage() {
                       {p.expiry}{daysToExpiry <= 60 && ` · ${daysToExpiry} días`}
                     </span>
                   </td>
-                  <td style={{ padding: "11px 16px", textAlign: "right" }}>
-                    <Btn small kind="ghost" onClick={() => setModal({ restockId: p.id })}>Ingresar lote</Btn>
+                  <td style={{ padding: "11px 16px" }}>
+                    <div className="flex gap-1.5 justify-end flex-wrap">
+                      <Btn small kind="ghost" onClick={() => navigate(`/inventory/show/${p.id}`)}><Eye size={13} /> Ver</Btn>
+                      <Btn small kind="ghost" onClick={() => navigate(`/inventory/edit/${p.id}`)}><Pencil size={13} /> Editar</Btn>
+                      <Btn small kind="ghost" onClick={() => setRestockId(p.id)}>Ingresar lote</Btn>
+                    </div>
                   </td>
                 </tr>
               );
@@ -80,8 +85,7 @@ export default function InventoryPage() {
         </table>
       </Card>
       <Pager page={page} total={filtered.length} pageSize={PAGE_SIZE} onPage={setPage} />
-      {modal === "new" && <NewProductModal onClose={() => setModal(null)} />}
-      {modal !== null && modal !== "new" && <RestockModal productId={modal.restockId} onClose={() => setModal(null)} />}
+      {restockId && <RestockModal productId={restockId} onClose={() => setRestockId(null)} />}
     </div>
   );
 }

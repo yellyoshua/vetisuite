@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Receipt } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Eye, Receipt } from "lucide-react";
 import { F, money, T } from "../../lib/constants";
 import type { Client } from "../../lib/types";
 import { useVetStore } from "../../states/app.state";
@@ -16,6 +17,7 @@ const sourceTone: Record<string, "green" | "blue" | "amber"> = { Clínica: "gree
 
 export default function BillingPage() {
   const s = useVetStore();
+  const navigate = useNavigate();
   const [filterClient, setFilterClient] = useState<Client | null>(null);
   const [accountsPage, setAccountsPage] = useState(0);
   const [invoicesPage, setInvoicesPage] = useState(0);
@@ -93,8 +95,11 @@ export default function BillingPage() {
                     </div>
                     <span style={{ fontFamily: F.head, fontWeight: 700, color: T.green }}>{money(invoice.total)}</span>
                   </div>
-                  <div style={{ fontSize: 11.5, color: T.sub, marginTop: 3 }}>
-                    {invoice.items.length} ítems{invoice.prevDebt > 0 && ` + deuda anterior de ${money(invoice.prevDebt)}`} · {new Date(invoice.date).toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" })}
+                  <div className="flex items-center justify-between gap-2 mt-1">
+                    <span style={{ fontSize: 11.5, color: T.sub }}>
+                      {invoice.items.length} ítems{invoice.prevDebt > 0 && ` + deuda anterior de ${money(invoice.prevDebt)}`} · {new Date(invoice.date).toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                    <Btn small kind="ghost" onClick={() => navigate(`/billing/show/${invoice.id}`)}><Eye size={13} /> Ver</Btn>
                   </div>
                 </Card>
               );

@@ -1,9 +1,8 @@
-import { useState } from "react";
-import { CheckCircle2, Clock, Plus, ShieldAlert } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { CheckCircle2, Clock, Eye, Plus, ShieldAlert } from "lucide-react";
 import { F, money, T } from "../../lib/constants";
 import { useVetStore } from "../../states/app.state";
 import { Badge, Btn, Card, Elapsed, SectionHead } from "../../components/ui";
-import { CheckInModal } from "./components/check-in-modal";
 
 const COLUMNS = [
   { key: "pendiente", label: "Pendiente", tone: T.amber },
@@ -13,11 +12,11 @@ const COLUMNS = [
 
 export default function GroomingPage() {
   const s = useVetStore();
-  const [modal, setModal] = useState(false);
+  const navigate = useNavigate();
   return (
     <div>
       <SectionHead title="Peluquería y Estética" sub="Tablero Kanban con cronómetro por peluquero. Al terminar, el sistema avisa al dueño por WhatsApp y carga el servicio a facturación."
-        action={<Btn onClick={() => setModal(true)}><Plus size={14} /> Check-in</Btn>} />
+        action={<Btn onClick={() => navigate("/grooming/new")}><Plus size={14} /> Check-in</Btn>} />
       <div className="grid md:grid-cols-3 gap-4">
         {COLUMNS.map((col) => {
           const items = s.grooming.filter((g) => g.status === col.key);
@@ -48,10 +47,11 @@ export default function GroomingPage() {
                         </div>
                       )}
                       {duration !== null && <div className="mt-1.5" style={{ fontSize: 11.5, color: T.sub }}>⏱ Ejecutado en {duration} min</div>}
-                      <div className="mt-3">
+                      <div className="mt-3 flex flex-col gap-1.5">
                         {g.status === "pendiente" && <Btn small full kind="dark" onClick={() => s.moveGrooming(g.id, "proceso")}>Iniciar servicio</Btn>}
                         {g.status === "proceso" && <Btn small full onClick={() => s.moveGrooming(g.id, "terminado")}><CheckCircle2 size={13} /> Terminar y notificar</Btn>}
                         {g.status === "terminado" && <Btn small full kind="ghost" onClick={() => s.moveGrooming(g.id, "entregado")}>Marcar entregado</Btn>}
+                        <Btn small full kind="ghost" onClick={() => navigate(`/grooming/show/${g.id}`)}><Eye size={13} /> Ver detalle</Btn>
                       </div>
                     </Card>
                   );
@@ -62,7 +62,6 @@ export default function GroomingPage() {
           );
         })}
       </div>
-      {modal && <CheckInModal onClose={() => setModal(false)} />}
     </div>
   );
 }

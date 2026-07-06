@@ -13,10 +13,13 @@ interface VetState {
   clients: Client[];
   patients: Patient[];
   addClient: (data: Pick<Client, "name" | "phone" | "email">) => string;
+  updateClient: (id: string, data: Pick<Client, "name" | "phone" | "email">) => void;
   addPatient: (data: Omit<Patient, "id">) => void;
+  updatePatient: (id: string, data: Omit<Patient, "id" | "clientId">) => void;
 
   appointments: Appointment[];
   createAppointment: (data: Pick<Appointment, "patientId" | "vetId" | "time" | "reason">) => boolean;
+  updateAppointment: (id: string, data: Pick<Appointment, "vetId" | "time" | "reason">) => boolean;
   setAppointmentStatus: (id: string, status: AppointmentStatus) => void;
 
   grooming: GroomingJob[];
@@ -33,6 +36,7 @@ interface VetState {
 
   inventory: Product[];
   addProduct: (data: Omit<Product, "id">) => void;
+  updateProduct: (id: string, data: Omit<Product, "id" | "stock">) => void;
   restock: (id: string, qty: number) => void;
 
   accounts: Account[];
@@ -90,10 +94,18 @@ export const useVetStore = create<VetState>((set, get) => ({
     get().notify("ok", `Cliente ${client.name} creado.`);
     return client.id;
   },
+  updateClient: (id, data) => {
+    set((s) => ({ clients: s.clients.map((c) => (c.id === id ? { ...c, ...data } : c)) }));
+    get().notify("ok", `Cliente ${data.name} actualizado.`);
+  },
   addPatient: (data) => {
     const patient = { id: uid(), ...data };
     set((s) => ({ patients: [...s.patients, patient] }));
     get().notify("ok", `Paciente ${patient.name} registrado y vinculado al cliente.`);
+  },
+  updatePatient: (id, data) => {
+    set((s) => ({ patients: s.patients.map((p) => (p.id === id ? { ...p, ...data } : p)) }));
+    get().notify("ok", `Paciente ${data.name} actualizado.`);
   },
 
   appointments: [
@@ -111,6 +123,14 @@ export const useVetStore = create<VetState>((set, get) => ({
     const vet = st.vets.find((v) => v.id === vetId)!;
     set((s) => ({ appointments: [...s.appointments, { id: uid(), patientId, vetId, time, reason, status: "pendiente" }] }));
     get().notify("wa", `WhatsApp a ${owner.name}: "Cita para ${patient.name} hoy ${time} con ${vet.name}. Responde CONFIRMAR ✅"`);
+    return true;
+  },
+  updateAppointment: (id, data) => {
+    const st = get();
+    const clash = st.appointments.find((a) => a.id !== id && a.vetId === data.vetId && a.time === data.time && a.status !== "cancelada");
+    if (clash) { get().notify("error", "Ese médico ya tiene una cita en ese horario."); return false; }
+    set((s) => ({ appointments: s.appointments.map((a) => (a.id === id ? { ...a, ...data } : a)) }));
+    get().notify("ok", "Cita reprogramada correctamente.");
     return true;
   },
   setAppointmentStatus: (id, status) => {
@@ -219,6 +239,10 @@ export const useVetStore = create<VetState>((set, get) => ({
   addProduct: (data) => {
     set((s) => ({ inventory: [...s.inventory, { id: uid(), ...data }] }));
     get().notify("ok", `Producto "${data.name}" ingresado al inventario.`);
+  },
+  updateProduct: (id, data) => {
+    set((s) => ({ inventory: s.inventory.map((p) => (p.id === id ? { ...p, ...data } : p)) }));
+    get().notify("ok", `Producto "${data.name}" actualizado.`);
   },
   restock: (id, qty) => {
     set((s) => ({ inventory: s.inventory.map((p) => (p.id === id ? { ...p, stock: p.stock + qty } : p)) }));
