@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Análisis Competitivo — Veti Suite</title>
+</head>
+<body>
+<style>
+  :root{
+    --bg:#F3F6F5; --surface:#FFFFFF; --surface-2:#EAF1EE; --surface-3:#E1EBE7;
+    --ink:#13231F; --ink-soft:#43554E; --ink-faint:#6C7D76;
+    --border:#DBE5E1; --border-strong:#C3D2CC;
+    --accent:#0E7C6B; --accent-deep:#0A5648; --accent-soft:#DFF0EB; --accent-ink:#0A5648;
+    --good:#2E7D5B; --good-bg:#E1F1E9;
+    --warn:#A9761E; --warn-bg:#F6ECD6;
+    --bad:#BC443A; --bad-bg:#F7E2DF;
+    --info:#2F6DB0; --info-bg:#E1ECF7;
+    --shadow:0 1px 2px rgba(19,35,31,.04), 0 8px 24px -12px rgba(19,35,31,.12);
+    --font-display:Georgia,"Iowan Old Style","Times New Roman",serif;
+    --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,"Helvetica Neue",sans-serif;
+    --font-mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --measure:66ch;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0C1311; --surface:#131E1B; --surface-2:#182622; --surface-3:#1F302B;
+      --ink:#E9EFEC; --ink-soft:#AAB9B3; --ink-faint:#7C8D86;
+      --border:#243430; --border-strong:#31463F;
+      --accent:#3EC2AC; --accent-deep:#63D3BF; --accent-soft:#16302B; --accent-ink:#7FDBC9;
+      --good:#4FB585; --good-bg:#16302472;
+      --warn:#D6A03F; --warn-bg:#332813;
+      --bad:#E0685C; --bad-bg:#341C1A;
+      --info:#5C9BE0; --info-bg:#16273a;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#F3F6F5; --surface:#FFFFFF; --surface-2:#EAF1EE; --surface-3:#E1EBE7;
+    --ink:#13231F; --ink-soft:#43554E; --ink-faint:#6C7D76;
+    --border:#DBE5E1; --border-strong:#C3D2CC;
+    --accent:#0E7C6B; --accent-deep:#0A5648; --accent-soft:#DFF0EB; --accent-ink:#0A5648;
+    --good:#2E7D5B; --good-bg:#E1F1E9; --warn:#A9761E; --warn-bg:#F6ECD6;
+    --bad:#BC443A; --bad-bg:#F7E2DF; --info:#2F6DB0; --info-bg:#E1ECF7;
+    --shadow:0 1px 2px rgba(19,35,31,.04), 0 8px 24px -12px rgba(19,35,31,.12);
+  }
+  :root[data-theme="dark"]{
+    --bg:#0C1311; --surface:#131E1B; --surface-2:#182622; --surface-3:#1F302B;
+    --ink:#E9EFEC; --ink-soft:#AAB9B3; --ink-faint:#7C8D86;
+    --border:#243430; --border-strong:#31463F;
+    --accent:#3EC2AC; --accent-deep:#63D3BF; --accent-soft:#16302B; --accent-ink:#7FDBC9;
+    --good:#4FB585; --good-bg:#16302472; --warn:#D6A03F; --warn-bg:#332813;
+    --bad:#E0685C; --bad-bg:#341C1A; --info:#5C9BE0; --info-bg:#16273a;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0}
+  .doc{
+    background:var(--bg); color:var(--ink);
+    font-family:var(--font-body); font-size:16px; line-height:1.65;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:1120px; margin:0 auto; padding:0 24px}
+  .prose{max-width:var(--measure)}
+  p{margin:0 0 1em}
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  b,strong{color:var(--ink); font-weight:650}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+
+  .eyebrow{
+    font-family:var(--font-mono); font-size:11.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent-ink); font-weight:600;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    border-bottom:1px solid var(--border);
+    background:
+      radial-gradient(120% 90% at 88% -10%, var(--accent-soft) 0%, transparent 55%),
+      linear-gradient(180deg, var(--surface), var(--bg));
+  }
+  .hero-inner{padding:68px 24px 40px; max-width:1120px; margin:0 auto; animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes rise{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+  .kicker{display:flex; align-items:center; gap:12px; margin-bottom:20px}
+  .paw{width:34px; height:34px; border-radius:9px; background:var(--accent); display:grid; place-items:center; color:#fff; flex:none}
+  :root[data-theme="dark"] .paw{color:#08130f}
+  @media (prefers-color-scheme:dark){.paw{color:#08130f}}
+  .brand{font-family:var(--font-display); font-weight:700; font-size:17px; letter-spacing:-.01em}
+  .brand span{color:var(--ink-faint); font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; margin-left:8px; font-weight:500}
+  h1{
+    font-family:var(--font-display); font-weight:700; letter-spacing:-.02em;
+    font-size:clamp(2rem,5.4vw,3.4rem); line-height:1.05; margin:.1em 0 .35em; text-wrap:balance;
+    max-width:16ch;
+  }
+  .lede{font-size:clamp(1.05rem,2.2vw,1.28rem); color:var(--ink-soft); max-width:60ch; line-height:1.55; margin:0}
+  .meta-row{display:flex; flex-wrap:wrap; gap:8px 20px; margin-top:26px; font-family:var(--font-mono); font-size:12px; color:var(--ink-faint); letter-spacing:.02em}
+  .meta-row b{color:var(--ink-soft); font-weight:600}
+
+  .chips{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-top:34px}
+  .chip{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; box-shadow:var(--shadow)}
+  .chip .n{font-family:var(--font-display); font-size:1.9rem; font-weight:700; letter-spacing:-.02em; color:var(--accent); line-height:1; font-variant-numeric:tabular-nums}
+  .chip .l{font-size:12.5px; color:var(--ink-soft); margin-top:8px; line-height:1.35}
+
+  /* ---------- NAV ---------- */
+  nav.toc{position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--border)}
+  .toc-inner{max-width:1120px; margin:0 auto; padding:0 12px; display:flex; gap:2px; overflow-x:auto; scrollbar-width:thin}
+  .toc a{white-space:nowrap; padding:13px 14px; font-size:13px; color:var(--ink-soft); font-weight:550; border-bottom:2px solid transparent}
+  .toc a:hover{color:var(--ink); text-decoration:none; border-bottom-color:var(--border-strong)}
+  .toc a .num{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); margin-right:6px}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:52px 0 8px; border-bottom:1px solid var(--border)}
+  section:last-of-type{border-bottom:none}
+  .sec-head{display:flex; gap:16px; align-items:baseline; margin-bottom:8px}
+  .sec-num{font-family:var(--font-mono); font-size:13px; color:var(--accent); font-weight:600; padding-top:6px}
+  h2{font-family:var(--font-display); font-weight:700; letter-spacing:-.02em; font-size:clamp(1.5rem,3.4vw,2.05rem); line-height:1.12; margin:0; text-wrap:balance}
+  h3{font-family:var(--font-body); font-weight:650; font-size:1.16rem; letter-spacing:-.01em; margin:34px 0 10px}
+  h4{font-family:var(--font-mono); font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px}
+  .sec-intro{color:var(--ink-soft); font-size:1.04rem; margin:6px 0 26px}
+
+  /* ---------- TABLES ---------- */
+  .scroller{overflow-x:auto; margin:22px 0; border:1px solid var(--border); border-radius:12px; background:var(--surface); box-shadow:var(--shadow)}
+  table{border-collapse:collapse; width:100%; font-size:14px}
+  th,td{text-align:left; padding:12px 15px; border-bottom:1px solid var(--border); vertical-align:top}
+  thead th{position:sticky; top:0; background:var(--surface-2); font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); font-weight:600; z-index:1; border-bottom:1px solid var(--border-strong)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:color-mix(in srgb, var(--accent-soft) 40%, transparent)}
+  td.feat{font-weight:550; color:var(--ink); white-space:nowrap}
+  .matrix td{text-align:center}
+  .matrix td.feat{text-align:left}
+  .matrix col.me,.matrix td.me,.matrix th.me{background:color-mix(in srgb,var(--accent-soft) 55%, transparent)}
+  .matrix thead th.me{background:var(--accent); color:#fff; border-bottom-color:var(--accent-deep)}
+  :root[data-theme="dark"] .matrix thead th.me{color:#07130f}
+  @media (prefers-color-scheme:dark){.matrix thead th.me{color:#07130f}}
+  tbody tr:hover td.me{background:color-mix(in srgb,var(--accent-soft) 80%, transparent)}
+
+  .dot{display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:middle}
+  .d-yes{background:var(--good); box-shadow:0 0 0 3px var(--good-bg)}
+  .d-part{background:var(--warn); box-shadow:0 0 0 3px var(--warn-bg)}
+  .d-no{background:transparent; border:1.5px solid var(--border-strong)}
+  .d-q{width:auto; height:auto; border-radius:5px; font-family:var(--font-mono); font-size:11px; color:var(--info); background:var(--info-bg); padding:1px 6px; font-weight:600; box-shadow:none}
+  .legend{display:flex; flex-wrap:wrap; gap:6px 20px; font-size:12.5px; color:var(--ink-soft); margin:2px 2px 0; align-items:center}
+  .legend span{display:inline-flex; align-items:center; gap:8px}
+
+  .pill{display:inline-block; font-family:var(--font-mono); font-size:11px; font-weight:600; letter-spacing:.03em; padding:3px 9px; border-radius:999px; white-space:nowrap; text-transform:uppercase}
+  .p-good{color:var(--good); background:var(--good-bg)}
+  .p-warn{color:var(--warn); background:var(--warn-bg)}
+  .p-bad{color:var(--bad); background:var(--bad-bg)}
+  .p-info{color:var(--info); background:var(--info-bg)}
+  .p-accent{color:var(--accent-ink); background:var(--accent-soft)}
+  .val-good{color:var(--good); font-weight:600}
+  .val-mid{color:var(--warn); font-weight:600}
+  .val-bad{color:var(--bad); font-weight:600}
+
+  /* ---------- CALLOUTS ---------- */
+  .callout{background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:10px; padding:20px 22px; margin:24px 0; box-shadow:var(--shadow)}
+  .callout.warnbox{border-left-color:var(--warn)}
+  .callout h4{margin-bottom:12px}
+  .vp{background:linear-gradient(180deg,var(--accent-soft),transparent 140%); border:1px solid var(--border-strong); border-radius:14px; padding:26px 28px; margin:26px 0}
+  .vp .q{font-family:var(--font-display); font-size:clamp(1.15rem,2.6vw,1.5rem); line-height:1.4; color:var(--ink); font-style:italic; letter-spacing:-.01em; margin:0}
+  .vp .r{font-size:14px; color:var(--ink-soft); margin:16px 0 0}
+  ul.check{list-style:none; padding:0; margin:12px 0 0; display:grid; gap:10px}
+  ul.check li{position:relative; padding-left:30px; font-size:15px; color:var(--ink-soft)}
+  ul.check li::before{content:""; position:absolute; left:0; top:6px; width:16px; height:16px; border-radius:5px; background:var(--accent-soft); border:1.5px solid var(--accent)}
+  ul.check li b{color:var(--ink)}
+
+  /* ---------- FODA ---------- */
+  .foda{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:24px 0}
+  .quad{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 22px; box-shadow:var(--shadow)}
+  .quad .qh{font-family:var(--font-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; display:flex; align-items:center; gap:9px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border)}
+  .quad .qh .tag{width:10px; height:10px; border-radius:3px}
+  .quad ul{list-style:none; padding:0; margin:0; display:grid; gap:11px}
+  .quad li{font-size:14px; line-height:1.5; color:var(--ink-soft); padding-left:16px; position:relative}
+  .quad li::before{content:"—"; position:absolute; left:0; color:var(--ink-faint)}
+  .q-f .qh{color:var(--good)} .q-f .tag{background:var(--good)}
+  .q-d .qh{color:var(--bad)} .q-d .tag{background:var(--bad)}
+  .q-o .qh{color:var(--accent-ink)} .q-o .tag{background:var(--accent)}
+  .q-a .qh{color:var(--warn)} .q-a .tag{background:var(--warn)}
+
+  /* ---------- IDEAS ---------- */
+  .ideas{display:grid; gap:16px; margin:24px 0}
+  .idea{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px 24px; box-shadow:var(--shadow); display:grid; grid-template-columns:auto 1fr; gap:20px; align-items:start}
+  .idea .ix{font-family:var(--font-display); font-size:2.2rem; font-weight:700; color:var(--accent); line-height:.9; font-variant-numeric:tabular-nums; opacity:.9}
+  .idea h3{margin:0 0 8px; font-size:1.1rem}
+  .idea p{margin:0 0 8px; font-size:14.5px; color:var(--ink-soft)}
+  .idea p:last-child{margin-bottom:0}
+  .idea .why{font-size:13.5px; color:var(--ink); background:var(--accent-soft); border-radius:8px; padding:9px 13px; display:inline-block}
+  .idea.bonus{border-style:dashed}
+
+  /* ---------- COMPETITOR PROFILES ---------- */
+  .profiles{display:grid; gap:20px; margin:24px 0}
+  .prof{background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); overflow:hidden}
+  .prof-top{padding:20px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:12px 16px; border-bottom:1px solid var(--border); background:linear-gradient(180deg,var(--surface-2),transparent)}
+  .prof-name{font-family:var(--font-display); font-size:1.4rem; font-weight:700; letter-spacing:-.01em; margin:0}
+  .prof-tag{font-size:13px; color:var(--ink-faint); font-family:var(--font-mono)}
+  .prof-top .spacer{flex:1}
+  .threat{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-soft)}
+  .prof-body{padding:6px 24px 22px}
+  .kv{display:grid; grid-template-columns:130px 1fr; gap:2px 18px; padding:14px 0; border-bottom:1px solid var(--border); font-size:14.5px}
+  .kv:last-child{border-bottom:none}
+  .kv .k{font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); padding-top:3px}
+  .kv .v{color:var(--ink-soft)}
+  .kv .v b{color:var(--ink)}
+  .sw{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .sw h5{margin:0 0 8px; font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600}
+  .sw .s h5{color:var(--good)} .sw .w h5{color:var(--bad)}
+  .sw ul{margin:0; padding-left:16px; display:grid; gap:6px}
+  .sw li{font-size:13.5px; color:var(--ink-soft); line-height:1.45}
+  .beat{margin-top:14px; font-size:14px; background:var(--accent-soft); border-radius:8px; padding:11px 15px; color:var(--ink)}
+  .beat b{color:var(--accent-ink)}
+
+  /* ---------- ROADMAP ---------- */
+  .road{position:relative; margin:28px 0 8px; display:grid; gap:20px}
+  .phase{position:relative; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:24px 26px 24px 28px; box-shadow:var(--shadow); border-top:3px solid var(--accent)}
+  .phase.p0{border-top-color:var(--bad)}
+  .phase.p1{border-top-color:var(--accent)}
+  .phase.p2{border-top-color:var(--info)}
+  .phase-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:10px 14px; margin-bottom:6px}
+  .phase-tag{font-family:var(--font-mono); font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; padding:3px 10px; border-radius:6px}
+  .p0 .phase-tag{color:var(--bad); background:var(--bad-bg)}
+  .p1 .phase-tag{color:var(--accent-ink); background:var(--accent-soft)}
+  .p2 .phase-tag{color:var(--info); background:var(--info-bg)}
+  .phase-head h3{margin:0; font-family:var(--font-display); font-size:1.3rem; font-weight:700; letter-spacing:-.01em}
+  .phase .goal{color:var(--ink-soft); font-size:14.5px; margin:6px 0 16px}
+  .phase .goal b{color:var(--ink)}
+  .deliv{display:grid; gap:10px}
+  .deliv .item{display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:11px 14px; background:var(--surface-2); border-radius:9px; font-size:14px}
+  .deliv .item .t b{color:var(--ink)}
+  .deliv .item .t{color:var(--ink-soft); font-size:13.5px}
+  .deliv .item .mk{width:9px; height:9px; border-radius:50%; background:var(--accent)}
+  .p0 .deliv .item .mk{background:var(--bad)}
+  .p2 .deliv .item .mk{background:var(--info)}
+
+  footer{padding:40px 0 64px; color:var(--ink-faint); font-size:13px; line-height:1.6}
+  footer b{color:var(--ink-soft)}
+  .foot-note{border-top:1px solid var(--border); padding-top:22px; max-width:80ch}
+
+  @media (max-width:760px){
+    .foda{grid-template-columns:1fr}
+    .sw{grid-template-columns:1fr}
+    .kv{grid-template-columns:1fr; gap:2px}
+    .idea{grid-template-columns:1fr; gap:8px}
+    .idea .ix{font-size:1.6rem}
+    .hero-inner{padding:48px 20px 32px}
+    section{padding:40px 0 6px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .hero-inner{animation:none}
+    *{transition:none!important}
+  }
+</style>
+
+<div class="doc">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="kicker">
+        <div class="paw" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="10" r="2.1"/><circle cx="10" cy="6" r="2.1"/><circle cx="14" cy="6" r="2.1"/><circle cx="18.5" cy="10" r="2.1"/><path d="M12 12.5c-2.6 0-4.8 1.8-5.6 3.9-.6 1.7.7 3.2 2.5 3.2 1 0 1.9-.4 3.1-.4s2.1.4 3.1.4c1.8 0 3.1-1.5 2.5-3.2-.8-2.1-3-3.9-5.6-3.9z"/></svg>
+        </div>
+        <div class="brand">Veti Suite <span>Estrategia</span></div>
+      </div>
+      <div class="eyebrow">Análisis competitivo de mercado · Software de gestión veterinaria</div>
+      <h1>El mapa del mercado y dónde ganar</h1>
+      <p class="lede">Cuatro competidores directos, uno adyacente, y dos huecos que nadie está llenando. Dónde te posicionas, qué falta cerrar y por dónde empezar.</p>
+      <div class="meta-row">
+        <span><b>Cliente:</b> Veti Suite (MVP)</span>
+        <span><b>Alcance:</b> LatAm hispanohablante</span>
+        <span><b>Fecha:</b> Julio 2026</span>
+        <span><b>Fuente:</b> Sitios públicos de cada competidor</span>
+      </div>
+      <div class="chips">
+        <div class="chip"><div class="n">4+1</div><div class="l">Competidores: 4 directos (PMS) + 1 adyacente (telemedicina B2C)</div></div>
+        <div class="chip"><div class="n">$0–30</div><div class="l">Rango de precio USD/mes para una clínica pequeña</div></div>
+        <div class="chip"><div class="n">0</div><div class="l">Rivales con telemedicina integrada al software de gestión</div></div>
+        <div class="chip"><div class="n">2</div><div class="l">Huecos de mercado desatendidos: telemedicina + portal del tutor</div></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="toc" aria-label="Índice">
+    <div class="toc-inner">
+      <a href="#resumen"><span class="num">00</span>Resumen</a>
+      <a href="#productos"><span class="num">01</span>Productos</a>
+      <a href="#precios"><span class="num">02</span>Precios</a>
+      <a href="#posicionamiento"><span class="num">03</span>Posicionamiento</a>
+      <a href="#foda"><span class="num">04</span>FODA</a>
+      <a href="#oportunidades"><span class="num">05</span>Oportunidades</a>
+      <a href="#perfiles"><span class="num">06</span>Perfiles a fondo</a>
+      <a href="#roadmap"><span class="num">07</span>Roadmap</a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+
+    <!-- RESUMEN -->
+    <section id="resumen">
+      <div class="sec-head"><div class="sec-num">00</div><h2>Resumen ejecutivo</h2></div>
+      <div class="prose">
+        <p>El mercado objetivo está <b>poblado pero fragmentado por país</b>: cada competidor fuerte está anclado a su geografía de origen por la <b>facturación electrónica fiscal</b> (OkVet→DIAN Colombia, ACVet→IVA/WebPay Chile, PetsAdmin→SRI Ecuador, VetPraxis→multipaís). Ninguno domina toda la región.</p>
+        <p>El precio ya tocó fondo: <b>USD 0–30/mes</b> para una clínica pequeña, con freemium en dos rivales. Competir por ser el más barato es una carrera a cero. En cambio, hay dos capacidades que <b>nadie resuelve bien</b> y que definen el espacio libre: <b>telemedicina integrada al PMS</b> y un <b>portal web de autoservicio para el tutor</b>.</p>
+      </div>
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Competidor</th><th>Tipo</th><th>¿Directo?</th><th>Mercado base</th><th>Amenaza</th></tr></thead>
+          <tbody>
+            <tr><td class="feat">VetPraxis <span style="color:var(--ink-faint)">(+VetClick)</span></td><td>PMS todo-en-uno + IA</td><td><span class="pill p-good">Sí</span></td><td>LatAm (10-12 países)</td><td><span class="pill p-bad">Alta</span></td></tr>
+            <tr><td class="feat">OkVet <span style="color:var(--ink-faint)">(+OkPet)</span></td><td>PMS + freemium</td><td><span class="pill p-good">Sí</span></td><td>Colombia → LatAm</td><td><span class="pill p-warn">Media-alta</span></td></tr>
+            <tr><td class="feat">ACVet</td><td>PMS ligero</td><td><span class="pill p-good">Sí</span></td><td>Chile → LatAm</td><td><span class="pill p-warn">Media</span></td></tr>
+            <tr><td class="feat">PetsAdmin</td><td>PMS low-cost</td><td><span class="pill p-good">Sí</span></td><td>Ecuador → LatAm</td><td><span class="pill p-warn">Media</span></td></tr>
+            <tr><td class="feat">Vetly</td><td>Telemedicina B2C (tutores)</td><td><span class="pill p-info">Adyacente</span></td><td>Argentina</td><td><span class="pill p-good">Baja</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <h4>Hallazgo de encuadre</h4>
+        <p style="margin:0"><b>Vetly no es competidor directo.</b> Es un servicio de telemedicina por suscripción para dueños de mascotas (B2C), no un software para administrar una clínica. Lo incluimos como <b>competidor adyacente</b> porque valida la demanda de telemedicina — justo la capacidad que puedes integrar para diferenciarte.</p>
+      </div>
+    </section>
+
+    <!-- 1. PRODUCTOS -->
+    <section id="productos">
+      <div class="sec-head"><div class="sec-num">01</div><h2>Comparativa de productos y servicios</h2></div>
+      <p class="sec-intro prose">Tu MVP ya cubre el núcleo operativo. Lo que falta frente al mercado es la capa de comunicación automática y la facturación fiscal — <em>table stakes</em>, no diferenciadores.</p>
+
+      <div class="legend">
+        <span><span class="dot d-yes"></span> Presente</span>
+        <span><span class="dot d-part"></span> Parcial</span>
+        <span><span class="dot d-no"></span> Ausente</span>
+        <span><span class="dot d-q">?</span> Por confirmar (Veti Suite MVP)</span>
+      </div>
+
+      <div class="scroller">
+        <table class="matrix">
+          <colgroup><col><col class="me"><col><col><col><col></colgroup>
+          <thead><tr>
+            <th>Funcionalidad</th><th class="me">Veti Suite</th><th>VetPraxis</th><th>OkVet</th><th>ACVet</th><th>PetsAdmin</th>
+          </tr></thead>
+          <tbody>
+            <tr><td class="feat">Clientes / pacientes (CRM)</td><td class="me"><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">Historia clínica</td><td class="me"><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">Citas / agenda</td><td class="me"><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">Peluquería / estética</td><td class="me"><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">Laboratorio</td><td class="me"><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-part"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td></tr>
+            <tr><td class="feat">Inventario (stock + caducidad)</td><td class="me"><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">Facturación / POS</td><td class="me"><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">Cuenta corriente / deuda cliente</td><td class="me"><span class="dot d-yes"></span></td><td><span class="dot d-part"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td></tr>
+            <tr><td class="feat">Dashboard / KPIs</td><td class="me"><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-part"></span></td></tr>
+            <tr><td class="feat">Facturación electrónica fiscal</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">Recordatorios automáticos</td><td class="me"><span class="dot d-q">?</span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">Canal WhatsApp</td><td class="me"><span class="dot d-q">?</span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">Hospitalización / internamiento</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">Hospedaje / pet boarding</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td></tr>
+            <tr><td class="feat">Comisiones automáticas</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">App móvil (equipo)</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td></tr>
+            <tr><td class="feat">App / portal del tutor</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-part"></span></td></tr>
+            <tr><td class="feat">Reserva online 24/7 (cliente)</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td></tr>
+            <tr><td class="feat">IA clínica (voz / diagnóstico)</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td></tr>
+            <tr><td class="feat">Telemedicina / videoconsulta</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td></tr>
+            <tr><td class="feat">Multi-sede</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-part"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-part"></span></td></tr>
+            <tr><td class="feat">Fidelización / marketing</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-yes"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-part"></span></td></tr>
+            <tr><td class="feat">API pública</td><td class="me"><span class="dot d-no"></span></td><td><span class="dot d-part"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td><td><span class="dot d-no"></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Qué resuelve cada uno — y su punto de dolor</h3>
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Producto</th><th>Resuelve mejor</th><th>Punto de dolor propio</th></tr></thead>
+          <tbody>
+            <tr><td class="feat">VetPraxis</td><td>Automatización clínica con <b>IA</b> (transcripción de voz −7 min/consulta) y la suite más amplia (hospedaje, laboratorio, hospitalización, fidelización).</td><td>Precio 100% opaco, sin trial, cifras de tracción inconsistentes, API solo Enterprise, sin reseñas verificadas.</td></tr>
+            <tr><td class="feat">OkVet</td><td><b>Freemium real</b> + facturación DIAN + app tutor (OkPet); barrera de entrada mínima.</td><td>Sin telemedicina; planes bajos de usuario único; valor fiscal atado a Colombia; upgrade solo por WhatsApp.</td></tr>
+            <tr><td class="feat">ACVet</td><td><b>Simplicidad y precio bajo</b>, hospitalización detallada (signos vitales), trial 30 días sin tarjeta.</td><td>Sin WhatsApp (solo email/SMS), sin portal cliente, techo de 5 usuarios, precio "intro" confuso, sin peluquería ni laboratorio.</td></tr>
+            <tr><td class="feat">PetsAdmin</td><td><b>Precio más agresivo</b> ($30/mes, colaboradores ilimitados) + comisiones + control de caja.</td><td>Sin trial/freemium, add-ons de "pago único" confusos, sitio estático con enlaces rotos, muy anclado a Ecuador.</td></tr>
+            <tr><td class="feat">Vetly</td><td>Telemedicina 24/7 para el <b>dueño</b> (no gestiona la clínica).</td><td>No es un PMS; no cubre emergencias; cancelación rígida.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <h4>Lectura para Veti Suite</h4>
+        <p style="margin:0">Tu MVP ya cubre el núcleo (clientes, historia, citas, peluquería, laboratorio, inventario, facturación, dashboard) y trae un diferenciador silencioso que casi nadie tiene explícito: <b>cuenta corriente / deuda por cliente</b>. Lo que falta es <b>comunicación automática (WhatsApp/recordatorios)</b> y <b>facturación fiscal local</b>.</p>
+      </div>
+    </section>
+
+    <!-- 2. PRECIOS -->
+    <section id="precios">
+      <div class="sec-head"><div class="sec-num">02</div><h2>Estrategia de precios</h2></div>
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Competidor</th><th>Modelo</th><th>Entrada (clínica pequeña)</th><th>Transparencia</th><th>Calidad-precio</th></tr></thead>
+          <tbody>
+            <tr><td class="feat">PetsAdmin</td><td>1 plan + add-ons pago único</td><td><b>$30 USD/mes</b> · colaboradores ilimitados</td><td><span class="pill p-good">Alta</span></td><td><span class="val-good">Muy buena</span> · add-ons confusos</td></tr>
+            <tr><td class="feat">ACVet</td><td>Freemium + 2 tiers + trial 30d</td><td><b>~$12.5–16.7</b> intro · $17.9–23.9 regular</td><td><span class="pill p-warn">Media</span></td><td><span class="val-good">Buena</span> · precio real poco claro</td></tr>
+            <tr><td class="feat">OkVet</td><td>Freemium + 2 tiers</td><td><b>$0</b> · Pro ~$33 USD/mes (COP 132.999)</td><td><span class="pill p-good">Alta</span></td><td><span class="val-good">Buena</span> en CO · menor fuera</td></tr>
+            <tr><td class="feat">VetPraxis</td><td>3 tiers, bajo cotización</td><td><b>No público</b> ("cotiza en 24 h")</td><td><span class="pill p-bad">Nula</span></td><td><span class="val-bad">Sin evaluar</span> · fricción de ventas</td></tr>
+            <tr><td class="feat">Vetly <span style="color:var(--ink-faint)">(adyacente)</span></td><td>Membresía B2C 3/6/12 meses</td><td>ARS 24.900 (3 meses) — consumidor final</td><td><span class="pill p-good">Alta</span></td><td><span style="color:var(--ink-faint)">N/A (otro modelo)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Conclusiones</h3>
+      <ul class="check prose">
+        <li><b>Piso de mercado ≈ USD 0–30/mes.</b> El precio no es terreno para ganar; ser "el más barato" es una carrera a cero.</li>
+        <li><b>Freemium + trial sin tarjeta</b> es el patrón de adquisición ganador (OkVet, ACVet). VetPraxis y PetsAdmin pierden leads por obligar a WhatsApp/cotización.</li>
+        <li><b>Oportunidad:</b> VetPraxis deja un hueco de <b>precio transparente + autoservicio</b> en el segmento premium — <em>"la potencia de VetPraxis, con precio claro y sin llamar a ventas"</em>.</li>
+      </ul>
+    </section>
+
+    <!-- 3. POSICIONAMIENTO -->
+    <section id="posicionamiento">
+      <div class="sec-head"><div class="sec-num">03</div><h2>Posicionamiento y propuesta de valor</h2></div>
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Competidor</th><th>Mensaje principal</th><th>Ángulo de venta</th><th>Tono</th></tr></thead>
+          <tbody>
+            <tr><td class="feat">VetPraxis</td><td><em>"El software veterinario que tu clínica necesita"</em></td><td>IA + todo-en-uno, ROI cuantificado (−40% citas perdidas)</td><td>Profesional, tech-first</td></tr>
+            <tr><td class="feat">OkVet</td><td><em>"Gestión total… el dinero está en la agenda"</em></td><td>Líder regional + freemium + resultados de negocio</td><td>Motivacional, cercano</td></tr>
+            <tr><td class="feat">ACVet</td><td><em>"Tu clínica, digitalizada en minutos"</em></td><td>Simplicidad y rapidez</td><td>Práctico, ligero</td></tr>
+            <tr><td class="feat">PetsAdmin</td><td><em>"Mejor continuidad médica. Mayor control."</em></td><td>Anti-caos: que nada se pierda entre papeles y WhatsApp</td><td>Directo, orientado a dolor</td></tr>
+            <tr><td class="feat">Vetly</td><td><em>"Cuidamos a tu mascota, estés donde estés"</em></td><td>Telemedicina emocional para el tutor</td><td>Emocional, informal</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Dónde está el espacio libre</h3>
+      <div class="prose">
+        <p><b>Eje IA / potencia:</b> ocupado solo por VetPraxis (pero caro y opaco). &nbsp;<b>Eje simple / barato:</b> saturado (ACVet, PetsAdmin, OkVet-free). &nbsp;<b>Eje experiencia del cliente/tutor</b> (portal + reserva 24/7 + telemedicina): <b>casi vacío</b> — nadie combina las tres dentro del PMS.</p>
+      </div>
+      <div class="vp">
+        <div class="eyebrow" style="margin-bottom:12px">Propuesta de valor sugerida — tu campo estaba pendiente de definir</div>
+        <p class="q">"Veti Suite: la clínica y su comunidad de dueños, en una sola plataforma. Gestión integral —citas, pacientes, inventario, facturación y cuentas por cobrar— más un portal para que el tutor reserve, consulte y pague online. Con precio transparente y sin contratos."</p>
+        <p class="r"><b>Racional:</b> no pelees por "más barato" ni por "más IA" (VetPraxis ya lo tiene). Pelea por el eje de <b>experiencia del cliente final + transparencia comercial</b>, que está desatendido y es defendible.</p>
+      </div>
+    </section>
+
+    <!-- 4. FODA -->
+    <section id="foda">
+      <div class="sec-head"><div class="sec-num">04</div><h2>Análisis FODA cruzado</h2></div>
+      <p class="sec-intro prose">Veti Suite frente al mercado, no en abstracto.</p>
+      <div class="foda">
+        <div class="quad q-f">
+          <div class="qh"><span class="tag"></span> Fortalezas</div>
+          <ul>
+            <li>Núcleo funcional ya completo (clientes, historia, citas, peluquería, laboratorio, inventario, facturación, dashboard).</li>
+            <li><b>Cuenta corriente / deuda por cliente</b> — feature que la mayoría no tiene explícito.</li>
+            <li>Producto nuevo: deuda técnica baja, UI moderna, rapidez para iterar.</li>
+            <li>Peluquería (con temporizador y pertenencias) y laboratorio ya integrados; ACVet no los tiene.</li>
+            <li>Marca limpia y libre ("Veti Suite").</li>
+          </ul>
+        </div>
+        <div class="quad q-d">
+          <div class="qh"><span class="tag"></span> Debilidades</div>
+          <ul>
+            <li><b>MVP sin base instalada</b> (rivales citan 600–4.000+ clínicas).</li>
+            <li>Sin <b>facturación electrónica fiscal</b> (table stake por país).</li>
+            <li>Sin <b>WhatsApp / recordatorios automáticos</b> (crítico en LatAm).</li>
+            <li>Sin app móvil, portal del tutor, telemedicina ni multi-sede.</li>
+            <li>Sin precios, marca ni tracción pública; sin equipo comercial visible.</li>
+          </ul>
+        </div>
+        <div class="quad q-o">
+          <div class="qh"><span class="tag"></span> Oportunidades</div>
+          <ul>
+            <li><b>Telemedicina integrada al PMS</b> — hueco que nadie llena (Vetly la tiene, pero suelta).</li>
+            <li><b>Portal web del tutor</b> (reserva + pago + historia) — casi vacío.</li>
+            <li><b>Precio transparente + trial sin tarjeta</b> contra la opacidad de VetPraxis.</li>
+            <li>Mercado fragmentado por geografía → hay espacio por país.</li>
+            <li>Aliar telemedicina B2C (estilo Vetly) como módulo del PMS.</li>
+          </ul>
+        </div>
+        <div class="quad q-a">
+          <div class="qh"><span class="tag"></span> Amenazas</div>
+          <ul>
+            <li><b>VetPraxis</b> con IA y músculo regional puede aplastar en features.</li>
+            <li>Guerra de precios: freemium de OkVet/ACVet + $30 de PetsAdmin comprimen el margen.</li>
+            <li>Barrera fiscal por país: entrar a CO/CL/EC exige integrar DIAN/SII/SRI.</li>
+            <li>Competidores ya integran WhatsApp; el usuario lo da por hecho.</li>
+            <li>Costo de adquisición: rivales ya tienen SEO, blog y prueba social.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. OPORTUNIDADES -->
+    <section id="oportunidades">
+      <div class="sec-head"><div class="sec-num">05</div><h2>Oportunidades de mejora</h2></div>
+      <p class="sec-intro prose">Cómo diferenciarte, atraer más clientes y mejorar la oferta — a partir de las debilidades de la competencia.</p>
+      <div class="ideas">
+        <div class="idea">
+          <div class="ix">01</div>
+          <div>
+            <h3>Telemedicina + portal del tutor <b style="color:var(--accent-ink);font-weight:650">dentro</b> del PMS</h3>
+            <p>Ningún PMS directo ofrece videoconsulta integrada. Vetly la tiene, pero desconectada de la gestión de la clínica. Un portal web (sin app nativa al inicio) donde el dueño <b>reserva 24/7, entra a videoconsulta, ve historia/recetas y paga</b> — todo escribiendo directo en el PMS.</p>
+            <p class="why"><b>Por qué gana:</b> unes los dos mundos hoy separados (gestión + relación con el tutor) y ocupas el eje de posicionamiento vacío.</p>
+          </div>
+        </div>
+        <div class="idea">
+          <div class="ix">02</div>
+          <div>
+            <h3>WhatsApp como estándar, no como add-on</h3>
+            <p>PetsAdmin cobra WhatsApp aparte ($10/mes); ACVet no lo tiene (solo email/SMS, débil en LatAm). Recordatorios de citas/vacunas y confirmaciones por WhatsApp <b>incluidos en el plan base</b>.</p>
+            <p class="why"><b>Por qué gana:</b> cierras tu brecha más urgente y lo conviertes en argumento directo contra ACVet.</p>
+          </div>
+        </div>
+        <div class="idea">
+          <div class="ix">03</div>
+          <div>
+            <h3>Pricing transparente + autoservicio</h3>
+            <p>VetPraxis, el rival más fuerte, esconde precios y obliga a "cotizar en 24 h" → fricción y fuga de leads. Precios públicos + <b>prueba 30 días sin tarjeta</b> + registro self-service. Mensaje: <em>"Pruébalo hoy, sin llamar a ventas."</em></p>
+            <p class="why"><b>Por qué gana:</b> capturas los leads que VetPraxis frustra, con menor costo comercial.</p>
+          </div>
+        </div>
+        <div class="idea bonus">
+          <div class="ix">04</div>
+          <div>
+            <h3>"Cuentas por cobrar" como bandera <span class="pill p-accent" style="vertical-align:middle">bonus · ya existe</span></h3>
+            <p>Tu módulo de deuda/cuenta corriente por cliente ya existe y casi nadie lo destaca. Conviértelo en feature de marketing: <em>"Veti Suite te dice quién te debe y cuánto, sin planillas de Excel."</em> Es un dolor real de flujo de caja en clínicas pequeñas.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. PERFILES -->
+    <section id="perfiles">
+      <div class="sec-head"><div class="sec-num">06</div><h2>Perfiles a fondo de cada competidor</h2></div>
+      <p class="sec-intro prose">Cada rival, desmontado: qué es, cómo cobra, cómo se vende, dónde es fuerte y débil, y cómo ganarle.</p>
+
+      <div class="profiles">
+
+        <!-- VETPRAXIS -->
+        <article class="prof">
+          <div class="prof-top">
+            <div>
+              <h3 class="prof-name">VetPraxis <span style="font-size:.75em;color:var(--ink-faint)">+ VetClick</span></h3>
+              <div class="prof-tag">PMS todo-en-uno + IA · LatAm · vetpraxis.app</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="threat">Amenaza <span class="pill p-bad">Alta</span></div>
+          </div>
+          <div class="prof-body">
+            <div class="kv"><div class="k">Qué es</div><div class="v">Software de gestión en la nube (AWS) con el diferenciador central en <b>IA clínica (VetPraxis Intelligence)</b>: transcripción de voz, sugerencia de diagnóstico diferencial y redacción clínica. <b>VetClick</b> es su app móvil para tutores (reserva 24/7, historial, recordatorios), incluida en el plan Pro.</div></div>
+            <div class="kv"><div class="k">Mercado</div><div class="v">Latinoamérica con soporte local en 10-12 países (Perú, Chile, Ecuador, Colombia, México, Bolivia, Paraguay, Panamá, Costa Rica, R. Dominicana…). Clínicas de todo tamaño hasta hospitales multisede.</div></div>
+            <div class="kv"><div class="k">Precio</div><div class="v"><b>Opaco — bajo cotización.</b> Tres tiers (Essential / Pro / Enterprise) sin cifras públicas; solo demo guiada de 30 min, sin trial ni freemium. Moneda de referencia USD.</div></div>
+            <div class="kv"><div class="k">Alcance</div><div class="v">La suite más amplia del grupo: agenda, historia clínica en timeline, IA, hospitalización, <b>peluquería, hospedaje, laboratorio</b>, POS, inventario multi-almacén, facturación electrónica, WhatsApp, fidelización, analítica y API (Beta, solo Enterprise).</div></div>
+            <div class="sw">
+              <div class="s"><h5>Fortalezas</h5><ul><li>IA real con métricas de valor concretas.</li><li>Suite más completa (hospedaje, laboratorio, hospitalización, fidelización).</li><li>App tutor propia (VetClick) + WhatsApp nativo.</li><li>Escala e infraestructura AWS declaradas (~3.000 clínicas).</li></ul></div>
+              <div class="w"><h5>Debilidades</h5><ul><li>Precio 100% opaco, sin trial ni freemium → fricción de ventas.</li><li>Cifras de tracción inconsistentes entre páginas.</li><li>Sin reseñas de terceros verificadas.</li><li>API solo Beta y en el tier más caro; sin telemedicina ni portal web.</li></ul></div>
+            </div>
+            <div class="beat"><b>Cómo ganarle:</b> precio transparente + registro self-service, y telemedicina integrada. Compite en lo que él no da: claridad comercial y experiencia del cliente final.</div>
+          </div>
+        </article>
+
+        <!-- OKVET -->
+        <article class="prof">
+          <div class="prof-top">
+            <div>
+              <h3 class="prof-name">OkVet <span style="font-size:.75em;color:var(--ink-faint)">+ OkPet</span></h3>
+              <div class="prof-tag">PMS + freemium · Colombia → LatAm · okvet.co</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="threat">Amenaza <span class="pill p-warn">Media-alta</span></div>
+          </div>
+          <div class="prof-body">
+            <div class="kv"><div class="k">Qué es</div><div class="v">PMS en la nube (Google Cloud) con <b>freemium real</b>. App <b>OkPet</b> para dueños (historia, recordatorios) funciona como portal del cliente. Se posiciona como "líder en Colombia y LATAM" con 4.000+ veterinarias declaradas.</div></div>
+            <div class="kv"><div class="k">Mercado</div><div class="v">Colombia como núcleo, expansión a LatAm y España. Veterinarias independientes y clínicas pequeñas/medianas.</div></div>
+            <div class="kv"><div class="k">Precio</div><div class="v"><b>Público (COP).</b> Básico <b>$0</b> (límites: 50 agendamientos/mes, 5 GB). OkVet One ~$17 USD/mes (usuario único). OkVet Pro ~$33 USD/mes (COP 132.999). Sin permanencia; upgrade por WhatsApp.</div></div>
+            <div class="kv"><div class="k">Alcance</div><div class="v">Historia clínica, agenda, CRM, notificaciones, <b>facturación electrónica DIAN</b>, hospitalización + Kardex, ventas/inventario, marketing SMS/WhatsApp, app tutor.</div></div>
+            <div class="sw">
+              <div class="s"><h5>Fortalezas</h5><ul><li>Freemium permanente → barrera de entrada mínima.</li><li>Precios públicos, facturación DIAN integrada.</li><li>App tutor (OkPet) + marketing WhatsApp/SMS.</li><li>Ecosistema: help center, blog, curso online.</li></ul></div>
+              <div class="w"><h5>Debilidades</h5><ul><li>Sin telemedicina.</li><li>Planes bajos son de usuario único.</li><li>Valor DIAN atado a Colombia (menos útil fuera).</li><li>Upgrade solo por WhatsApp; sitio fragmentado.</li></ul></div>
+            </div>
+            <div class="beat"><b>Cómo ganarle:</b> multi-usuario desde planes bajos, telemedicina, y checkout self-service (no depender de WhatsApp para convertir).</div>
+          </div>
+        </article>
+
+        <!-- ACVET -->
+        <article class="prof">
+          <div class="prof-top">
+            <div>
+              <h3 class="prof-name">ACVet</h3>
+              <div class="prof-tag">PMS ligero · Chile → LatAm · acvet.app</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="threat">Amenaza <span class="pill p-warn">Media</span></div>
+          </div>
+          <div class="prof-body">
+            <div class="kv"><div class="k">Qué es</div><div class="v">PMS ligero y asequible (Google Cloud) que vende <b>simplicidad y rapidez</b>: "tu clínica, digitalizada en minutos". App móvil propia. 600+ clínicas activas declaradas.</div></div>
+            <div class="kv"><div class="k">Mercado</div><div class="v">Chile como base (IVA 19%, WebPay), también México, Argentina y Colombia. Clínicas de 1 a 5 usuarios.</div></div>
+            <div class="kv"><div class="k">Precio</div><div class="v"><b>Público, freemium + trial 30 días sin tarjeta.</b> Free $0. Individual $17.90 (intro $12.53). Clínica $23.90 (intro $16.73, hasta 5 usuarios). PayPal / Mercado Pago / WebPay. El precio "intro" solo dura 120 días.</div></div>
+            <div class="kv"><div class="k">Alcance</div><div class="v">Ficha clínica, agenda drag &amp; drop, inventario, ventas/facturación (IVA 19%), <b>hospitalización detallada</b> (signos vitales), reportes, dashboard. <b>Sin</b> peluquería ni laboratorio.</div></div>
+            <div class="sw">
+              <div class="s"><h5>Fortalezas</h5><ul><li>Barrera baja: freemium + trial sin tarjeta.</li><li>Hospitalización detallada (signos vitales).</li><li>Localización real (pasarelas locales, IVA).</li><li>Prueba social con testimonios.</li></ul></div>
+              <div class="w"><h5>Debilidades</h5><ul><li><b>Sin WhatsApp</b> (solo email/SMS) — grave en LatAm.</li><li>Sin portal cliente ni telemedicina.</li><li>Techo de 5 usuarios; sin peluquería ni laboratorio.</li><li>Precio "intro" confuso (real más alto, por geolocalización).</li></ul></div>
+            </div>
+            <div class="beat"><b>Cómo ganarle:</b> WhatsApp incluido, portal del cliente, y jugar tus módulos que él no tiene (peluquería + laboratorio ya están en tu MVP).</div>
+          </div>
+        </article>
+
+        <!-- PETSADMIN -->
+        <article class="prof">
+          <div class="prof-top">
+            <div>
+              <h3 class="prof-name">PetsAdmin</h3>
+              <div class="prof-tag">PMS low-cost · Ecuador → LatAm · petsadmin.io</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="threat">Amenaza <span class="pill p-warn">Media</span></div>
+          </div>
+          <div class="prof-body">
+            <div class="kv"><div class="k">Qué es</div><div class="v">PMS de <b>bajo costo</b> con mensaje anti-caos ("que nada se pierda entre papeles y WhatsApp"). Producto separado para petshops. Operación pequeña, base en Ecuador.</div></div>
+            <div class="kv"><div class="k">Mercado</div><div class="v">Ecuador (Quito, Guayaquil) con mensaje de expansión LatAm. Clínicas pequeñas/medianas + petshops + peluquería.</div></div>
+            <div class="kv"><div class="k">Precio</div><div class="v"><b>Público, el más agresivo.</b> Plan único <b>$30/mes</b> con colaboradores ilimitados y 1 local. Add-ons de <b>pago único</b>: usuario $30, local $60, facturación $50; WhatsApp $10/mes. Sin trial ni freemium; demo por WhatsApp.</div></div>
+            <div class="kv"><div class="k">Alcance</div><div class="v">Historia clínica, citas, vacunación, hospitalización, recetas, inventario (alertas de caducidad), facturación, ventas/caja, <b>comisiones automáticas</b>, CRM, WhatsApp, apps móviles (admin/vet/reservas).</div></div>
+            <div class="sw">
+              <div class="s"><h5>Fortalezas</h5><ul><li>Precio bajísimo + colaboradores ilimitados.</li><li>Comisiones automáticas y control de caja.</li><li>Doble vertical (clínica + petshop).</li><li>Prueba social concreta (clínicas con nombre).</li></ul></div>
+              <div class="w"><h5>Debilidades</h5><ul><li>Sin trial/freemium; demo solo por WhatsApp.</li><li>Add-ons de "pago único" confusos y poco escalables.</li><li>Sitio estático con enlaces rotos (404) → marketing inmaduro.</li><li>Muy anclado a Ecuador; sin telemedicina ni portal.</li></ul></div>
+            </div>
+            <div class="beat"><b>Cómo ganarle:</b> profesionalismo de marca y producto, precios/planes claros, self-service, y las capas que le faltan (telemedicina, portal). No compitas por precio.</div>
+          </div>
+        </article>
+
+        <!-- VETLY -->
+        <article class="prof">
+          <div class="prof-top">
+            <div>
+              <h3 class="prof-name">Vetly <span style="font-size:.7em;color:var(--ink-faint)">competidor adyacente</span></h3>
+              <div class="prof-tag">Telemedicina B2C (tutores) · Argentina · vetly.pet</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="threat">Amenaza <span class="pill p-good">Baja</span></div>
+          </div>
+          <div class="prof-body">
+            <div class="kv"><div class="k">Qué es</div><div class="v"><b>No es un PMS.</b> Es un servicio de <b>telemedicina por suscripción para dueños de mascotas</b> (videoconsultas ilimitadas 24/7, check-in mensual, receta digital con QR). No administra la clínica.</div></div>
+            <div class="kv"><div class="k">Mercado</div><div class="v">Argentina (ARS, voseo). Además un canal B2B: telemedicina como beneficio para empresas, aseguradoras y programas de fidelización.</div></div>
+            <div class="kv"><div class="k">Precio</div><div class="v"><b>Membresías B2C</b> 3/6/12 meses (ARS 24.900 / 41.900 / 71.900) + consulta única ARS 15.000. +85.000 mascotas y 5+ años declarados.</div></div>
+            <div class="kv"><div class="k">Relevancia</div><div class="v">Prueba que <b>existe demanda de telemedicina veterinaria</b> — pero suelta del PMS. Es la validación de mercado de tu <b>Idea 1</b>; incluso un posible aliado para el módulo de videoconsulta.</div></div>
+            <div class="sw">
+              <div class="s"><h5>Fortalezas</h5><ul><li>Propuesta clara y diferenciada (telemedicina + prevención).</li><li>Precios transparentes, punto de entrada de bajo riesgo.</li><li>Escala declarada (+85.000 mascotas).</li></ul></div>
+              <div class="w"><h5>Debilidades</h5><ul><li>No gestiona la clínica (no compite en tu terreno).</li><li>No cubre emergencias; deriva a presencial.</li><li>Cancelación rígida; sitio 100% dependiente de JS.</li></ul></div>
+            </div>
+            <div class="beat"><b>Lectura estratégica:</b> no es un rival, es una señal. Confirma que la telemedicina vende — captúrala <b>integrada al PMS</b>, que es lo que Vetly no puede ofrecer a la clínica.</div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- 7. ROADMAP -->
+    <section id="roadmap">
+      <div class="sec-head"><div class="sec-num">07</div><h2>Plan de roadmap</h2></div>
+      <p class="sec-intro prose">Prioridad: cerrar los <em>table stakes</em> que bloquean el lanzamiento, luego construir el diferenciador (Idea 1). No inviertas en el diferenciador antes de tener paridad mínima — brillaría sobre una base incompleta.</p>
+
+      <div class="road">
+
+        <div class="phase p0">
+          <div class="phase-head">
+            <span class="phase-tag">Fase 0 · ahora</span>
+            <h3>Paridad competitiva y adquisición</h3>
+          </div>
+          <p class="goal"><b>Objetivo:</b> alcanzar el mínimo que el mercado da por hecho y poder captar clientes sin equipo de ventas. Sin esto, ningún diferenciador importa.</p>
+          <div class="deliv">
+            <div class="item"><span class="mk"></span><span class="t"><b>Recordatorios automáticos + WhatsApp incluido.</b> Citas y vacunas por WhatsApp en el plan base. Cierra tu brecha más urgente y supera a ACVet.</span><span class="pill p-bad">Crítico</span></div>
+            <div class="item"><span class="mk"></span><span class="t"><b>Facturación electrónica de UN país.</b> Elige el mercado de lanzamiento y su ente (Colombia→DIAN, Chile→SII, Ecuador→SRI). No intentes toda LatAm a la vez.</span><span class="pill p-bad">Crítico</span></div>
+            <div class="item"><span class="mk"></span><span class="t"><b>Trial 30 días sin tarjeta + registro self-service.</b> El patrón de adquisición ganador (OkVet, ACVet).</span><span class="pill p-warn">Alto</span></div>
+            <div class="item"><span class="mk"></span><span class="t"><b>Precios públicos en la web.</b> Contra la opacidad de VetPraxis. Bajo esfuerzo, alto retorno comercial.</span><span class="pill p-warn">Alto</span></div>
+            <div class="item"><span class="mk"></span><span class="t"><b>"Cuentas por cobrar" como bandera de marketing.</b> Ya existe en tu MVP; solo hay que comunicarlo.</span><span class="pill p-accent">Rápido</span></div>
+          </div>
+        </div>
+
+        <div class="phase p1">
+          <div class="phase-head">
+            <span class="phase-tag">Fase 1 · diferenciación</span>
+            <h3>Portal del tutor + telemedicina (Idea 1)</h3>
+          </div>
+          <p class="goal"><b>Objetivo:</b> ocupar el eje vacío del mercado —experiencia del cliente final— y separarte de VetPraxis. Es tu apuesta defendible.</p>
+          <div class="deliv">
+            <div class="item"><span class="mk"></span><span class="t"><b>Portal web del tutor.</b> Reserva 24/7, ver historia y recetas, pagar online. Web primero, sin app nativa.</span><span class="pill p-accent">Núcleo</span></div>
+            <div class="item"><span class="mk"></span><span class="t"><b>Videoconsulta integrada al PMS.</b> Lo que Vetly no puede dar a la clínica: la consulta escribe directo en la historia clínica.</span><span class="pill p-accent">Núcleo</span></div>
+            <div class="item"><span class="mk"></span><span class="t"><b>Reserva online 24/7 conectada a la agenda.</b> Solo VetPraxis lo tiene entre los directos.</span><span class="pill p-warn">Alto</span></div>
+          </div>
+        </div>
+
+        <div class="phase p2">
+          <div class="phase-head">
+            <span class="phase-tag">Fase 2 · escala</span>
+            <h3>Profundizar y expandir</h3>
+          </div>
+          <p class="goal"><b>Objetivo:</b> con paridad + diferenciador probados, crecer en cuenta y en geografía. Prioriza por demanda real de tus primeros clientes.</p>
+          <div class="deliv">
+            <div class="item"><span class="mk"></span><span class="t"><b>Comisiones, multi-sede y fidelización/marketing.</b> Cierra las últimas casillas frente a VetPraxis/PetsAdmin.</span><span class="pill p-info">Medio</span></div>
+            <div class="item"><span class="mk"></span><span class="t"><b>Expansión fiscal a un segundo país.</b> Replica el módulo de facturación electrónica al siguiente mercado.</span><span class="pill p-info">Medio</span></div>
+            <div class="item"><span class="mk"></span><span class="t"><b>App móvil nativa (tutor + equipo).</b> Cuando el portal web valide la demanda.</span><span class="pill p-info">Medio</span></div>
+            <div class="item"><span class="mk"></span><span class="t"><b>IA clínica.</b> Responder a VetPraxis — opcional y más adelante; no es tu terreno de batalla inicial.</span><span class="pill p-info">Opcional</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout warnbox">
+        <h4>Regla de secuencia</h4>
+        <p style="margin:0">No saltes a la Fase 1 sin cerrar los dos ítems <b>Críticos</b> de la Fase 0. Un portal de telemedicina brillante sobre un producto sin WhatsApp ni facturación fiscal se cae en la primera demo. <b>Primero paridad, luego diferenciación, luego escala.</b></p>
+      </div>
+    </section>
+
+    <footer>
+      <div class="foot-note">
+        <p><b>Notas de método.</b> Datos tomados de los sitios públicos de cada competidor (julio 2026). Los precios de VetPraxis no son públicos; los de ACVet son "introductorios" y varían por geolocalización; las conversiones COP/ARS→USD son aproximadas. Las funcionalidades de Veti Suite marcadas con "?" (recordatorios, WhatsApp) están por confirmar según el estado real del MVP. La priorización asume mercado objetivo LatAm hispanohablante y clínica pequeña/mediana.</p>
+        <p style="margin:0">Veti Suite · Análisis competitivo · Documento interno de estrategia</p>
+      </div>
+    </footer>
+
+  </div>
+</div>
+</body>
+</html>
