@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { CalendarDays, FileText, PawPrint, Pencil, Plus } from "lucide-react";
+import { CalendarDays, ClipboardList, FileText, PawPrint, Pencil, Plus } from "lucide-react";
 import { F, money, SPECIES_ICON, T } from "../../lib/constants";
 import type { Patient } from "../../lib/types";
 import { useVetStore } from "../../states/app.state";
@@ -18,15 +18,16 @@ export default function ClientShowPage() {
   const client = s.clients.find((c) => c.id === id);
   if (!client) return <ResourceNotFound backTo="/clients" label="el cliente" />;
   const pets = s.patients.filter((p) => p.clientId === client.id);
-  const account = s.accounts.find((a) => a.clientId === client.id);
-  const accountTotal = account ? account.items.reduce((t, i) => t + i.amount, 0) : 0;
+  const visit = s.visits.find((v) => v.clientId === client.id);
+  const visitTotal = visit ? s.services.filter((x) => x.visitId === visit.id).reduce((t, x) => t + x.price, 0) : 0;
   return (
     <div>
       <PageHeader backTo="/clients" title={client.name} sub="Ficha del cliente y sus mascotas."
         action={
           <div className="flex gap-2">
             <Btn kind="ghost" onClick={() => navigate(`/clients/edit/${client.id}`)}><Pencil size={14} /> Editar</Btn>
-            <Btn onClick={() => setModal({})}><Plus size={14} /> Mascota</Btn>
+            <Btn kind="ghost" onClick={() => setModal({})}><Plus size={14} /> Mascota</Btn>
+            <Btn onClick={() => { const fp = pets[0]?.id ?? ""; navigate(`/visits/edit/${s.openVisit(client.id, fp)}`); }}><ClipboardList size={14} /> Iniciar visita</Btn>
           </div>
         } />
       <Card className="p-5 mb-4">
@@ -34,7 +35,7 @@ export default function ClientShowPage() {
           { label: "Teléfono", value: client.phone },
           { label: "Correo", value: client.email },
           { label: "Deuda", value: client.debt > 0 ? <Badge tone="red">{money(client.debt)}</Badge> : "Sin deuda" },
-          { label: "Cuenta abierta", value: account ? <Badge tone="blue">{money(accountTotal)}</Badge> : "Sin cargos pendientes" },
+          { label: "Visita abierta", value: visit ? <Badge tone="blue">{money(visitTotal)}</Badge> : "Sin visita abierta" },
         ]} />
       </Card>
       <h2 style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Mascotas ({pets.length})</h2>

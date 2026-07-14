@@ -1,85 +1,82 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Receipt } from "lucide-react";
-import { F, money, T } from "../../lib/constants";
+import { Eye, Pencil } from "lucide-react";
+import { F, isServiceDone, money, T } from "../../lib/constants";
 import type { Client } from "../../lib/types";
 import { useVetStore } from "../../states/app.state";
 import { Badge, Btn, Card, Field, Pager, SectionHead } from "../../components/ui";
 import { ClientSearch } from "../../components/client-search";
 
 /* ================================================================
-   BILLING — collection starts from the client: search to bring up
-   their open account instantly; both lists paginated (with
-   hundreds of accounts/invoices the full history never renders).
+   BILLING — worklist de cobro: visitas abiertas (con estado de cada
+   servicio) → detalle en /visits → cobro (descuento/IVA/método) →
+   factura. El estado de cada servicio se avanza en el módulo Visitas.
 ================================================================ */
-const ACCOUNTS_PAGE_SIZE = 4, INVOICES_PAGE_SIZE = 5;
-const sourceTone: Record<string, "green" | "blue" | "amber"> = { Clínica: "green", Peluquería: "blue", Laboratorio: "amber" };
+const VISITS_PAGE_SIZE = 4, INVOICES_PAGE_SIZE = 5;
 
 export default function BillingPage() {
   const s = useVetStore();
   const navigate = useNavigate();
   const [filterClient, setFilterClient] = useState<Client | null>(null);
-  const [accountsPage, setAccountsPage] = useState(0);
+  const [visitsPage, setVisitsPage] = useState(0);
   const [invoicesPage, setInvoicesPage] = useState(0);
-  const allAccounts = filterClient ? s.accounts.filter((a) => a.clientId === filterClient.id) : s.accounts;
+  const allVisits = filterClient ? s.visits.filter((v) => v.clientId === filterClient.id) : s.visits;
   const allInvoices = filterClient ? s.invoices.filter((i) => i.clientId === filterClient.id) : s.invoices;
-  // Clamp instead of resetting in an effect: collecting the last account of a page must not leave an empty page.
-  const accountPages = Math.max(1, Math.ceil(allAccounts.length / ACCOUNTS_PAGE_SIZE));
-  const currentAccountsPage = Math.min(accountsPage, accountPages - 1);
-  const accountRows = allAccounts.slice(currentAccountsPage * ACCOUNTS_PAGE_SIZE, currentAccountsPage * ACCOUNTS_PAGE_SIZE + ACCOUNTS_PAGE_SIZE);
+  // Clamp instead of resetting in an effect: facturar la última visita de una página no debe dejar una página vacía.
+  const visitPages = Math.max(1, Math.ceil(allVisits.length / VISITS_PAGE_SIZE));
+  const currentVisitsPage = Math.min(visitsPage, visitPages - 1);
+  const visitRows = allVisits.slice(currentVisitsPage * VISITS_PAGE_SIZE, currentVisitsPage * VISITS_PAGE_SIZE + VISITS_PAGE_SIZE);
   const invoiceRows = allInvoices.slice(invoicesPage * INVOICES_PAGE_SIZE, invoicesPage * INVOICES_PAGE_SIZE + INVOICES_PAGE_SIZE);
   return (
     <div>
-      <SectionHead title="Facturación" sub="Cuentas abiertas por cliente: consolidan servicios médicos, estética, laboratorio e insumos en un solo cobro." />
+      <SectionHead title="Facturación" sub="Visita abierta → detalle con el estado de cada servicio → cobro con descuento, IVA y método de pago → factura." />
       <Card className="p-4 mb-4">
-        <Field label="El cobro parte del cliente — búscalo para ver su cuenta y su historial">
-          <ClientSearch selected={filterClient} onSelect={(c) => { setFilterClient(c); setAccountsPage(0); setInvoicesPage(0); }} placeholder="Buscar cliente para cobrar…" />
+        <Field label="El cobro parte del cliente — búscalo para ver sus visitas y su historial">
+          <ClientSearch selected={filterClient} onSelect={(c) => { setFilterClient(c); setVisitsPage(0); setInvoicesPage(0); }} placeholder="Buscar cliente para cobrar…" />
         </Field>
-        {!filterClient && <p style={{ fontSize: 12, color: T.sub, marginTop: -6 }}>Sin filtro se muestran todas las cuentas abiertas del día, paginadas.</p>}
+        {!filterClient && <p style={{ fontSize: 12, color: T.sub, marginTop: -6 }}>Sin filtro se muestran todas las visitas abiertas del día, paginadas.</p>}
       </Card>
       <div className="grid lg:grid-cols-2 gap-4">
         <div>
-          <h2 style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Cuentas abiertas ({allAccounts.length})</h2>
+          <h2 style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Visitas abiertas ({allVisits.length})</h2>
           <div className="flex flex-col gap-3">
-            {accountRows.map((account) => {
-              const client = s.clients.find((c) => c.id === account.clientId)!;
-              const itemsTotal = account.items.reduce((t, i) => t + i.amount, 0);
-              const total = itemsTotal + (client.debt || 0);
+            {visitRows.map((visit) => {
+              const client = s.clients.find((c) => c.id === visit.clientId)!;
+              const svcs = s.services.filter((x) => x.visitId === visit.id);
+              const subtotal = svcs.reduce((t, i) => t + i.price, 0);
+              const done = svcs.filter((x) => isServiceDone(x.type, x.status)).length;
+              const ready = svcs.length > 0 && done === svcs.length;
               return (
-                <Card key={account.id} className="p-4">
-                  <div className="flex items-center justify-between mb-3">
+                <Card key={visit.id} className="p-4">
+                  <div className="flex items-center justify-between mb-2">
                     <span style={{ fontFamily: F.head, fontSize: 14.5, fontWeight: 700 }}>{client.name}</span>
                     <span style={{ fontSize: 12, color: T.sub }}>{client.phone}</span>
                   </div>
-                  {account.items.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between gap-2 py-1.5" style={{ borderBottom: `1px solid ${T.lineSoft}`, fontSize: 12.5 }}>
-                      <span className="flex items-center gap-2 min-w-0"><Badge tone={sourceTone[item.source] || "gray"}>{item.source}</Badge><span className="truncate" style={{ color: T.ink }}>{item.desc}</span></span>
-                      <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 600 }}>{money(item.amount)}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex flex-col gap-1.5 min-w-0">
+                      <span style={{ fontSize: 12.5, color: T.sub }}>{svcs.length} servicio{svcs.length !== 1 ? "s" : ""} · <b style={{ color: T.ink }}>{money(subtotal)}</b>{client.debt > 0 && <span style={{ color: T.red }}> · +{money(client.debt)} deuda</span>}</span>
+                      {!visit.started
+                        ? <Badge tone="gray">Borrador · sin comenzar</Badge>
+                        : <Badge tone={ready ? "green" : svcs.length === 0 ? "gray" : "amber"}>{svcs.length === 0 ? "Sin servicios" : ready ? "Listo para cobrar" : `${done}/${svcs.length} terminados`}</Badge>}
                     </div>
-                  ))}
-                  {client.debt > 0 && (
-                    <div className="flex items-center justify-between py-1.5" style={{ fontSize: 12.5, color: T.red }}>
-                      <span>Saldo anterior pendiente</span><span style={{ fontWeight: 600 }}>{money(client.debt)}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between mt-3">
-                    <span style={{ fontFamily: F.head, fontSize: 15, fontWeight: 700 }}>Total: {money(total)}</span>
-                    <Btn onClick={() => s.collectAccount(account.id)}><Receipt size={14} /> Cobrar y facturar</Btn>
+                    {visit.started
+                      ? <Btn small kind="ghost" onClick={() => navigate(`/visits/show/${visit.id}`)}><Eye size={13} /> Ver detalle</Btn>
+                      : <Btn small kind="ghost" onClick={() => navigate(`/visits/edit/${visit.id}`)}><Pencil size={13} /> Editar</Btn>}
                   </div>
                 </Card>
               );
             })}
-            {allAccounts.length === 0 && (
+            {allVisits.length === 0 && (
               <Card className="p-6 text-center">
                 <p style={{ fontSize: 13, color: T.sub }}>
                   {filterClient
-                    ? `${filterClient.name} no tiene cargos pendientes por cobrar.`
-                    : "No hay cuentas abiertas. Los cargos de clínica, estética e insumos aparecerán aquí automáticamente."}
+                    ? `${filterClient.name} no tiene visitas abiertas.`
+                    : "No hay visitas abiertas. Inicia una en Visitas o desde una cita."}
                 </p>
               </Card>
             )}
           </div>
-          {allAccounts.length > ACCOUNTS_PAGE_SIZE && <Pager page={currentAccountsPage} total={allAccounts.length} pageSize={ACCOUNTS_PAGE_SIZE} onPage={setAccountsPage} />}
+          {allVisits.length > VISITS_PAGE_SIZE && <Pager page={currentVisitsPage} total={allVisits.length} pageSize={VISITS_PAGE_SIZE} onPage={setVisitsPage} />}
         </div>
         <div>
           <h2 style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Facturas emitidas hoy ({allInvoices.length})</h2>
@@ -97,7 +94,7 @@ export default function BillingPage() {
                   </div>
                   <div className="flex items-center justify-between gap-2 mt-1">
                     <span style={{ fontSize: 11.5, color: T.sub }}>
-                      {invoice.items.length} ítems{invoice.prevDebt > 0 && ` + deuda anterior de ${money(invoice.prevDebt)}`} · {new Date(invoice.date).toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" })}
+                      {invoice.items.length} ítems · {invoice.method} · {new Date(invoice.date).toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" })}
                     </span>
                     <Btn small kind="ghost" onClick={() => navigate(`/billing/show/${invoice.id}`)}><Eye size={13} /> Ver</Btn>
                   </div>
@@ -107,7 +104,7 @@ export default function BillingPage() {
             {allInvoices.length === 0 && (
               <Card className="p-6 text-center">
                 <p style={{ fontSize: 13, color: T.sub }}>
-                  {filterClient ? `Sin facturas de ${filterClient.name} el día de hoy.` : "Aún no se emiten facturas hoy. Cobra una cuenta abierta para generar la primera."}
+                  {filterClient ? `Sin facturas de ${filterClient.name} el día de hoy.` : "Aún no se emiten facturas hoy. Cobra una visita lista para generar la primera."}
                 </p>
               </Card>
             )}

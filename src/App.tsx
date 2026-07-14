@@ -12,6 +12,10 @@ import AppointmentsPage from "./modules/appointments/page";
 import AppointmentNewPage from "./modules/appointments/new-page";
 import AppointmentShowPage from "./modules/appointments/show-page";
 import AppointmentEditPage from "./modules/appointments/edit-page";
+import VisitsPage from "./modules/visits/page";
+import VisitNewPage from "./modules/visits/new-page";
+import VisitEditPage from "./modules/visits/edit-page";
+import VisitShowPage from "./modules/visits/show-page";
 import GroomingPage from "./modules/grooming/page";
 import GroomingNewPage from "./modules/grooming/new-page";
 import GroomingShowPage from "./modules/grooming/show-page";
@@ -26,7 +30,9 @@ import ProductNewPage from "./modules/inventory/new-page";
 import ProductShowPage from "./modules/inventory/show-page";
 import ProductEditPage from "./modules/inventory/edit-page";
 import BillingPage from "./modules/billing/page";
+import CollectPage from "./modules/billing/collect-page";
 import InvoiceShowPage from "./modules/billing/show-page";
+import FinancePage from "./modules/finance/page";
 
 export default function App() {
   const [collapsed, setCollapsed] = useState(false);
@@ -55,6 +61,12 @@ export default function App() {
                 <Route path="show/:id" element={<AppointmentShowPage />} />
                 <Route path="edit/:id" element={<AppointmentEditPage />} />
               </Route>
+              <Route path="/visits">
+                <Route index element={<VisitsPage />} />
+                <Route path="new" element={<VisitNewPage />} />
+                <Route path="edit/:id" element={<VisitEditPage />} />
+                <Route path="show/:id" element={<VisitShowPage />} />
+              </Route>
               <Route path="/grooming">
                 <Route index element={<GroomingPage />} />
                 <Route path="new" element={<GroomingNewPage />} />
@@ -76,8 +88,10 @@ export default function App() {
               </Route>
               <Route path="/billing">
                 <Route index element={<BillingPage />} />
+                <Route path="collect/:id" element={<CollectPage />} />
                 <Route path="show/:id" element={<InvoiceShowPage />} />
               </Route>
+              <Route path="/finance" element={<FinancePage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>

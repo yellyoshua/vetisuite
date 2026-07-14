@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Pencil, Plus, Search } from "lucide-react";
+import { ClipboardList, Eye, Pencil, Plus, Search } from "lucide-react";
 import { inputStyle, money, T } from "../../lib/constants";
 import { fetchClientsPageApi, useDebounced } from "../../lib/api";
 import type { Client } from "../../lib/types";
@@ -45,7 +45,7 @@ export default function ClientsPage() {
       ))}
       {!loading && res.rows.map((c) => {
         const petCount = s.patients.filter((p) => p.clientId === c.id).length;
-        const account = s.accounts.find((a) => a.clientId === c.id);
+        const visit = s.visits.find((v) => v.clientId === c.id);
         return (
           <ResourceListItem key={c.id}
             icon={c.name.charAt(0)}
@@ -54,9 +54,10 @@ export default function ClientsPage() {
             meta={`${petCount} mascota${petCount !== 1 ? "s" : ""}`}
             badges={<>
               {c.debt > 0 && <Badge tone="red">Debe {money(c.debt)}</Badge>}
-              {account && <Badge tone="blue">Cuenta abierta</Badge>}
+              {visit && <Badge tone="blue">Visita abierta</Badge>}
             </>}
             actions={<>
+              <Btn small kind="ghost" onClick={() => { const fp = s.patients.find((p) => p.clientId === c.id)?.id ?? ""; navigate(`/visits/edit/${s.openVisit(c.id, fp)}`); }}><ClipboardList size={13} /> Visita</Btn>
               <Btn small kind="ghost" onClick={() => navigate(`/clients/show/${c.id}`)}><Eye size={13} /> Ver</Btn>
               <Btn small kind="ghost" onClick={() => navigate(`/clients/edit/${c.id}`)}><Pencil size={13} /> Editar</Btn>
             </>}

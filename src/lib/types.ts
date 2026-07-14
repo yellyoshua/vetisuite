@@ -48,6 +48,7 @@ export interface GroomingJob {
   status: GroomingStatus;
   startedAt?: number;
   finishedAt?: number;
+  serviceId?: string; // servicio de visita al que pertenece (relación bidireccional)
 }
 
 export interface AppliedProduct {
@@ -82,6 +83,7 @@ export interface LabOrder {
   price: number;
   status: LabOrderStatus;
   result: string;
+  serviceId?: string; // servicio de visita al que pertenece (relación bidireccional)
 }
 
 export interface Product {
@@ -94,25 +96,59 @@ export interface Product {
   expiry: string;
 }
 
+/* Status values are Spanish because they render verbatim in the UI. */
+export type ItemStatus = "pendiente" | "completado";
+
 export interface AccountItem {
   desc: string;
   amount: number;
   source: string;
+  status: ItemStatus;
 }
 
-export interface Account {
+/* ── Visitas (atención): una visita agrupa servicios; cada servicio tiene su propio kanban. ── */
+export type ServiceType = "veterinaria" | "peluqueria" | "laboratorio" | "medicamento" | "vacuna";
+
+export interface ServiceItem {
+  id: string;
+  visitId: string;
+  patientId: string;
+  type: ServiceType;
+  label: string;
+  price: number;
+  status: string; // columna actual del flujo del tipo (ver SERVICE_FLOWS)
+  started: boolean; // false = borrador (aún no está en su módulo); true = ya creado en su módulo
+}
+
+export interface Visit {
   id: string;
   clientId: string;
-  items: AccountItem[];
+  patientId: string; // mascota de la visita
+  createdAt: number;
+  started: boolean; // false = en edición (borrador); true = comenzada (ítems en sus módulos)
 }
+
+export type PayMethod = "Efectivo" | "Tarjeta" | "Transferencia";
 
 export interface Invoice {
   id: string;
   num: string;
   clientId: string;
   items: AccountItem[];
+  subtotal: number;
+  discount: number;
+  iva: number;
   prevDebt: number;
   total: number;
+  method: PayMethod;
+  date: number;
+}
+
+export interface Expense {
+  id: string;
+  category: string;
+  desc: string;
+  amount: number;
   date: number;
 }
 

@@ -4,7 +4,7 @@ import { F, MODULES, T } from "../lib/constants";
 import { useVetStore } from "../states/app.state";
 
 function SidebarContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
-  const openAccounts = useVetStore((s) => s.accounts.length);
+  const openVisits = useVetStore((s) => s.visits.length);
   return (
     <>
       <div className={`flex items-center gap-2 pt-6 pb-5 ${collapsed ? "justify-center px-2" : "px-5"}`}>
@@ -29,10 +29,10 @@ function SidebarContent({ collapsed, onNavigate }: { collapsed: boolean; onNavig
             })}>
             <m.icon size={17} className="shrink-0" />
             {!collapsed && <span className="flex-1">{m.label}</span>}
-            {m.path === "/billing" && openAccounts > 0 && (
+            {m.path === "/visits" && openVisits > 0 && (
               collapsed
                 ? <span className="absolute" style={{ top: 7, right: 12, width: 8, height: 8, borderRadius: 99, background: T.amber }} />
-                : <span style={{ background: T.amber, color: "#fff", fontSize: 10, fontWeight: 700, borderRadius: 999, padding: "1px 7px" }}>{openAccounts}</span>
+                : <span style={{ background: T.amber, color: "#fff", fontSize: 10, fontWeight: 700, borderRadius: 999, padding: "1px 7px" }}>{openVisits}</span>
             )}
           </NavLink>
         ))}

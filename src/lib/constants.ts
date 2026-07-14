@@ -1,8 +1,9 @@
 import type { CSSProperties } from "react";
 import {
-  LayoutDashboard, Users, CalendarDays, Scissors, FlaskConical, Package, Receipt,
-  Dog, Cat, Bird, type LucideIcon,
+  LayoutDashboard, Users, CalendarDays, ClipboardList, Scissors, FlaskConical, Package, Receipt,
+  Wallet, Dog, Cat, Bird, type LucideIcon,
 } from "lucide-react";
+import type { ServiceType } from "./types";
 
 /* Design tokens */
 export const T = {
@@ -24,6 +25,27 @@ export const inputStyle: CSSProperties = {
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 export const money = (n: number) => "$" + n.toFixed(2);
+export const round2 = (n: number) => Math.round(n * 100) / 100; // fuente única de la matemática de dinero
+export const IVA_RATE = 0.15; // Ecuador 2024+ — parametrizable si hay multipaís
+export const PAY_METHODS = ["Efectivo", "Tarjeta", "Transferencia"] as const;
+export const EXPENSE_CATEGORIES = ["Renta", "Sueldos", "Compras/Insumos", "Servicios", "Otros"];
+
+/* Kanban por tipo de servicio. La última columna = terminado (facturable). */
+export const SERVICE_FLOWS: Record<ServiceType, { label: string; columns: string[] }> = {
+  veterinaria: { label: "Veterinaria", columns: ["en espera", "en consulta", "terminado"] },
+  peluqueria: { label: "Peluquería", columns: ["pendiente", "en proceso", "terminado"] },
+  laboratorio: { label: "Laboratorio", columns: ["solicitado", "en proceso", "resultado"] },
+  medicamento: { label: "Medicamento", columns: ["pendiente", "aplicado"] },
+  vacuna: { label: "Vacuna", columns: ["pendiente", "aplicado"] },
+};
+export const isServiceDone = (type: ServiceType, status: string) => {
+  const cols = SERVICE_FLOWS[type].columns;
+  return status === cols[cols.length - 1];
+};
+// ponytail: click-to-chat deep link, sin WhatsApp Business API (needs backend).
+// ponytail: country code EC (593) hardcoded — parametrizar si hay multipaís.
+export const waLink = (phone: string, text: string) =>
+  `https://wa.me/593${phone.replace(/\D/g, "").replace(/^0/, "")}?text=${encodeURIComponent(text)}`;
 export const daysUntil = (dateStr: string) => Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000);
 export const todayLabel = new Date().toLocaleDateString("es-EC", { weekday: "long", day: "numeric", month: "long" });
 
@@ -41,8 +63,10 @@ export const MODULES = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/clients", label: "Clientes y Pacientes", icon: Users },
   { path: "/appointments", label: "Citas", icon: CalendarDays },
+  { path: "/visits", label: "Visitas", icon: ClipboardList },
   { path: "/grooming", label: "Peluquería y Estética", icon: Scissors },
   { path: "/clinic", label: "Clínica y Laboratorio", icon: FlaskConical },
   { path: "/inventory", label: "Inventario", icon: Package },
   { path: "/billing", label: "Facturación", icon: Receipt },
+  { path: "/finance", label: "Finanzas", icon: Wallet },
 ];

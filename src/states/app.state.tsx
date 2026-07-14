@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { CONSULT_FEE, GROOM_SERVICES, LAB_TESTS, money, uid } from "../lib/constants";
+import { GROOM_SERVICES, LAB_TESTS, SERVICE_FLOWS, isServiceDone, money, round2, uid } from "../lib/constants";
 import type {
-  Account, AccountItem, Appointment, AppointmentStatus, Client, GroomingJob,
-  GroomingStatus, Invoice, LabOrder, MedicalRecord, Patient, Product, Toast, ToastType, Vet,
+  AccountItem, Appointment, AppointmentStatus, Client, Expense, GroomingJob,
+  GroomingStatus, Invoice, LabOrder, MedicalRecord, Patient, PayMethod, Product, ServiceItem, ServiceType, Toast, ToastType, Vet, Visit,
 } from "../lib/types";
 
 interface VetState {
@@ -39,10 +39,20 @@ interface VetState {
   updateProduct: (id: string, data: Omit<Product, "id" | "stock">) => void;
   restock: (id: string, qty: number) => void;
 
-  accounts: Account[];
-  chargeToAccount: (clientId: string, item: AccountItem) => void;
+  visits: Visit[];
+  services: ServiceItem[];
+  openVisit: (clientId: string, patientId: string) => string;
+  addService: (visitId: string, data: { type: ServiceType; label: string; price: number; patientId: string }) => void;
+  startVisit: (visitId: string) => void;
+  advanceService: (id: string) => void;
+  removeService: (id: string) => void;
+  chargeToVisit: (clientId: string, patientId: string, data: { type: ServiceType; label: string; price: number }) => void;
   invoices: Invoice[];
-  collectAccount: (accountId: string) => void;
+  billVisit: (visitId: string, opts: { discount: number; ivaRate: number; method: PayMethod }) => string;
+
+  expenses: Expense[];
+  addExpense: (data: Pick<Expense, "category" | "desc" | "amount">) => void;
+  removeExpense: (id: string) => void;
 }
 
 export const useVetStore = create<VetState>((set, get) => ({
@@ -148,27 +158,37 @@ export const useVetStore = create<VetState>((set, get) => ({
     { id: "g1", patientId: "p2", service: "Baño completo", price: 18, belongings: "Collar rosado", status: "pendiente", groomer: "Sofía" },
     { id: "g2", patientId: "p5", service: "Corte + baño", price: 28, belongings: "Correa roja, juguete", status: "proceso", groomer: "David", startedAt: Date.now() - 22 * 60000 },
   ],
+  // Check-in de estética (walk-in): crea el servicio ya comenzado + su tarjeta en el tablero, enlazados.
   checkInGrooming: ({ patientId, service, belongings, groomer }) => {
-    set((s) => ({ grooming: [...s.grooming, { id: uid(), patientId, service, price: GROOM_SERVICES[service], belongings, groomer, status: "pendiente" }] }));
-    get().notify("ok", "Check-in registrado con foto de llegada y pertenencias.");
+    const st = get();
+    const patient = st.patients.find((p) => p.id === patientId)!;
+    const visitId = st.openVisit(patient.clientId, patientId);
+    const serviceId = uid();
+    const svc: ServiceItem = { id: serviceId, visitId, patientId, type: "peluqueria", label: service, price: GROOM_SERVICES[service], status: "pendiente", started: true };
+    set((s) => ({
+      services: [...s.services, svc],
+      grooming: [...s.grooming, { id: uid(), serviceId, patientId, service, price: GROOM_SERVICES[service], belongings, groomer, status: "pendiente" as const }],
+      visits: s.visits.map((v) => (v.id === visitId ? { ...v, started: true } : v)),
+    }));
+    get().notify("ok", "Check-in de estética registrado y añadido a la visita.");
   },
   moveGrooming: (id, to) => {
     const st = get();
     const job = st.grooming.find((x) => x.id === id)!;
     const patient = st.patients.find((p) => p.id === job.patientId)!;
     const owner = st.clients.find((c) => c.id === patient.clientId)!;
-    if (to === "proceso") {
-      set((s) => ({ grooming: s.grooming.map((x) => (x.id === id ? { ...x, status: "proceso" as const, startedAt: Date.now() } : x)) }));
+    // El estado del tablero de peluquería es la fuente de verdad; el servicio de la visita lo refleja.
+    const svcCol = to === "proceso" ? "en proceso" : to === "pendiente" ? "pendiente" : "terminado";
+    set((s) => ({
+      grooming: s.grooming.map((x) => (x.id === id ? { ...x, status: to, ...(to === "proceso" ? { startedAt: Date.now() } : {}), ...(to === "terminado" ? { finishedAt: Date.now() } : {}) } : x)),
+      services: job.serviceId ? s.services.map((sv) => (sv.id === job.serviceId ? { ...sv, status: svcCol } : sv)) : s.services,
+    }));
+    // Fallback para trabajos sin visita enlazada (semilla / walk-in previos): crea el servicio ya terminado.
+    if (to === "terminado" && !job.serviceId) {
+      get().chargeToVisit(owner.id, job.patientId, { type: "peluqueria", label: `Estética: ${job.service}`, price: job.price });
     }
-    if (to === "terminado") {
-      set((s) => ({ grooming: s.grooming.map((x) => (x.id === id ? { ...x, status: "terminado" as const, finishedAt: Date.now() } : x)) }));
-      get().chargeToAccount(owner.id, { desc: `Estética: ${job.service} (${patient.name})`, amount: job.price, source: "Peluquería" });
-      get().notify("wa", `WhatsApp a ${owner.name}: "¡${patient.name} está listo! Ya puedes pasar a recogerlo 🐾"`);
-    }
-    if (to === "entregado") {
-      set((s) => ({ grooming: s.grooming.map((x) => (x.id === id ? { ...x, status: "entregado" as const } : x)) }));
-      get().notify("ok", `${patient.name} entregado. El cargo pasó a la cuenta abierta de ${owner.name}.`);
-    }
+    if (to === "terminado") get().notify("wa", `WhatsApp a ${owner.name}: "¡${patient.name} está listo! Ya puedes pasar a recogerlo 🐾"`);
+    if (to === "entregado") get().notify("ok", `${patient.name} entregado. El servicio quedó terminado en la visita de ${owner.name}.`);
   },
 
   records: [
@@ -188,8 +208,8 @@ export const useVetStore = create<VetState>((set, get) => ({
     const patient = st.patients.find((p) => p.id === data.patientId)!;
     const record = { id: uid(), date: Date.now(), products: [], prescriptions: [], ...data };
     set((s) => ({ records: [record, ...s.records] }));
-    get().chargeToAccount(patient.clientId, { desc: `Consulta médica (${patient.name})`, amount: CONSULT_FEE, source: "Clínica" });
-    get().notify("ok", `Consulta guardada en el expediente de ${patient.name}. Cargo de ${money(CONSULT_FEE)} añadido a la cuenta.`);
+    // El cargo de la consulta lo lleva el servicio de veterinaria de la visita (creado en el check-in), no el expediente.
+    get().notify("ok", `Consulta guardada en el expediente de ${patient.name}.`);
     return record.id;
   },
   applyProduct: (recordId, patientId, productId, qty) => {
@@ -201,23 +221,34 @@ export const useVetStore = create<VetState>((set, get) => ({
       inventory: s.inventory.map((p) => (p.id === productId ? { ...p, stock: p.stock - qty } : p)),
       records: s.records.map((r) => (r.id === recordId ? { ...r, products: [...r.products, { name: product.name, qty, price: product.price }] } : r)),
     }));
-    get().chargeToAccount(patient.clientId, { desc: `${product.name} ×${qty} (${patient.name})`, amount: product.price * qty, source: "Clínica" });
+    get().chargeToVisit(patient.clientId, patientId, { type: "medicamento", label: `${product.name} ×${qty}`, price: product.price * qty });
     const after = get().inventory.find((p) => p.id === productId)!;
     if (after.stock <= after.minStock) get().notify("warn", `Stock bajo: ${after.name} (${after.stock} uds). Generar orden de compra.`);
     get().notify("ok", `${product.name} descontado del inventario y cargado a la cuenta del cliente.`);
   },
+  // Orden de laboratorio (desde clínica): crea el servicio ya comenzado + la orden en su módulo, enlazados.
   orderLab: (patientId, test) => {
     const st = get();
     const patient = st.patients.find((p) => p.id === patientId)!;
-    set((s) => ({ labOrders: [{ id: uid(), patientId, test, price: LAB_TESTS[test], status: "solicitado" as const, result: "" }, ...s.labOrders] }));
-    get().chargeToAccount(patient.clientId, { desc: `Laboratorio: ${test} (${patient.name})`, amount: LAB_TESTS[test], source: "Laboratorio" });
+    const visitId = st.openVisit(patient.clientId, patientId);
+    const serviceId = uid();
+    const svc: ServiceItem = { id: serviceId, visitId, patientId, type: "laboratorio", label: test, price: LAB_TESTS[test], status: "solicitado", started: true };
+    set((s) => ({
+      services: [...s.services, svc],
+      labOrders: [{ id: uid(), serviceId, patientId, test, price: LAB_TESTS[test], status: "solicitado" as const, result: "" }, ...s.labOrders],
+      visits: s.visits.map((v) => (v.id === visitId ? { ...v, started: true } : v)),
+    }));
     get().notify("ok", `Orden de laboratorio generada: ${test}.`);
   },
   loadLabResult: (orderId, result) => {
     const st = get();
     const order = st.labOrders.find((x) => x.id === orderId)!;
     const patient = st.patients.find((p) => p.id === order.patientId)!;
-    set((s) => ({ labOrders: s.labOrders.map((x) => (x.id === orderId ? { ...x, status: "resultado" as const, result } : x)) }));
+    // Cargar el resultado deja el laboratorio en su columna final; el servicio de la visita lo refleja.
+    set((s) => ({
+      labOrders: s.labOrders.map((x) => (x.id === orderId ? { ...x, status: "resultado" as const, result } : x)),
+      services: order.serviceId ? s.services.map((sv) => (sv.id === order.serviceId ? { ...sv, status: "resultado" } : sv)) : s.services,
+    }));
     get().notify("ok", `Resultado de ${order.test} (${patient.name}) disponible. Se alertó al médico tratante.`);
   },
   addPrescription: (recordId, patientId, med, dosage) => {
@@ -250,31 +281,109 @@ export const useVetStore = create<VetState>((set, get) => ({
     get().notify("ok", `Lote ingresado: +${qty} uds de ${product.name} (stock: ${product.stock}).`);
   },
 
-  accounts: [
-    { id: "acc1", clientId: "c3", items: [{ desc: "Consulta médica (Kiwi)", amount: 25, source: "Clínica" }] },
+  // Visita semilla ya comenzada: Elena (c3) / Kiwi (p4) con una consulta en curso — demuestra el kanban de veterinaria.
+  visits: [
+    { id: "vis1", clientId: "c3", patientId: "p4", createdAt: Date.now() - 1800000, started: true },
   ],
-  chargeToAccount: (clientId, item) => {
+  services: [
+    { id: "sv1", visitId: "vis1", patientId: "p4", type: "veterinaria", label: "Consulta médica", price: 25, status: "en consulta", started: true },
+  ],
+  openVisit: (clientId, patientId) => {
+    const existing = get().visits.find((v) => v.clientId === clientId);
+    if (existing) return existing.id;
+    const id = uid();
+    set((s) => ({ visits: [...s.visits, { id, clientId, patientId, createdAt: Date.now(), started: false }] }));
+    return id;
+  },
+  // En edición se agrega como BORRADOR: aún no toca ningún módulo (eso ocurre al "Comenzar").
+  addService: (visitId, { type, label, price, patientId }) => {
+    const status = SERVICE_FLOWS[type].columns[0];
+    set((s) => ({ services: [...s.services, { id: uid(), visitId, patientId, type, label, price, status, started: false }] }));
+    get().notify("ok", `${label} agregado a la visita.`);
+  },
+  // "Comenzar": crea cada servicio borrador en su módulo con su estado inicial y marca la visita como comenzada.
+  startVisit: (visitId) => {
+    const drafts = get().services.filter((sv) => sv.visitId === visitId && !sv.started);
     set((s) => {
-      const existing = s.accounts.find((a) => a.clientId === clientId);
-      if (existing) {
-        return { accounts: s.accounts.map((a) => (a.id === existing.id ? { ...a, items: [...a.items, item] } : a)) };
-      }
-      return { accounts: [...s.accounts, { id: uid(), clientId, items: [item] }] };
+      let grooming = s.grooming;
+      let labOrders = s.labOrders;
+      drafts.forEach((sv) => {
+        if (sv.type === "peluqueria") grooming = [...grooming, { id: uid(), serviceId: sv.id, patientId: sv.patientId, service: sv.label, price: sv.price, belongings: "", groomer: "Sofía", status: "pendiente" as const }];
+        if (sv.type === "laboratorio") labOrders = [{ id: uid(), serviceId: sv.id, patientId: sv.patientId, test: sv.label, price: sv.price, status: "solicitado" as const, result: "" }, ...labOrders];
+      });
+      return {
+        grooming, labOrders,
+        services: s.services.map((sv) => (sv.visitId === visitId ? { ...sv, started: true } : sv)),
+        visits: s.visits.map((v) => (v.id === visitId ? { ...v, started: true } : v)),
+      };
     });
+    get().notify("ok", "Visita comenzada. Los servicios están en sus módulos.");
+  },
+  advanceService: (id) => {
+    const sv = get().services.find((x) => x.id === id);
+    if (!sv) return;
+    const cols = SERVICE_FLOWS[sv.type].columns;
+    const next = cols[Math.min(cols.indexOf(sv.status) + 1, cols.length - 1)];
+    set((s) => ({ services: s.services.map((x) => (x.id === id ? { ...x, status: next } : x)) }));
+    if (next === cols[cols.length - 1]) {
+      const visit = get().visits.find((v) => v.id === sv.visitId);
+      const client = visit && get().clients.find((c) => c.id === visit.clientId);
+      if (client) get().notify("wa", `WhatsApp a ${client.name}: "${sv.label} finalizado ✅"`);
+    }
+  },
+  // Cancelar el servicio lo remueve también de su módulo de origen (peluquería/laboratorio).
+  removeService: (id) => set((s) => ({
+    services: s.services.filter((x) => x.id !== id),
+    grooming: s.grooming.filter((g) => g.serviceId !== id),
+    labOrders: s.labOrders.filter((o) => o.serviceId !== id),
+  })),
+  // Cargos ya realizados desde módulos de dominio → entran como servicio terminado en la visita abierta del cliente.
+  chargeToVisit: (clientId, patientId, { type, label, price }) => {
+    const visitId = get().openVisit(clientId, patientId);
+    const cols = SERVICE_FLOWS[type].columns;
+    set((s) => ({
+      services: [...s.services, { id: uid(), visitId, patientId, type, label, price, status: cols[cols.length - 1], started: true }],
+      visits: s.visits.map((v) => (v.id === visitId ? { ...v, started: true } : v)),
+    }));
   },
   invoices: [],
-  collectAccount: (accountId) => {
+  billVisit: (visitId, { discount, ivaRate, method }) => {
     const st = get();
-    const account = st.accounts.find((a) => a.id === accountId)!;
-    const client = st.clients.find((c) => c.id === account.clientId)!;
-    const itemsTotal = account.items.reduce((t, i) => t + i.amount, 0);
-    const total = itemsTotal + (client.debt || 0);
+    const visit = st.visits.find((v) => v.id === visitId)!;
+    const client = st.clients.find((c) => c.id === visit.clientId)!;
+    const svcs = st.services.filter((sv) => sv.visitId === visitId);
+    if (svcs.length === 0 || !svcs.every((sv) => isServiceDone(sv.type, sv.status))) {
+      get().notify("error", "La visita tiene servicios sin terminar.");
+      return "";
+    }
+    const prevDebt = client.debt || 0;
+    const subtotal = round2(svcs.reduce((t, sv) => t + sv.price, 0));
+    const base = round2(subtotal - discount);
+    const iva = round2(base * ivaRate);
+    const total = round2(base + iva + prevDebt);
+    const id = uid();
     const num = "FAC-" + String(st.invoices.length + 1).padStart(3, "0");
+    const items: AccountItem[] = svcs.map((sv) => ({ desc: sv.label, amount: sv.price, source: SERVICE_FLOWS[sv.type].label, status: "completado" }));
     set((s) => ({
-      invoices: [{ id: uid(), num, clientId: client.id, items: account.items, prevDebt: client.debt || 0, total, date: Date.now() }, ...s.invoices],
-      accounts: s.accounts.filter((a) => a.id !== accountId),
+      invoices: [{ id, num, clientId: client.id, items, subtotal, discount, iva, prevDebt, total, method, date: Date.now() }, ...s.invoices],
+      services: s.services.filter((sv) => sv.visitId !== visitId),
+      visits: s.visits.filter((v) => v.id !== visitId),
       clients: s.clients.map((c) => (c.id === client.id ? { ...c, debt: 0 } : c)),
     }));
-    get().notify("ok", `${num} emitida a ${client.name} por ${money(total)}. Servicios e insumos consolidados.`);
+    get().notify("ok", `${num} emitida a ${client.name} por ${money(total)} · ${method}.`);
+    return id;
+  },
+
+  expenses: [
+    { id: "e1", category: "Renta", desc: "Renta del local (día)", amount: 50, date: Date.now() - 3600000 * 5 },
+    { id: "e2", category: "Servicios", desc: "Luz y agua", amount: 60, date: Date.now() - 3600000 * 4 },
+    { id: "e3", category: "Compras/Insumos", desc: "Reposición de gasas y jeringas", amount: 85.5, date: Date.now() - 3600000 * 2 },
+  ],
+  addExpense: (data) => {
+    set((s) => ({ expenses: [{ id: uid(), date: Date.now(), ...data }, ...s.expenses] }));
+    get().notify("ok", `Gasto registrado: ${data.desc} (${money(data.amount)}).`);
+  },
+  removeExpense: (id) => {
+    set((s) => ({ expenses: s.expenses.filter((e) => e.id !== id) }));
   },
 }));
