@@ -1,6 +1,6 @@
 # AGENTS.md — Manual del proyecto para agentes de IA
 
-Manual centralizado de Veti Suite. Complementos: `CLAUDE.md` (contexto de sesión) y `DESIGN.md` (sistema de diseño — leer antes de tocar UI).
+Manual centralizado de Veti Suite. Complementos: `../CLAUDE.md` (raíz del monorepo — contexto de sesión) y `DESIGN.md` (sistema de diseño — leer antes de tocar UI).
 
 ## 1. Project overview
 
@@ -25,9 +25,9 @@ Manual centralizado de Veti Suite. Complementos: `CLAUDE.md` (contexto de sesió
 | Comando | Qué hace |
 |---|---|
 | `bun install` | Instala dependencias |
-| `bun run dev` | Dev server con HMR (Vite, puerto 5173+) |
+| `bun run dev` | Dev server con HMR (Vite, puerto 5173+). Desde la raíz: `bun run --filter client dev` |
 | `bun run build` | **Puerta de calidad**: `tsc -b` (typecheck) + `vite build` → `dist/` |
-| `bun run lint` | ESLint (incluye reglas react-hooks v7 / react-compiler) |
+| `bun run lint` | ESLint — se corre en la **raíz del monorepo** (config compartida) |
 | `bun run preview` | Sirve el build de producción localmente |
 
 No hay suite de tests (ver §4).
