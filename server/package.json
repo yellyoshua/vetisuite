@@ -1,0 +1,14 @@
+{
+  "name": "server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nitro dev",
+    "build": "nitro build",
+    "build:lambda": "NITRO_PRESET=aws-lambda nitro build",
+    "prepare": "nitro prepare"
+  },
+  "devDependencies": {
+    "nitropack": "^2.12.9"
+  }
+}
