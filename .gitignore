@@ -11,6 +11,10 @@ node_modules
 dist
 dist-ssr
 *.local
+.output
+.nitro
+.astro
+.vercel
 
 # Editor directories and files
 .vscode/*
