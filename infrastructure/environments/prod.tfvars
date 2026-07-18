@@ -1,6 +1,6 @@
 environment = "prod"
 api_domain  = "api.vetisuite.com"
-web_origin  = "https://web.vetisuite.com"
+web_origin  = "https://app.vetisuite.com"
 
 lambda_memory  = 512
 lambda_timeout = 30

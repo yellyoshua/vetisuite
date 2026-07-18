@@ -26,8 +26,8 @@ resource "aws_codebuild_project" "app" {
         build = {
           commands = [
             "bun install --frozen-lockfile",
-            "bun --filter ./packages/server build:lambda",
-            "cd packages/server/.output/server && zip -r /tmp/function.zip .",
+            "bun --filter ./server build:lambda",
+            "cd server/.output/server && zip -r /tmp/function.zip .",
             "aws lambda update-function-code --function-name \"$LAMBDA_NAME\" --zip-file fileb:///tmp/function.zip --publish",
           ]
         }

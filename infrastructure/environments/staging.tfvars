@@ -1,6 +1,6 @@
 environment = "staging"
 api_domain  = "api-staging.vetisuite.com"
-web_origin  = "https://web-staging.vetisuite.com"
+web_origin  = "https://app-staging.vetisuite.com"
 
 lambda_memory  = 512
 lambda_timeout = 30

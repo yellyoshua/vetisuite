@@ -28,7 +28,7 @@ variable "api_domain" {
 variable "web_origin" {
   description = "Origen permitido por CORS (la web-app)."
   type        = string
-  default     = "https://web.vetisuite.com"
+  default     = "https://app.vetisuite.com"
 }
 
 variable "lambda_runtime" {
