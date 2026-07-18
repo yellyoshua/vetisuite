@@ -17,12 +17,12 @@ con `orgId` y `projectId`. Se hace **por paquete**.
 
 ```sh
 # Landing
-cd packages/landing
+cd landing
 vercel link --project vetisuite-landing --yes
 
 # App
-cd ../web
-vercel link --project vetisuite-web --yes
+cd ../client
+vercel link --project vetisuite-client --yes
 
 # Server
 cd ../server
@@ -34,7 +34,7 @@ vercel link --project vetisuite-server --yes
 
 ## 2. Anotar los IDs
 
-Tras enlazar, cada `packages/<x>/.vercel/project.json` contiene:
+Tras enlazar, cada `<carpeta>/.vercel/project.json` contiene:
 
 ```json
 { "orgId": "team_xxx", "projectId": "prj_xxx" }
@@ -43,7 +43,7 @@ Tras enlazar, cada `packages/<x>/.vercel/project.json` contiene:
 - `orgId` es el mismo para los tres.
 - `projectId` es distinto por proyecto → son los secrets del CI.
 
-Guarda los tres `projectId` (landing/web/server) y el `orgId` común.
+Guarda los tres `projectId` (landing/client/server) y el `orgId` común.
 
 ## 3. Framework preset por proyecto (dashboard o CLI)
 
@@ -51,9 +51,9 @@ En el dashboard de cada proyecto → Settings → General:
 
 | Proyecto            | Framework Preset | Root Directory     | Build Command       | Output Directory |
 |---------------------|------------------|--------------------|---------------------|------------------|
-| vetisuite-landing   | Vite / Other     | `packages/landing` | `bun run build`     | `dist`           |
-| vetisuite-web       | Vite             | `packages/web`     | `bun run build`     | `dist`           |
-| vetisuite-server    | Nitro / Other    | `packages/server`  | (prebuilt, ver 04)  | (Build Output)   |
+| vetisuite-landing   | Vite / Other     | `landing` | `bun run build`     | `dist`           |
+| vetisuite-client       | Vite             | `client`     | `bun run build`     | `dist`           |
+| vetisuite-server    | Nitro / Other    | `server`  | (prebuilt, ver 04)  | (Build Output)   |
 
 El `vercel.json` de cada paquete ya fija `buildCommand`/`outputDirectory`, así
 que el dashboard es respaldo. Para el server desplegamos `--prebuilt`, no hace
@@ -75,7 +75,7 @@ Práctico hazlo en el dashboard (Project → Settings → Domains → Add):
 | Proyecto            | Dominio a añadir      |
 |---------------------|-----------------------|
 | vetisuite-landing   | `vetisuite.com` (+ `www` redirect) |
-| vetisuite-web       | `web.vetisuite.com`   |
+| vetisuite-client       | `app.vetisuite.com`   |
 | vetisuite-server    | `api.vetisuite.com`   |
 
 ### DNS
@@ -86,7 +86,7 @@ Configura en tu proveedor DNS (o usa los nameservers de Vercel):
 |----------|--------|-------------------------|
 | A        | `@`    | `76.76.21.21` (Vercel)  |
 | CNAME    | `www`  | `cname.vercel-dns.com`  |
-| CNAME    | `web`  | `cname.vercel-dns.com`  |
+| CNAME    | `app`  | `cname.vercel-dns.com`  |
 | CNAME    | `api`  | `cname.vercel-dns.com`  |
 
 Vercel emite los certs TLS automáticamente al verificar cada dominio.
@@ -96,13 +96,13 @@ Los valores exactos los muestra Vercel al añadir cada dominio — usa esos.
 
 ### App (build-time, `VITE_*`)
 
-En vetisuite-web → Settings → Environment Variables (Production):
+En vetisuite-client → Settings → Environment Variables (Production):
 
 ```
 VITE_API_URL = https://api.vetisuite.com
 ```
 
-O por CLI desde `packages/web`:
+O por CLI desde `client`:
 
 ```sh
 vercel env add VITE_API_URL production
@@ -123,15 +123,15 @@ Normalmente ninguna.
 Antes de montar el CI, prueba cada proyecto a mano desde su paquete:
 
 ```sh
-cd packages/landing && vercel --prod
-cd ../web            && vercel --prod
+cd landing && vercel --prod
+cd ../client            && vercel --prod
 cd ../server         && bun run build && vercel deploy --prebuilt --prod
 ```
 
 Comprueba:
 - `https://vetisuite.com` → landing
-- `https://web.vetisuite.com` → web, recarga ruta profunda sin 404
-- `https://api.vetisuite.com/health` → `{"ok":true}`
-- desde la web, un `fetch` a la api no da error CORS
+- `https://app.vetisuite.com` → app, recarga ruta profunda sin 404
+- `https://api.vetisuite.com/healthcheck` → `{"status":"ok"}`
+- desde la app, un `fetch` a la api no da error CORS
 
 Si los tres responden, automatiza en `06-ci-github-actions.md`.

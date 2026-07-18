@@ -1,8 +1,7 @@
-# 03 · Web-app SPA (`packages/web`)
+# 03 · App SPA (`client/`)
 
-La SPA actual (React 19 + Vite + react-router) movida a `packages/web` en el
-doc 01. Se sirve en `web.vetisuite.com/*`. Aquí: config Vercel para SPA y la
-conexión al backend.
+La SPA (React 19 + Vite + react-router) vive en `client/`. Se sirve en
+`app.vetisuite.com/*`. Aquí: config Vercel para SPA y la conexión al backend.
 
 ## 1. Fallback SPA (crítico)
 
@@ -10,7 +9,7 @@ react-router usa rutas cliente (`/clients/show/:id`, etc.). Al recargar una URL
 profunda, Vercel debe devolver `index.html` en vez de 404. Se configura con un
 rewrite catch-all.
 
-### `packages/web/vercel.json`
+### `client/vercel.json`
 
 ```json
 {
@@ -31,13 +30,13 @@ en `/assets/*`) antes de aplicar el rewrite, así que los assets no se rompen.
 La app hace `fetch` a `https://api.vetisuite.com`. Esa URL no se hardcodea:
 va en una env var de Vite (`VITE_` se inyecta en build).
 
-### `packages/web/.env.production`
+### `client/.env.production`
 
 ```
 VITE_API_URL=https://api.vetisuite.com
 ```
 
-### `packages/web/.env.development`
+### `client/.env.development`
 
 ```
 VITE_API_URL=http://localhost:3000
@@ -71,7 +70,7 @@ solo importa el día que exista backend real. Déjala documentada y sigue.
 ## 3. Verificación local
 
 ```sh
-cd packages/web
+cd client
 bun run build       # tsc -b + vite build → dist/
 bun run preview     # sirve dist/, prueba recargar /clients/show/1
 ```

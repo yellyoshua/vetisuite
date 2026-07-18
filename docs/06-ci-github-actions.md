@@ -1,6 +1,6 @@
 # 06 · CI — deploy independiente con GitHub Actions
 
-Pipeline que despliega **landing**, **web** y **server** por separado, sin
+Pipeline que despliega **landing**, **client** y **server** por separado, sin
 integración Git de Vercel. Dos disparadores:
 
 1. **Automático por push**: filtra por rutas cambiadas → solo despliega lo tocado.
@@ -15,7 +15,7 @@ En GitHub → Settings → Secrets and variables → Actions:
 | `VERCEL_TOKEN`               | token de cuenta (Account → Tokens)      |
 | `VERCEL_ORG_ID`              | `orgId` común (doc 05)                  |
 | `VERCEL_PROJECT_ID_LANDING`  | `projectId` de vetisuite-landing        |
-| `VERCEL_PROJECT_ID_WEB`      | `projectId` de vetisuite-web            |
+| `VERCEL_PROJECT_ID_CLIENT`      | `projectId` de vetisuite-client            |
 | `VERCEL_PROJECT_ID_SERVER`   | `projectId` de vetisuite-server         |
 
 `VERCEL_ORG_ID` + `VERCEL_PROJECT_ID` en el entorno hacen que `vercel pull/build/
@@ -23,7 +23,7 @@ deploy` operen sobre el proyecto correcto **sin** `.vercel/project.json`.
 
 ## Cómo despliega cada pieza
 
-Patrón estático (landing / web):
+Patrón estático (landing / client):
 
 ```sh
 vercel pull   --yes --environment=production --token=$VERCEL_TOKEN
@@ -54,7 +54,7 @@ on:
       target:
         description: Qué desplegar
         type: choice
-        options: [all, landing, web, server]
+        options: [all, landing, client, server]
         default: all
 
 env:
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       landing: ${{ steps.f.outputs.landing }}
-      web: ${{ steps.f.outputs.web }}
+      client: ${{ steps.f.outputs.client }}
       server: ${{ steps.f.outputs.server }}
     steps:
       - uses: actions/checkout@v4
@@ -74,9 +74,9 @@ jobs:
         id: f
         with:
           filters: |
-            landing: ['packages/landing/**']
-            web: ['packages/web/**']
-            server: ['packages/server/**']
+            landing: ['landing/**']
+            client: ['client/**']
+            server: ['server/**']
 
   landing:
     needs: changes
@@ -98,15 +98,15 @@ jobs:
       - run: bunx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
         env: { VERCEL_TOKEN: '${{ secrets.VERCEL_TOKEN }}' }
 
-  web:
+  client:
     needs: changes
     if: >-
-      (github.event_name == 'push' && needs.changes.outputs.web == 'true') ||
+      (github.event_name == 'push' && needs.changes.outputs.client == 'true') ||
       (github.event_name == 'workflow_dispatch' &&
-       contains(fromJSON('["all","web"]'), inputs.target))
+       contains(fromJSON('["all","client"]'), inputs.target))
     runs-on: ubuntu-latest
     env:
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_CLIENT }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -133,29 +133,29 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bunx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
         env: { VERCEL_TOKEN: '${{ secrets.VERCEL_TOKEN }}' }
-      - run: bun --filter ./packages/server build      # NITRO_PRESET=vercel → .vercel/output
-      - run: bunx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN --cwd packages/server
+      - run: bun --filter ./server build      # NITRO_PRESET=vercel → .vercel/output
+      - run: bunx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN --cwd server
         env: { VERCEL_TOKEN: '${{ secrets.VERCEL_TOKEN }}' }
 ```
 
 ### Notas de implementación
 
-- **`--cwd packages/<x>`**: `vercel pull/build/deploy` deben correr en el dir del
-  paquete para que tomen su `vercel.json`. Los jobs estáticos (landing/web) usan
+- **`--cwd <carpeta>`**: `vercel pull/build/deploy` deben correr en el dir del
+  paquete para que tomen su `vercel.json`. Los jobs estáticos (landing/client) usan
   el `Root Directory` del proyecto en Vercel; si prefieres, añade `--cwd
-  packages/landing` a sus tres comandos vercel para no depender del dashboard.
+  landing` a sus tres comandos vercel para no depender del dashboard.
   Sé consistente: o Root Directory en Vercel, o `--cwd` en todos.
 - **Independencia**: cada job tiene su propio `VERCEL_PROJECT_ID`. Nunca se pisan.
   El dispatch con `target: server` solo corre el job server.
-- **Filtro de rutas**: un cambio en `packages/web/**` solo dispara el job `web`.
+- **Filtro de rutas**: un cambio en `client/**` solo dispara el job `client`.
   Cambios en la raíz (p.ej. lockfile) no disparan nada — añade una regla
   `shared: ['bun.lock','package.json']` y ponla como dependencia de todos si
   quieres redeploy global en esos casos.
-- **Gate de calidad**: opcional añadir `bun run lint` / `bun --filter ./packages/web
+- **Gate de calidad**: opcional añadir `bun run lint` / `bun --filter ./client
   build` como step previo al deploy. `vercel build` ya compila, así que un lint
   basta para fallar temprano.
 
 ## Disparo manual independiente
 
-GitHub → Actions → Deploy → **Run workflow** → eliges `landing` | `web` |
+GitHub → Actions → Deploy → **Run workflow** → eliges `landing` | `client` |
 `server` | `all`. Cumple "lanzar independientemente".

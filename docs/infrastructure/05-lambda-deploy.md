@@ -8,7 +8,7 @@ etapas de abajo son exactamente lo que corre CodeBuild (buildspecs inline en
 
 ## 1. Preset de Nitro
 
-El server (`packages/server`) se compila para AWS Lambda:
+El server (`server`) se compila para AWS Lambda:
 
 ```sh
 NITRO_PRESET=aws-lambda nitro build
@@ -17,7 +17,7 @@ NITRO_PRESET=aws-lambda nitro build
 Salida en `.output/server/` con un handler exportado en `index.mjs`. El handler
 de la Lambda es `index.handler` (coincide con `lambda.tf`).
 
-Añade el script en `packages/server/package.json`:
+Añade el script en `server/package.json`:
 
 ```json
 {
@@ -34,7 +34,7 @@ Añade el script en `packages/server/package.json`:
 ## 2. Empaquetar
 
 ```sh
-cd packages/server
+cd server
 bun run build:lambda
 cd .output/server
 zip -r ../../function.zip .        # zip del CONTENIDO de .output/server
@@ -48,7 +48,7 @@ Necesitas el nombre de la función (output de Terraform
 ```sh
 aws lambda update-function-code \
   --function-name vetisuite-api-prod \
-  --zip-file fileb://packages/server/function.zip \
+  --zip-file fileb://server/function.zip \
   --publish
 ```
 

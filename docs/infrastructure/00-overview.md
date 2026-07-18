@@ -15,7 +15,7 @@ detrás de API Gateway HTTP. Landing y web-app **siguen estáticos en Vercel**.
 ```
 Vercel (estáticos)          AWS (Terraform crea, CodePipeline despliega)
   vetisuite.com    landing    Lambda(Nitro aws-lambda) ◄─ CodePipeline ◄─ GitHub
-  web.vetisuite.com  web  ──fetch──►  API Gateway HTTP        (CodeStar Connection)
+  app.vetisuite.com  client ─fetch──►  API Gateway HTTP        (CodeStar Connection)
                              + ACM cert + IAM + Logs
                                        ▲
                              Cloudflare DNS: CNAME api → APIGW (DNS-only)

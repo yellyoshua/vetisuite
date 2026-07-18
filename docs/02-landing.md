@@ -1,75 +1,31 @@
-# 02 · Landing estática (`packages/landing`)
+# 02 · Landing (`landing/`) — Astro
 
-Sitio de marketing servido en `vetisuite.com/*`. Estático puro con Vite.
-No comparte código con la web; es un proyecto Vite independiente.
+Sitio de marketing servido en `vetisuite.com/*`. Proyecto **Astro** independiente:
+estático por defecto, cero JS en cliente salvo que se pida. Hoy es un hello world.
 
-## Pasos
+## Estructura
 
-### 1. Crear el paquete
+```
+landing/
+  package.json          → name "landing", scripts astro dev/build/preview
+  astro.config.mjs      → site: https://vetisuite.com
+  tsconfig.json         → extends astro/tsconfigs/strict
+  src/pages/
+    index.astro         → hello world (cada .astro en pages/ = una ruta)
+```
+
+Astro enruta por archivos: `src/pages/precios.astro` → `/precios`. Para
+marketing son rutas reales — no hay fallback SPA.
+
+## Comandos
 
 ```sh
-cd packages/landing
-bun init -y
-bun add -D vite
+bun run --filter landing dev       # http://localhost:4321
+bun run --filter landing build     # genera landing/dist/
+bun run --filter landing preview   # sirve el build
 ```
 
-### 2. `packages/landing/package.json`
-
-```json
-{
-  "name": "@vetisuite/landing",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "vite": "^8.1.1"
-  }
-}
-```
-
-### 3. `packages/landing/index.html`
-
-Punto de entrada. Vite lo toma como raíz por defecto.
-
-```html
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Veti Suite</title>
-  </head>
-  <body>
-    <main id="app"><!-- contenido landing --></main>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
-</html>
-```
-
-Si la landing es HTML/CSS plano sin JS, puedes borrar el `<script>` y el `src/`.
-Ponytail: si no hay interactividad, ni siquiera necesitas Vite — un `index.html`
-+ carpeta `public/` desplegados como estáticos bastan. Añade Vite solo cuando
-quieras bundling/CSS pipeline.
-
-### 4. `packages/landing/vite.config.ts`
-
-```ts
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  build: { outDir: 'dist' },
-})
-```
-
-### 5. `packages/landing/vercel.json`
-
-La landing es multipágina o single-page; para marketing normalmente son rutas
-reales (`/`, `/precios`, `/contacto`). No pongas fallback SPA a menos que uses
-routing en cliente.
+## `landing/vercel.json` (cuando se despliegue)
 
 ```json
 {
@@ -80,24 +36,20 @@ routing en cliente.
 }
 ```
 
-- `cleanUrls`: sirve `/precios.html` como `/precios`.
-- Sin `rewrites`: cada URL mapea a un archivo real → 404 correctos.
+Vercel también detecta Astro como framework preset; el `vercel.json` es respaldo
+para deploy por CLI sin dashboard.
 
-### 6. Verificación local
+## Enlace a la app
 
-```sh
-bun run build       # genera packages/landing/dist
-bun run preview     # sirve el build
-```
-
-Abrir el preview y comprobar que las rutas cargan.
-
-## Enlace a la web
-
-El CTA de la landing ("Entrar", "Iniciar sesión") apunta a
-`https://web.vetisuite.com`. Es un enlace absoluto entre dominios, no una ruta
-interna:
+El CTA de la landing ("Entrar") apunta a `https://app.vetisuite.com`. Enlace
+absoluto entre dominios, no una ruta interna:
 
 ```html
-<a href="https://web.vetisuite.com">Entrar a la app</a>
+<a href="https://app.vetisuite.com">Entrar a la app</a>
 ```
+
+## Qué se deja fuera (a propósito)
+
+Contenido real, estilos, integraciones Astro (sitemap, og-images): cuando haya
+contenido que publicar. El lint raíz no cubre `.astro` — añadir
+`eslint-plugin-astro` cuando la landing tenga código real.

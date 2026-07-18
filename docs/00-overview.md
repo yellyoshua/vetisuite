@@ -1,7 +1,7 @@
 # 00 · Visión general del despliegue
 
-Plan para servir **landing** (estáticos) en `vetisuite.com/*` y la **web-app** (SPA)
-en `web.vetisuite.com/*`, con un **backend Nitro** en `api.vetisuite.com/*`, todo
+Plan para servir **landing** (estáticos) en `vetisuite.com/*` y la **app** (SPA, `client/`)
+en `app.vetisuite.com/*`, con un **backend Nitro** en `api.vetisuite.com/*`, todo
 alojado en Vercel, **sin integración Git**, y con CI que despliega cada pieza de
 forma independiente.
 
@@ -11,17 +11,17 @@ forma independiente.
 
 | Pieza    | Paquete            | Proyecto Vercel      | Dominio                 | Tipo                     |
 |----------|--------------------|----------------------|-------------------------|--------------------------|
-| Landing  | `packages/landing` | `vetisuite-landing`  | `vetisuite.com`         | Estático (Vite)          |
-| Web-app  | `packages/web`     | `vetisuite-web`      | `web.vetisuite.com`     | SPA estática (Vite)      |
-| Server   | `packages/server`  | `vetisuite-server`   | `api.vetisuite.com`     | Nitro (preset `vercel`)  |
+| Landing  | `landing/`| `vetisuite-landing`  | `vetisuite.com`         | Estático (Astro)         |
+| App      | `client/`    | `vetisuite-client`      | `app.vetisuite.com`     | SPA estática (Vite)      |
+| Server   | `server/` | `vetisuite-server`   | `api.vetisuite.com`     | Nitro (preset `vercel`)  |
 
 ### Por qué 3 proyectos y no 1 con rewrites
 
 - **Despliegue independiente**: cada proyecto Vercel tiene su propio deployment y
-  su propio `VERCEL_PROJECT_ID`. Desplegar la web no toca la landing ni el server.
+  su propio `VERCEL_PROJECT_ID`. Desplegar el client no toca la landing ni el server.
   Esto es exactamente el requisito de "lanzar independientemente".
 - **Subdominios gratis**: en Vercel cada proyecto puede reclamar su dominio. No
-  hace falta enrutar `web.*` con rewrites internos ni proxys. Menos config, menos
+  hace falta enrutar `app.*` con rewrites internos ni proxys. Menos config, menos
   fallos.
 - **Superficies de fallo aisladas**: un mal deploy del server no rompe la landing.
 
@@ -39,12 +39,12 @@ cambiar la arquitectura de Vercel (los 3 proyectos siguen siendo independientes)
 ```
 Navegador
   ├─ GET vetisuite.com/*        → proyecto landing  (estático)
-  ├─ GET web.vetisuite.com/*    → proyecto web      (SPA, fallback a index.html)
+  ├─ GET app.vetisuite.com/*    → proyecto client   (SPA, fallback a index.html)
   └─ fetch api.vetisuite.com/*  → proyecto server   (Nitro, funciones)
 ```
 
-La web-app es 100% cliente: hace `fetch` a `https://api.vetisuite.com`. Es
-cross-origin → el server debe emitir **CORS** para `https://web.vetisuite.com`
+La app es 100% cliente: hace `fetch` a `https://api.vetisuite.com`. Es
+cross-origin → el server debe emitir **CORS** para `https://app.vetisuite.com`
 (ver `04-server-nitro.md`).
 
 ## Despliegue sin Git
@@ -65,7 +65,7 @@ Cada job del CI exporta el `VERCEL_PROJECT_ID` de su pieza. Ver
 
 1. `01-monorepo-structure.md` — reestructurar el repo a workspaces.
 2. `02-landing.md` — paquete landing.
-3. `03-web-app.md` — mover la SPA actual a `packages/web`.
+3. `03-client.md` — mover la SPA actual a `client`.
 4. `04-server-nitro.md` — backend Nitro con preset Vercel.
 5. `05-vercel-projects-domains.md` — crear proyectos, dominios, DNS, env.
 6. `06-ci-github-actions.md` — pipeline de deploy independiente.

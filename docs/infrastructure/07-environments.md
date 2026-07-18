@@ -9,7 +9,7 @@ Cloud + un `.tfvars` + una CodePipeline propia.
 |---------------------------|---------------------------|-------------------------------|--------------------------|
 | Workspace TFC             | `vetisuite-infra-dev`     | `vetisuite-infra-staging`     | `vetisuite-infra-prod`   |
 | `api_domain`              | `api-dev.vetisuite.com`   | `api-staging.vetisuite.com`   | `api.vetisuite.com`      |
-| `web_origin` (CORS)       | `web-dev.vetisuite.com`   | `web-staging.vetisuite.com`   | `web.vetisuite.com`      |
+| `web_origin` (CORS)       | `app-dev.vetisuite.com`   | `app-staging.vetisuite.com`   | `app.vetisuite.com`      |
 | Lambda mem/timeout        | 256 MB / 15 s             | 512 MB / 30 s                 | 512 MB / 30 s            |
 | Rama fuente (pipeline)    | `develop`                 | `staging`                     | `main`                   |
 | `pipeline_auto_trigger`   | true                      | true                          | false (arranque manual)  |

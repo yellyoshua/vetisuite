@@ -1,4 +1,4 @@
-# 04 · Backend Nitro (`packages/server`)
+# 04 · Backend Nitro (`server`)
 
 > **OBSOLETO como target de deploy.** El backend ya no se sirve en Vercel: pasa a
 > AWS Lambda (preset `aws-lambda`) provisionado con Terraform. Ver
@@ -16,17 +16,17 @@ formato Build Output API de Vercel (`.vercel/output`). Se despliega como
 ### 1. Crear el paquete
 
 ```sh
-cd packages/server
+cd server
 bun init -y
 bun add nitropack
 bun add -D typescript
 ```
 
-### 2. `packages/server/package.json`
+### 2. `server/package.json`
 
 ```json
 {
-  "name": "@vetisuite/server",
+  "name": "server",
   "private": true,
   "type": "module",
   "scripts": {
@@ -43,7 +43,7 @@ bun add -D typescript
 `NITRO_PRESET=vercel` hace que `nitro build` produzca `.vercel/output` en la raíz
 del paquete, listo para `vercel deploy --prebuilt`.
 
-### 3. `packages/server/nitro.config.ts`
+### 3. `server/nitro.config.ts`
 
 ```ts
 import { defineNitroConfig } from 'nitropack/config'
@@ -51,11 +51,11 @@ import { defineNitroConfig } from 'nitropack/config'
 export default defineNitroConfig({
   srcDir: '.',
   routeRules: {
-    // CORS para la web-app (cross-origin web.vetisuite.com → api.vetisuite.com)
+    // CORS para la app (cross-origin app.vetisuite.com → api.vetisuite.com)
     '/**': {
       cors: true,
       headers: {
-        'Access-Control-Allow-Origin': 'https://web.vetisuite.com',
+        'Access-Control-Allow-Origin': 'https://app.vetisuite.com',
         'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
@@ -71,13 +71,13 @@ export default defineNitroConfig({
 
 Nitro enruta por sistema de archivos en `routes/`.
 
-`packages/server/routes/health.get.ts`:
+`server/routes/healthcheck.get.ts`:
 
 ```ts
 export default defineEventHandler(() => ({ ok: true }))
 ```
 
-`packages/server/routes/clients/index.get.ts`:
+`server/routes/clients/index.get.ts`:
 
 ```ts
 export default defineEventHandler(() => {
@@ -85,18 +85,18 @@ export default defineEventHandler(() => {
 })
 ```
 
-Esto responde a `GET api.vetisuite.com/health` y `GET api.vetisuite.com/clients`.
+Esto responde a `GET api.vetisuite.com/healthcheck` y `GET api.vetisuite.com/clients`.
 
 ### 5. Preflight OPTIONS
 
 Con `routeRules.cors: true` Nitro responde el preflight `OPTIONS` automáticamente.
-Si necesitas control fino, añade un middleware en `packages/server/middleware/`.
+Si necesitas control fino, añade un middleware en `server/middleware/`.
 
 ### 6. Verificación local
 
 ```sh
 bun run dev              # nitro dev en http://localhost:3000
-curl localhost:3000/health   # {"ok":true}
+curl localhost:3000/healthcheck   # {"status":"ok"}
 
 bun run build            # genera .vercel/output
 ls .vercel/output        # config.json + functions/ + static/
@@ -109,7 +109,7 @@ Si `.vercel/output` existe tras el build, está listo para deploy prebuilt.
 El server **no** usa `vercel build` (Nitro ya produce el output nativo). El job:
 
 ```sh
-cd packages/server
+cd server
 bun install
 bun run build                          # NITRO_PRESET=vercel → .vercel/output
 vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN

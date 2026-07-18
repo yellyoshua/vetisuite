@@ -29,7 +29,7 @@ aws codepipeline start-pipeline-execution --name vetisuite-prod
 Manual/debug (salta la pipeline; úsalo solo para probar en dev):
 
 ```sh
-cd packages/server
+cd server
 bun run build:lambda
 ( cd .output/server && zip -r ../../function.zip . )
 aws lambda update-function-code \
