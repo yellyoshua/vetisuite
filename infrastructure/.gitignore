@@ -1,5 +1,0 @@
-.terraform/
-.build/
-*.tfstate
-*.tfstate.*
-crash.log
