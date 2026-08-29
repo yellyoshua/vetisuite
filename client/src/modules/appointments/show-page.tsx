@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ClipboardList, MessageCircle, Pencil, Stethoscope } from "lucide-react";
-import { CONSULT_FEE, GROOM_SERVICES, LAB_TESTS, F, money, T } from "../../lib/constants";
-import type { ServiceType } from "../../lib/types";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card, PatientAlerts } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { InfoGrid } from "../../components/info-grid";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { CONSULT_FEE, GROOM_SERVICES, LAB_TESTS, F, money, T } from "@/lib/constants";
+import type { ServiceType } from "@/lib/types";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card, PatientAlerts } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { InfoGrid } from "@/components/info-grid";
+import { ResourceNotFound } from "@/components/resource-not-found";
 
 const STATUS_TONE = { pendiente: "amber", confirmada: "green", completada: "blue", cancelada: "gray" } as const;
 
@@ -42,9 +42,8 @@ export default function AppointmentShowPage() {
   };
 
   return (
-    <div>
-      <PageHeader backTo="/appointments" title={`Cita · ${appointment.time}`} sub={`${patient.name} (${patient.species} · ${patient.breed})`}
-        action={editable && <Btn kind="ghost" onClick={() => navigate(`/appointments/edit/${appointment.id}`)}><Pencil size={14} /> Editar</Btn>} />
+    <CustomPage goBack backTo="/appointments" title={`Cita · ${appointment.time}`} description={`${patient.name} (${patient.species} · ${patient.breed})`}
+      actions={editable && <Btn kind="ghost" onClick={() => navigate(`/appointments/edit/${appointment.id}`)}><Pencil size={14} /> Editar</Btn>}>
       <Card className="p-5 mb-4">
         <InfoGrid items={[
           { label: "Paciente", value: patient.name },
@@ -89,6 +88,6 @@ export default function AppointmentShowPage() {
           <Btn kind="danger" full onClick={() => { s.setAppointmentStatus(appointment.id, "cancelada"); navigate("/appointments"); }}>Cancelar y liberar espacio</Btn>
         )}
       </div>
-    </div>
+    </CustomPage>
   );
 }

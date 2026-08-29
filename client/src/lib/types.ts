@@ -51,13 +51,13 @@ export interface GroomingJob {
   serviceId?: string; // servicio de visita al que pertenece (relación bidireccional)
 }
 
-export interface AppliedProduct {
+interface AppliedProduct {
   name: string;
   qty: number;
   price: number;
 }
 
-export interface Prescription {
+interface Prescription {
   med: string;
   dosage: string;
 }
@@ -74,7 +74,7 @@ export interface MedicalRecord {
   prescriptions: Prescription[];
 }
 
-export type LabOrderStatus = "solicitado" | "resultado";
+type LabOrderStatus = "solicitado" | "resultado";
 
 export interface LabOrder {
   id: string;
@@ -97,7 +97,7 @@ export interface Product {
 }
 
 /* Status values are Spanish because they render verbatim in the UI. */
-export type ItemStatus = "pendiente" | "completado";
+type ItemStatus = "pendiente" | "completado";
 
 export interface AccountItem {
   desc: string;
@@ -152,10 +152,52 @@ export interface Expense {
   date: number;
 }
 
-export type ToastType = "ok" | "warn" | "error" | "wa";
-
-export interface Toast {
-  id: string;
-  type: ToastType;
-  msg: string;
+/* ── Disponibilidad: configuración única de toda la clínica (la usan la agenda
+   interna y, más adelante, el widget de reservas de cada portal). ── */
+export interface TimeRange {
+  start: string; // "08:00"
+  end: string;   // "13:00"
 }
+
+export interface DayAvailability {
+  enabled: boolean;
+  ranges: TimeRange[];
+}
+
+/* Excepción para una fecha concreta: sin rangos = cerrado ese día. */
+export interface DateOverride {
+  date: string; // "2026-12-25"
+  label: string;
+  ranges: TimeRange[];
+}
+
+export interface Availability {
+  timezone: string;
+  week: DayAvailability[]; // índice = Date.getDay(): 0 domingo … 6 sábado
+  overrides: DateOverride[];
+  slotMinutes: number;
+  bufferBefore: number;
+  bufferAfter: number;
+  minNoticeHours: number;
+  maxAdvanceDays: number;
+  maxPerDay: number; // 0 = sin límite
+  onlineBooking: boolean;
+  autoConfirm: boolean;
+}
+
+interface PortalPalette {
+  primary: string;
+  accent: string;
+  bg: string;
+}
+
+export interface Portal {
+  id: string;
+  name: string;
+  slug: string; // se sirve en {CLINIC_DOMAIN}/p/{slug}
+  palette: PortalPalette;
+  markdown: string;
+  logoUrl: string;
+}
+
+export type ToastType = "ok" | "warn" | "error" | "wa";

@@ -1,7 +1,7 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { AlertTriangle, ChevronLeft, ChevronRight, ShieldAlert, X } from "lucide-react";
-import { F, T } from "../lib/constants";
-import type { Patient } from "../lib/types";
+import { F, T } from "@/lib/constants";
+import type { Patient } from "@/lib/types";
 
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -47,7 +47,7 @@ export function Btn({ children, onClick, kind = "primary", small, disabled, full
 export function Badge({ tone = "green", children }: { tone?: "green" | "amber" | "red" | "blue" | "gray"; children: ReactNode }) {
   const m = {
     green: [T.greenSoft, T.green], amber: [T.amberSoft, T.amber], red: [T.redSoft, T.red],
-    blue: [T.blueSoft, T.blue], gray: ["#EEECE4", T.sub],
+    blue: [T.blueSoft, T.blue], gray: [T.graySoft, T.sub],
   }[tone];
   return (
     <span className="inline-flex items-center gap-1" style={{ background: m[0], color: m[1], fontSize: 11.5, fontWeight: 600, padding: "3px 9px", borderRadius: 999 }}>
@@ -74,18 +74,6 @@ export function Modal({ title, onClose, children, width = 460 }: { title: string
         </div>
         <div className="p-5">{children}</div>
       </div>
-    </div>
-  );
-}
-
-export function SectionHead({ title, sub, action }: { title: string; sub?: string; action?: ReactNode }) {
-  return (
-    <div className="flex items-end justify-between flex-wrap gap-3 mb-5">
-      <div>
-        <h1 style={{ fontFamily: F.head, fontSize: 22, fontWeight: 700, color: T.ink, letterSpacing: -0.3 }}>{title}</h1>
-        {sub && <p style={{ fontSize: 13, color: T.sub, marginTop: 3 }}>{sub}</p>}
-      </div>
-      {action}
     </div>
   );
 }

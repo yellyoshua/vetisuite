@@ -1,18 +1,6 @@
 {
   "name": "vetisuite",
-  "private": true,
   "version": "0.0.0",
-  "type": "module",
-  "workspaces": [
-    "client",
-    "server",
-    "landing"
-  ],
-  "scripts": {
-    "dev": "bun run --filter client dev",
-    "build": "bun run --filter '*' build",
-    "lint": "eslint ."
-  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.6.0",
@@ -20,5 +8,17 @@
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
     "typescript-eslint": "^8.62.0"
-  }
+  },
+  "private": true,
+  "scripts": {
+    "dev": "bun run --filter client dev",
+    "build": "bun run --filter '*' build",
+    "lint": "eslint ."
+  },
+  "type": "module",
+  "workspaces": [
+    "client",
+    "server",
+    "landing"
+  ]
 }

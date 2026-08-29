@@ -1,12 +1,13 @@
 import { create } from "zustand";
-import { GROOM_SERVICES, LAB_TESTS, SERVICE_FLOWS, isServiceDone, money, round2, uid } from "../lib/constants";
+import { GROOM_SERVICES, LAB_TESTS, SERVICE_FLOWS, isServiceDone, money, round2, uid } from "@/lib/constants";
+import { DEFAULT_AVAILABILITY, slotsForDate, validateAvailability } from "@/lib/availability";
+import { showToast } from "@/components/toast";
 import type {
-  AccountItem, Appointment, AppointmentStatus, Client, Expense, GroomingJob,
-  GroomingStatus, Invoice, LabOrder, MedicalRecord, Patient, PayMethod, Product, ServiceItem, ServiceType, Toast, ToastType, Vet, Visit,
-} from "../lib/types";
+  AccountItem, Appointment, AppointmentStatus, Availability, Client, Expense, GroomingJob,
+  GroomingStatus, Invoice, LabOrder, MedicalRecord, Patient, PayMethod, Portal, Product, ServiceItem, ServiceType, ToastType, Vet, Visit,
+} from "@/lib/types";
 
 interface VetState {
-  toasts: Toast[];
   notify: (type: ToastType, msg: string) => void;
 
   vets: Vet[];
@@ -16,6 +17,9 @@ interface VetState {
   updateClient: (id: string, data: Pick<Client, "name" | "phone" | "email">) => void;
   addPatient: (data: Omit<Patient, "id">) => void;
   updatePatient: (id: string, data: Omit<Patient, "id" | "clientId">) => void;
+
+  availability: Availability;
+  updateAvailability: (data: Availability) => boolean;
 
   appointments: Appointment[];
   createAppointment: (data: Pick<Appointment, "patientId" | "vetId" | "time" | "reason">) => boolean;
@@ -53,15 +57,16 @@ interface VetState {
   expenses: Expense[];
   addExpense: (data: Pick<Expense, "category" | "desc" | "amount">) => void;
   removeExpense: (id: string) => void;
+
+  portals: Portal[];
+  addPortal: (data: Omit<Portal, "id">) => string;
+  updatePortal: (id: string, data: Omit<Portal, "id">) => boolean;
+  removePortal: (id: string) => void;
 }
 
 export const useVetStore = create<VetState>((set, get) => ({
-  toasts: [],
-  notify: (type, msg) => {
-    const id = uid();
-    set((s) => ({ toasts: [...s.toasts, { id, type, msg }] }));
-    setTimeout(() => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })), 5200);
-  },
+  // Las notificaciones no son estado de la app: las gestiona sonner (`components/toast`).
+  notify: (type, msg) => showToast(type, msg),
 
   vets: [
     { id: "v1", name: "Dra. María Torres", color: "#186653" },
@@ -118,6 +123,15 @@ export const useVetStore = create<VetState>((set, get) => ({
     get().notify("ok", `Paciente ${data.name} actualizado.`);
   },
 
+  availability: DEFAULT_AVAILABILITY,
+  updateAvailability: (data) => {
+    const problem = validateAvailability(data);
+    if (problem) { get().notify("error", problem); return false; }
+    set(() => ({ availability: data }));
+    get().notify("ok", "Disponibilidad de la clínica actualizada.");
+    return true;
+  },
+
   appointments: [
     { id: "a1", patientId: "p1", vetId: "v1", time: "09:00", reason: "Vacunación anual", status: "confirmada" },
     { id: "a2", patientId: "p3", vetId: "v2", time: "10:00", reason: "Control dermatológico", status: "pendiente" },
@@ -128,17 +142,35 @@ export const useVetStore = create<VetState>((set, get) => ({
     const st = get();
     const clash = st.appointments.find((a) => a.vetId === vetId && a.time === time && a.status !== "cancelada");
     if (clash) { get().notify("error", "Ese médico ya tiene una cita en ese horario."); return false; }
+    if (!slotsForDate(st.availability, new Date()).includes(time)) {
+      get().notify("error", `Las ${time} están fuera del horario de atención configurado.`);
+      return false;
+    }
+    // La agenda demo es de un solo día: "citas por día" = todas las citas vivas del store.
+    const active = st.appointments.filter((a) => a.status !== "cancelada").length;
+    if (st.availability.maxPerDay > 0 && active >= st.availability.maxPerDay) {
+      get().notify("error", `Se alcanzó el máximo de ${st.availability.maxPerDay} citas por día.`);
+      return false;
+    }
     const patient = st.patients.find((p) => p.id === patientId)!;
     const owner = st.clients.find((c) => c.id === patient.clientId)!;
     const vet = st.vets.find((v) => v.id === vetId)!;
-    set((s) => ({ appointments: [...s.appointments, { id: uid(), patientId, vetId, time, reason, status: "pendiente" }] }));
-    get().notify("wa", `WhatsApp a ${owner.name}: "Cita para ${patient.name} hoy ${time} con ${vet.name}. Responde CONFIRMAR ✅"`);
+    const status: AppointmentStatus = st.availability.autoConfirm ? "confirmada" : "pendiente";
+    set((s) => ({ appointments: [...s.appointments, { id: uid(), patientId, vetId, time, reason, status }] }));
+    if (status === "confirmada") get().notify("wa", `WhatsApp a ${owner.name}: "Cita confirmada para ${patient.name} hoy ${time} con ${vet.name} ✅"`);
+    else get().notify("wa", `WhatsApp a ${owner.name}: "Cita para ${patient.name} hoy ${time} con ${vet.name}. Responde CONFIRMAR ✅"`);
     return true;
   },
   updateAppointment: (id, data) => {
     const st = get();
     const clash = st.appointments.find((a) => a.id !== id && a.vetId === data.vetId && a.time === data.time && a.status !== "cancelada");
     if (clash) { get().notify("error", "Ese médico ya tiene una cita en ese horario."); return false; }
+    // Mover la cita exige un horario válido; conservar el suyo no, aunque el horario haya cambiado después.
+    const current = st.appointments.find((a) => a.id === id)!;
+    if (data.time !== current.time && !slotsForDate(st.availability, new Date()).includes(data.time)) {
+      get().notify("error", `Las ${data.time} están fuera del horario de atención configurado.`);
+      return false;
+    }
     set((s) => ({ appointments: s.appointments.map((a) => (a.id === id ? { ...a, ...data } : a)) }));
     get().notify("ok", "Cita reprogramada correctamente.");
     return true;
@@ -385,5 +417,39 @@ export const useVetStore = create<VetState>((set, get) => ({
   },
   removeExpense: (id) => {
     set((s) => ({ expenses: s.expenses.filter((e) => e.id !== id) }));
+  },
+
+  portals: [
+    {
+      id: "po1", name: "Portal de la clínica", slug: "clinica",
+      palette: { primary: "#186653", accent: "#C9A227", bg: "#FFFFFF" },
+      logoUrl: "https://placehold.co/120x120/186653/fff?text=Veti",
+      markdown: "# Clínica Veterinaria\n\nAtendemos de **lunes a sábado**, 08:00–18:00.\n\n- Consulta médica\n- Vacunación\n- Peluquería y estética\n\nAgenda tu cita por WhatsApp.",
+    },
+    {
+      id: "po2", name: "Campaña de vacunación", slug: "vacunacion-2026",
+      palette: { primary: "#2C6E8F", accent: "#E4572E", bg: "#F5F9FB" },
+      logoUrl: "",
+      markdown: "# Campaña de vacunación\n\nSéxtuple y antirrábica con **20% de descuento** durante todo el mes.",
+    },
+  ],
+  addPortal: (data) => {
+    if (get().portals.some((p) => p.slug === data.slug)) { get().notify("error", `El slug "${data.slug}" ya está en uso por otro portal.`); return ""; }
+    const portal = { id: uid(), ...data };
+    set((s) => ({ portals: [...s.portals, portal] }));
+    get().notify("ok", `Portal "${portal.name}" creado.`);
+    return portal.id;
+  },
+  updatePortal: (id, data) => {
+    if (get().portals.some((p) => p.id !== id && p.slug === data.slug)) { get().notify("error", `El slug "${data.slug}" ya está en uso por otro portal.`); return false; }
+    set((s) => ({ portals: s.portals.map((p) => (p.id === id ? { ...p, ...data } : p)) }));
+    get().notify("ok", `Portal "${data.name}" actualizado.`);
+    return true;
+  },
+  removePortal: (id) => {
+    const portal = get().portals.find((p) => p.id === id);
+    if (!portal) return;
+    set((s) => ({ portals: s.portals.filter((p) => p.id !== id) }));
+    get().notify("ok", `Portal "${portal.name}" eliminado.`);
   },
 }));

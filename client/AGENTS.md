@@ -71,9 +71,11 @@ Convención de rutas (registradas anidadas en `src/App.tsx`): `/[module]`, `/[mo
 - Strict activo. `import type` obligatorio para tipos (`verbatimModuleSyntax`).
 - Non-null assertion (`!`) permitida solo en lookups garantizados por integridad de los datos (ej. `clients.find((c) => c.id === patient.clientId)!` — toda mascota tiene dueño).
 - Tipos de dominio en `src/lib/types.ts` (el historial se llama `MedicalRecord` para no chocar con el utility type `Record`).
+- **`@/` → `src/`.** Todo import que suba de carpeta usa el alias (`@/lib/constants`, `@/components/ui`); los hermanos siguen relativos (`./client-form`). El alias está declarado dos veces y las dos tienen que coincidir: `paths` en `tsconfig.app.json` (tsc y editor) y `resolve.alias` en `vite.config.ts` (bundler).
 
 ### UI
-- Reusar los componentes canónicos (tabla completa en `DESIGN.md` §5). Nunca recrear botones/badges/cards ad-hoc ni escribir hex fuera de los tokens `T`.
+- Reusar los componentes canónicos (tabla completa en `DESIGN.md` §5). Nunca recrear botones/badges/cards ad-hoc.
+- Los hex viven **solo** en el bloque `@theme` de `src/index.css`; de ahí salen las utilidades Tailwind (`bg-green-soft`, `text-sub`) y los tokens `T`/`F`, que ya no contienen hex sino `var(--color-*)`. Color nuevo = primero `@theme`, nunca un hex en `T` ni en un componente (`DESIGN.md` §2).
 - Formularios compartidos entre new/edit: `client-form.tsx`, `product-form.tsx` (prop `initial` + `submitLabel` + `onCancel`).
 
 ## 4. Testing instructions

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PackagePlus, Pencil } from "lucide-react";
-import { daysUntil, money, T } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { InfoGrid } from "../../components/info-grid";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { daysUntil, money, T } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { InfoGrid } from "@/components/info-grid";
+import { ResourceNotFound } from "@/components/resource-not-found";
 import { RestockModal } from "./components/restock-modal";
 
 export default function ProductShowPage() {
@@ -19,14 +19,13 @@ export default function ProductShowPage() {
   const low = product.stock <= product.minStock;
   const daysToExpiry = daysUntil(product.expiry);
   return (
-    <div>
-      <PageHeader backTo="/inventory" title={product.name} sub="Ficha del producto."
-        action={
-          <div className="flex gap-2">
-            <Btn kind="ghost" onClick={() => navigate(`/inventory/edit/${product.id}`)}><Pencil size={14} /> Editar</Btn>
-            <Btn onClick={() => setRestocking(true)}><PackagePlus size={14} /> Ingresar lote</Btn>
-          </div>
-        } />
+    <CustomPage goBack backTo="/inventory" title={product.name} description="Ficha del producto."
+      actions={
+        <>
+          <Btn kind="ghost" onClick={() => navigate(`/inventory/edit/${product.id}`)}><Pencil size={14} /> Editar</Btn>
+          <Btn onClick={() => setRestocking(true)}><PackagePlus size={14} /> Ingresar lote</Btn>
+        </>
+      }>
       <Card className="p-5">
         <InfoGrid items={[
           { label: "Categoría", value: product.category },
@@ -36,6 +35,6 @@ export default function ProductShowPage() {
         ]} />
       </Card>
       {restocking && <RestockModal productId={product.id} onClose={() => setRestocking(false)} />}
-    </div>
+    </CustomPage>
   );
 }

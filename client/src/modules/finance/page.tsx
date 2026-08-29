@@ -1,7 +1,8 @@
 import { Coins, Percent, Receipt, TrendingDown, TrendingUp } from "lucide-react";
-import { F, PAY_METHODS, money, round2, T } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Card, SectionHead } from "../../components/ui";
+import { F, PAY_METHODS, money, round2, T } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Card } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
 
 const AREA_TONE: Record<string, string> = { Clínica: T.green, Peluquería: T.blue, Laboratorio: T.amber };
 const METHOD_TONE: Record<string, string> = { Efectivo: T.green, Tarjeta: T.blue, Transferencia: T.dark };
@@ -80,9 +81,7 @@ export default function FinancePage() {
   ];
 
   return (
-    <div>
-      <SectionHead title="Finanzas" sub="El pulso económico de la clínica en gráficos. Datos de la sesión actual." />
-
+    <CustomPage title="Finanzas" description="El pulso económico de la clínica en gráficos. Datos de la sesión actual.">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {kpis.map((k) => (
           <Card key={k.label} className="p-4">
@@ -117,6 +116,6 @@ export default function FinancePage() {
           </div>
         </Card>
       </div>
-    </div>
+    </CustomPage>
   );
 }

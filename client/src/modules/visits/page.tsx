@@ -1,17 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { ClipboardList, Eye, Pencil, Plus } from "lucide-react";
-import { F, isServiceDone, money, T } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card, SectionHead } from "../../components/ui";
+import { F, isServiceDone, money, T } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
 
 /* Recepción: cada visita abierta agrupa los servicios de una atención, cada uno con su propio kanban. */
 export default function VisitsPage() {
   const s = useVetStore();
   const navigate = useNavigate();
   return (
-    <div>
-      <SectionHead title="Visitas" sub="Check-in general por cliente: agrega los servicios de la atención; cada uno avanza en su propio kanban y al terminar queda listo para facturar."
-        action={<Btn onClick={() => navigate("/visits/new")}><Plus size={14} /> Check-in general</Btn>} />
+    <CustomPage title="Visitas" description="Check-in general por cliente: agrega los servicios de la atención; cada uno avanza en su propio kanban y al terminar queda listo para facturar."
+      actions={<Btn onClick={() => navigate("/visits/new")}><Plus size={14} /> Check-in general</Btn>}>
       <div className="grid md:grid-cols-2 gap-3">
         {s.visits.map((v) => {
           const client = s.clients.find((c) => c.id === v.clientId)!;
@@ -46,6 +46,6 @@ export default function VisitsPage() {
           </Card>
         )}
       </div>
-    </div>
+    </CustomPage>
   );
 }

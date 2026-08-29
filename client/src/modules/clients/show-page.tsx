@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CalendarDays, ClipboardList, FileText, PawPrint, Pencil, Plus } from "lucide-react";
-import { F, money, SPECIES_ICON, T } from "../../lib/constants";
-import type { Patient } from "../../lib/types";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card, PatientAlerts } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { InfoGrid } from "../../components/info-grid";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { F, money, SPECIES_ICON, T } from "@/lib/constants";
+import type { Patient } from "@/lib/types";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card, PatientAlerts } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { InfoGrid } from "@/components/info-grid";
+import { ResourceNotFound } from "@/components/resource-not-found";
 import { PatientFormModal } from "./components/patient-form-modal";
 
 export default function ClientShowPage() {
@@ -21,15 +21,14 @@ export default function ClientShowPage() {
   const visit = s.visits.find((v) => v.clientId === client.id);
   const visitTotal = visit ? s.services.filter((x) => x.visitId === visit.id).reduce((t, x) => t + x.price, 0) : 0;
   return (
-    <div>
-      <PageHeader backTo="/clients" title={client.name} sub="Ficha del cliente y sus mascotas."
-        action={
-          <div className="flex gap-2">
-            <Btn kind="ghost" onClick={() => navigate(`/clients/edit/${client.id}`)}><Pencil size={14} /> Editar</Btn>
-            <Btn kind="ghost" onClick={() => setModal({})}><Plus size={14} /> Mascota</Btn>
-            <Btn onClick={() => { const fp = pets[0]?.id ?? ""; navigate(`/visits/edit/${s.openVisit(client.id, fp)}`); }}><ClipboardList size={14} /> Iniciar visita</Btn>
-          </div>
-        } />
+    <CustomPage goBack backTo="/clients" title={client.name} description="Ficha del cliente y sus mascotas."
+      actions={
+        <>
+          <Btn kind="ghost" onClick={() => navigate(`/clients/edit/${client.id}`)}><Pencil size={14} /> Editar</Btn>
+          <Btn kind="ghost" onClick={() => setModal({})}><Plus size={14} /> Mascota</Btn>
+          <Btn onClick={() => { const fp = pets[0]?.id ?? ""; navigate(`/visits/edit/${s.openVisit(client.id, fp)}`); }}><ClipboardList size={14} /> Iniciar visita</Btn>
+        </>
+      }>
       <Card className="p-5 mb-4">
         <InfoGrid items={[
           { label: "Teléfono", value: client.phone },
@@ -69,6 +68,6 @@ export default function ClientShowPage() {
         )}
       </div>
       {modal && <PatientFormModal clientId={client.id} patient={modal.patient} onClose={() => setModal(null)} />}
-    </div>
+    </CustomPage>
   );
 }

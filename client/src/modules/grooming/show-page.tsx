@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom";
 import { CheckCircle2, Clock, ShieldAlert } from "lucide-react";
-import { money, T } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card, Elapsed } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { InfoGrid } from "../../components/info-grid";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { money, T } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card, Elapsed } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { InfoGrid } from "@/components/info-grid";
+import { ResourceNotFound } from "@/components/resource-not-found";
 
 const STATUS_TONE = { pendiente: "amber", proceso: "blue", terminado: "green", entregado: "gray" } as const;
 const STATUS_LABEL = { pendiente: "Pendiente", proceso: "En proceso", terminado: "Terminado", entregado: "Entregado" } as const;
@@ -19,8 +19,7 @@ export default function GroomingShowPage() {
   const owner = s.clients.find((c) => c.id === patient.clientId)!;
   const duration = job.finishedAt && job.startedAt ? Math.round((job.finishedAt - job.startedAt) / 60000) : null;
   return (
-    <div>
-      <PageHeader backTo="/grooming" title={`${job.service} · ${patient.name}`} sub="Detalle del trabajo de estética." />
+    <CustomPage goBack backTo="/grooming" title={`${job.service} · ${patient.name}`} description="Detalle del trabajo de estética.">
       <Card className="p-5 mb-4">
         <InfoGrid items={[
           { label: "Mascota", value: `${patient.name} (${patient.species} · ${patient.breed})` },
@@ -40,6 +39,6 @@ export default function GroomingShowPage() {
         {job.status === "proceso" && <Btn full onClick={() => s.moveGrooming(job.id, "terminado")}><CheckCircle2 size={13} /> Terminar y notificar</Btn>}
         {job.status === "terminado" && <Btn full kind="ghost" onClick={() => s.moveGrooming(job.id, "entregado")}>Marcar entregado</Btn>}
       </div>
-    </div>
+    </CustomPage>
   );
 }

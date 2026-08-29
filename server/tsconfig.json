@@ -1,0 +1,19 @@
+{
+  "extends": "nitro/tsconfig",
+  "compilerOptions": {
+    // los esquemas de drizzle son .js: sin esto no se infieren sus tipos
+    "allowJs": true,
+    // Nitro 2 generaba el tsconfig con `paths` para `@/*`; el base de Nitro 3 no
+    // trae ninguno, así que el alias se declara aquí. Gemelo: `alias` en
+    // nitro.config.ts (el tsconfig solo convence a tsc, no al bundler).
+    "paths": { "@/*": ["./*"] },
+    // `nitro/tsconfig` trae strict:true; el generado de Nitro 2 lo tenía en false.
+    // Se mantiene en false para no cambiar de golpe las reglas del código ya
+    // escrito. Súbelo a true cuando quieras tipar core/base-route.ts y utils/.
+    "strict": false
+  },
+  // los tipos generados viven en el buildDir de Nitro 3 (node_modules/.nitro),
+  // fuera del include por defecto: hay que traerlos a mano.
+  "include": ["**/*.ts", "**/*.js", "node_modules/.nitro/types/nitro.d.ts"],
+  "exclude": ["node_modules/**/*", ".output"]
+}

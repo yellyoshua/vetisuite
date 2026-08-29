@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { SearchX } from "lucide-react";
-import { T } from "../lib/constants";
+import { T } from "@/lib/constants";
 import { Btn, Card } from "./ui";
 
 /* Shown by show/edit screens when the :id doesn't exist (broken deep-link). */

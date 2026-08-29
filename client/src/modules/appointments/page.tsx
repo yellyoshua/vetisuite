@@ -1,19 +1,34 @@
 import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
-import { F, HOURS, T, todayLabel } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card, PatientAlerts, SectionHead } from "../../components/ui";
+import { CalendarOff, Plus, Settings } from "lucide-react";
+import { slotsForDate } from "@/lib/availability";
+import { F, T, todayLabel } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card, PatientAlerts } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
 
 export default function AppointmentsPage() {
   const s = useVetStore();
   const navigate = useNavigate();
+  const hours = slotsForDate(s.availability, new Date()); // los horarios salen de la disponibilidad de la clínica
   const appointmentAt = (vetId: string, time: string) => s.appointments.find((a) => a.vetId === vetId && a.time === time && a.status !== "cancelada");
   const statusTone = { pendiente: "amber", confirmada: "green", completada: "blue", cancelada: "gray" } as const;
   return (
-    <div>
-      <SectionHead title="Citas" sub={`Hoy, ${todayLabel} · la matriz cruza médicos y horarios: no permite sobreagendar.`}
-        action={<Btn onClick={() => navigate("/appointments/new")}><Plus size={14} /> Nueva cita</Btn>} />
+    <CustomPage title="Citas" description={`Hoy, ${todayLabel} · la matriz cruza médicos y horarios: no permite sobreagendar.`}
+      actions={
+        <>
+          <Btn kind="ghost" onClick={() => navigate("/appointments/settings")}><Settings size={14} /> Configurar disponibilidad</Btn>
+          <Btn onClick={() => navigate("/appointments/new")}><Plus size={14} /> Nueva cita</Btn>
+        </>
+      }>
+      {hours.length === 0 && (
+        <Card className="p-10 text-center">
+          <CalendarOff size={26} color={T.sub} className="mx-auto mb-3" />
+          <p style={{ fontSize: 14.5, fontWeight: 600, color: T.ink }}>Hoy la clínica no atiende.</p>
+          <p style={{ fontSize: 12.5, color: T.sub, marginTop: 4 }}>El horario de hoy está cerrado en la configuración de disponibilidad.</p>
+        </Card>
+      )}
+      {hours.length > 0 && (
       <Card className="p-4" style={{ overflowX: "auto" }}>
         <div style={{ minWidth: 640 }}>
           <div className="grid" style={{ gridTemplateColumns: `64px repeat(${s.vets.length}, 1fr)`, gap: 6 }}>
@@ -24,7 +39,7 @@ export default function AppointmentsPage() {
                 <span style={{ fontFamily: F.head, fontSize: 12.5, fontWeight: 600 }}>{v.name}</span>
               </div>
             ))}
-            {HOURS.map((h) => (
+            {hours.map((h) => (
               <Fragment key={h}>
                 <div style={{ fontSize: 11.5, color: T.sub, padding: "12px 4px 0", fontVariantNumeric: "tabular-nums" }}>{h}</div>
                 {s.vets.map((v) => {
@@ -39,7 +54,7 @@ export default function AppointmentsPage() {
                   const patient = s.patients.find((p) => p.id === appt.patientId)!;
                   return (
                     <button key={v.id + h} onClick={() => navigate(`/appointments/show/${appt.id}`)} className="text-left px-2.5 py-2"
-                      style={{ borderRadius: 10, minHeight: 52, background: appt.status === "completada" ? "#F0EFE9" : T.greenSoft, borderLeft: `3px solid ${v.color}` }}>
+                      style={{ borderRadius: 10, minHeight: 52, background: appt.status === "completada" ? T.done : T.greenSoft, borderLeft: `3px solid ${v.color}` }}>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span style={{ fontSize: 12.5, fontWeight: 700, color: T.ink }}>{patient.name}</span>
                         <PatientAlerts patient={patient} small />
@@ -56,6 +71,7 @@ export default function AppointmentsPage() {
           </div>
         </div>
       </Card>
-    </div>
+      )}
+    </CustomPage>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useVetStore } from "../states/app.state";
+import { useVetStore } from "@/states/app.state";
 import type { Client } from "./types";
 
 /* ================================================================

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { inputStyle } from "../../../lib/constants";
-import type { Client } from "../../../lib/types";
-import { Btn, Card, Field } from "../../../components/ui";
+import { inputStyle } from "@/lib/constants";
+import type { Client } from "@/lib/types";
+import { Btn, Card, Field } from "@/components/ui";
 
 type ClientFormData = Pick<Client, "name" | "phone" | "email">;
 
@@ -16,7 +16,7 @@ interface ClientFormProps {
 export function ClientForm({ initial, submitLabel, onSubmit, onCancel }: ClientFormProps) {
   const [form, setForm] = useState<ClientFormData>(initial || { name: "", phone: "", email: "" });
   return (
-    <Card className="p-5" style={{ maxWidth: 520 }}>
+    <Card className="p-5">
       <Field label="Nombre completo"><input style={inputStyle} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ej: Ana Cevallos" /></Field>
       <Field label="Teléfono (WhatsApp)"><input style={inputStyle} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="099 000 0000" /></Field>
       <Field label="Correo"><input style={inputStyle} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="correo@mail.com" /></Field>

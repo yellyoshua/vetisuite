@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipboardList, Eye, Pencil, Plus, Search } from "lucide-react";
-import { inputStyle, money, T } from "../../lib/constants";
-import { fetchClientsPageApi, useDebounced } from "../../lib/api";
-import type { Client } from "../../lib/types";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Pager, SectionHead, Spinner } from "../../components/ui";
-import { ResourceListItem } from "../../components/resource-list-item";
+import { inputStyle, money, T } from "@/lib/constants";
+import { fetchClientsPageApi, useDebounced } from "@/lib/api";
+import type { Client } from "@/lib/types";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Pager, Spinner } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { ResourceListItem } from "@/components/resource-list-item";
 
 /* ================================================================
    CLIENTS index — full-width listing with client-only search
@@ -30,9 +31,8 @@ export default function ClientsPage() {
     return () => { alive = false; };
   }, [debouncedQ, page, s.clients, fetchKey]);
   return (
-    <div>
-      <SectionHead title="Clientes y Pacientes" sub="Una sola fuente de verdad: cada dueño vinculado a sus mascotas."
-        action={<Btn onClick={() => navigate("/clients/new")}><Plus size={14} /> Nuevo cliente</Btn>} />
+    <CustomPage title="Clientes y Pacientes" description="Una sola fuente de verdad: cada dueño vinculado a sus mascotas."
+      actions={<Btn onClick={() => navigate("/clients/new")}><Plus size={14} /> Nuevo cliente</Btn>}>
       <div className="flex items-center gap-2 mb-1" style={{ ...inputStyle, padding: "8px 11px", maxWidth: 480 }}>
         <Search size={14} color={T.sub} className="shrink-0" />
         <input value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} placeholder="Buscar cliente (nombre, teléfono, correo)…"
@@ -41,7 +41,7 @@ export default function ClientsPage() {
       </div>
       <p style={{ fontSize: 11, color: T.sub, margin: "0 2px 12px" }}>La búsqueda es solo por cliente; sus mascotas se ven en el detalle.</p>
       {loading && [0, 1, 2, 3].map((i) => (
-        <div key={i} className="mb-2" style={{ height: 68, borderRadius: 14, background: "#F0EDE4", animation: "vsPulse 1.2s ease-in-out infinite" }} />
+        <div key={i} className="mb-2" style={{ height: 68, borderRadius: 14, background: T.skeleton, animation: "vsPulse 1.2s ease-in-out infinite" }} />
       ))}
       {!loading && res.rows.map((c) => {
         const petCount = s.patients.filter((p) => p.clientId === c.id).length;
@@ -68,6 +68,6 @@ export default function ClientsPage() {
         <p className="px-3 py-4" style={{ fontSize: 13, color: T.sub }}>Sin resultados para “{debouncedQ}”. Crea el cliente en menos de 30 segundos con “Nuevo cliente”.</p>
       )}
       <Pager page={page} total={res.total} pageSize={PAGE_SIZE} onPage={setPage} />
-    </div>
+    </CustomPage>
   );
 }

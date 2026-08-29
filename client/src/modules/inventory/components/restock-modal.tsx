@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { inputStyle } from "../../../lib/constants";
-import { useVetStore } from "../../../states/app.state";
-import { Btn, Field, Modal } from "../../../components/ui";
+import { inputStyle } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Btn, Field, Modal } from "@/components/ui";
 
 export function RestockModal({ productId, onClose }: { productId: string; onClose: () => void }) {
   const s = useVetStore();

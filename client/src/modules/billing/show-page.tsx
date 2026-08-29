@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
-import { F, money, T, waLink } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { InfoGrid } from "../../components/info-grid";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { F, money, T, waLink } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { InfoGrid } from "@/components/info-grid";
+import { ResourceNotFound } from "@/components/resource-not-found";
 
 const SOURCE_TONE: Record<string, "green" | "blue" | "amber"> = { Clínica: "green", Peluquería: "blue", Laboratorio: "amber" };
 
@@ -23,8 +23,7 @@ export default function InvoiceShowPage() {
     `Total: ${money(invoice.total)}. ¡Gracias por tu confianza!`,
   ].join("\n");
   return (
-    <div>
-      <PageHeader backTo="/billing" title={invoice.num} sub="Detalle de la factura emitida." />
+    <CustomPage goBack backTo="/billing" title={invoice.num} description="Detalle de la factura emitida.">
       <Card className="p-5 mb-4">
         <InfoGrid items={[
           { label: "Cliente", value: client.name },
@@ -33,7 +32,7 @@ export default function InvoiceShowPage() {
           { label: "Emitida", value: new Date(invoice.date).toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" }) },
         ]} />
       </Card>
-      <Card className="p-5" style={{ maxWidth: 640 }}>
+      <Card className="p-5">
         <h2 style={{ fontFamily: F.head, fontSize: 14, fontWeight: 600, marginBottom: 10 }}>Ítems ({invoice.items.length})</h2>
         {invoice.items.map((item, i) => (
           <div key={i} className="flex items-center justify-between gap-2 py-2" style={{ borderBottom: `1px solid ${T.lineSoft}`, fontSize: 12.5 }}>
@@ -71,6 +70,6 @@ export default function InvoiceShowPage() {
           </Btn>
         </div>
       </Card>
-    </div>
+    </CustomPage>
   );
 }

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { HOURS, inputStyle, T } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Btn, Card, Field } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { slotsForDate } from "@/lib/availability";
+import { inputStyle, T } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Btn, Card, Field } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { ResourceNotFound } from "@/components/resource-not-found";
 
 export default function AppointmentEditPage() {
   const { id } = useParams();
@@ -16,10 +17,11 @@ export default function AppointmentEditPage() {
     : { vetId: "", time: "", reason: "" });
   if (!appointment) return <ResourceNotFound backTo="/appointments" label="la cita" />;
   const patient = s.patients.find((p) => p.id === appointment.patientId)!;
+  // La hora actual siempre está en la lista: si el horario cambió, reprogramar no la reasigna sola.
+  const hours = [...new Set([...slotsForDate(s.availability, new Date()), appointment.time])].sort();
   return (
-    <div>
-      <PageHeader backTo={`/appointments/show/${appointment.id}`} title="Reprogramar cita" sub={`Paciente: ${patient.name}. Se valida que el médico no tenga otra cita en el nuevo horario.`} />
-      <Card className="p-5" style={{ maxWidth: 520 }}>
+    <CustomPage goBack backTo={`/appointments/show/${appointment.id}`} title="Reprogramar cita" description={`Paciente: ${patient.name}. Se valida que el médico no tenga otra cita en el nuevo horario.`}>
+      <Card className="p-5">
         <div className="grid grid-cols-2 gap-3">
           <Field label="Médico">
             <select style={inputStyle} value={form.vetId} onChange={(e) => setForm({ ...form, vetId: e.target.value })}>
@@ -28,7 +30,7 @@ export default function AppointmentEditPage() {
           </Field>
           <Field label="Hora">
             <select style={inputStyle} value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })}>
-              {HOURS.map((h) => <option key={h}>{h}</option>)}
+              {hours.map((h) => <option key={h}>{h}</option>)}
             </select>
           </Field>
         </div>
@@ -39,6 +41,6 @@ export default function AppointmentEditPage() {
           <Btn disabled={!form.reason} onClick={() => { if (s.updateAppointment(appointment.id, form)) navigate(`/appointments/show/${appointment.id}`); }}>Guardar cambios</Btn>
         </div>
       </Card>
-    </div>
+    </CustomPage>
   );
 }

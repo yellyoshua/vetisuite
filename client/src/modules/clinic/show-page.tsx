@@ -1,10 +1,10 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { FlaskConical, Send, Stethoscope, Syringe } from "lucide-react";
-import { F, T } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card, PatientAlerts } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { F, T } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card, PatientAlerts } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { ResourceNotFound } from "@/components/resource-not-found";
 import { LabOrderCard } from "./components/lab-order-card";
 
 /* The patient's full medical record. Immutable history: no edit screen;
@@ -20,9 +20,8 @@ export default function ClinicShowPage() {
   const latestRecord = patientRecords[0];
   const patientOrders = s.labOrders.filter((o) => o.patientId === patient.id);
   return (
-    <div>
-      <PageHeader backTo="/clinic" title={patient.name} sub={`${patient.species} · ${patient.breed} · ${patient.age} · Dueño: ${owner.name}`}
-        action={<Btn onClick={() => navigate(`/clinic/consultation/${patient.id}`)}><Stethoscope size={14} /> Nueva consulta</Btn>} />
+    <CustomPage goBack backTo="/clinic" title={patient.name} description={`${patient.species} · ${patient.breed} · ${patient.age} · Dueño: ${owner.name}`}
+      actions={<Btn onClick={() => navigate(`/clinic/consultation/${patient.id}`)}><Stethoscope size={14} /> Nueva consulta</Btn>}>
       <div className="mb-4"><PatientAlerts patient={patient} /></div>
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 flex flex-col gap-3">
@@ -45,7 +44,7 @@ export default function ClinicShowPage() {
                 </div>
                 <div className="flex gap-2 flex-wrap mb-2">
                   {Object.entries(r.vitals || {}).map(([key, value]) => (
-                    <span key={key} style={{ background: "#F1EFE7", borderRadius: 8, padding: "3px 9px", fontSize: 11.5, color: T.ink }}>
+                    <span key={key} style={{ background: T.track, borderRadius: 8, padding: "3px 9px", fontSize: 11.5, color: T.ink }}>
                       {key === "weight" ? "Peso" : key === "temp" ? "Temp" : "FC"}: <b>{value}</b>
                     </span>
                   ))}
@@ -83,6 +82,6 @@ export default function ClinicShowPage() {
           </div>
         </Card>
       </div>
-    </div>
+    </CustomPage>
   );
 }

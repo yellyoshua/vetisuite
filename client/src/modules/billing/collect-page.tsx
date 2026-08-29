@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Receipt } from "lucide-react";
-import { F, IVA_RATE, PAY_METHODS, inputStyle, isServiceDone, money, round2, T } from "../../lib/constants";
-import type { PayMethod } from "../../lib/types";
-import { useVetStore } from "../../states/app.state";
-import { Btn, Card, Field } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { F, IVA_RATE, PAY_METHODS, inputStyle, isServiceDone, money, round2, T } from "@/lib/constants";
+import type { PayMethod } from "@/lib/types";
+import { useVetStore } from "@/states/app.state";
+import { Btn, Card, Field } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { ResourceNotFound } from "@/components/resource-not-found";
 
 /* Paso de cobro sobre una visita con todos sus servicios terminados: descuento, IVA y método → factura. */
 export default function CollectPage() {
@@ -24,14 +24,13 @@ export default function CollectPage() {
   const pending = svcs.filter((x) => !isServiceDone(x.type, x.status)).length;
   if (svcs.length === 0 || pending > 0) {
     return (
-      <div>
-        <PageHeader backTo={backTo} title={`Cobrar · ${client.name}`} />
-        <Card className="p-6 text-center" style={{ maxWidth: 480 }}>
+      <CustomPage goBack backTo={backTo} title={`Cobrar · ${client.name}`} description="Aplica descuento e IVA, elige el método de pago y emite la factura.">
+        <Card className="p-6 text-center">
           <p style={{ fontSize: 14, fontWeight: 600, color: T.ink }}>{svcs.length === 0 ? "La visita no tiene servicios." : `La visita tiene ${pending} servicio${pending !== 1 ? "s" : ""} sin terminar.`}</p>
           <p style={{ fontSize: 12.5, color: T.sub, marginTop: 4, marginBottom: 16 }}>Termina todos los servicios antes de cobrar.</p>
           <Btn kind="ghost" onClick={() => navigate(backTo)}>Volver a la visita</Btn>
         </Card>
-      </div>
+      </CustomPage>
     );
   }
   const subtotal = round2(svcs.reduce((t, i) => t + i.price, 0));
@@ -50,9 +49,8 @@ export default function CollectPage() {
   );
 
   return (
-    <div>
-      <PageHeader backTo={backTo} title={`Cobrar · ${client.name}`} sub="Aplica descuento e IVA, elige el método de pago y emite la factura." />
-      <div className="grid md:grid-cols-2 gap-4" style={{ maxWidth: 720 }}>
+    <CustomPage goBack backTo={backTo} title={`Cobrar · ${client.name}`} description="Aplica descuento e IVA, elige el método de pago y emite la factura.">
+      <div className="grid md:grid-cols-2 gap-4">
         <Card className="p-5">
           <Field label="Descuento (%)">
             <input type="number" min={0} max={100} style={inputStyle} value={discountPct} onChange={(e) => setDiscountPct(Number(e.target.value))} />
@@ -87,6 +85,6 @@ export default function CollectPage() {
           </div>
         </Card>
       </div>
-    </div>
+    </CustomPage>
   );
 }

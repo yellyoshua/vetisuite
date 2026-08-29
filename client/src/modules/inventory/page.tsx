@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, Pencil, Plus, Search } from "lucide-react";
-import { daysUntil, inputStyle, money, T } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card, Pager, SectionHead } from "../../components/ui";
+import { daysUntil, inputStyle, money, T } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card, Pager } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
 import { RestockModal } from "./components/restock-modal";
 
 /* ================================================================
@@ -25,9 +26,8 @@ export default function InventoryPage() {
   );
   const rows = filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
   return (
-    <div>
-      <SectionHead title="Inventario" sub="Doble entrada: cada aplicación clínica descuenta stock y carga la cuenta del cliente en tiempo real."
-        action={<Btn onClick={() => navigate("/inventory/new")}><Plus size={14} /> Nuevo producto</Btn>} />
+    <CustomPage title="Inventario" description="Doble entrada: cada aplicación clínica descuenta stock y carga la cuenta del cliente en tiempo real."
+      actions={<Btn onClick={() => navigate("/inventory/new")}><Plus size={14} /> Nuevo producto</Btn>}>
       <div className="flex gap-2 flex-wrap mb-3">
         <div className="flex items-center gap-2 flex-1" style={{ ...inputStyle, padding: "8px 11px", minWidth: 200 }}>
           <Search size={14} color={T.sub} className="shrink-0" />
@@ -86,6 +86,6 @@ export default function InventoryPage() {
       </Card>
       <Pager page={page} total={filtered.length} pageSize={PAGE_SIZE} onPage={setPage} />
       {restockId && <RestockModal productId={restockId} onClose={() => setRestockId(null)} />}
-    </div>
+    </CustomPage>
   );
 }

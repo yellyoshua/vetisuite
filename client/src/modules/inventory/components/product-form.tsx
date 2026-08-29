@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { inputStyle } from "../../../lib/constants";
-import type { Product } from "../../../lib/types";
-import { Btn, Card, Field } from "../../../components/ui";
+import { inputStyle } from "@/lib/constants";
+import type { Product } from "@/lib/types";
+import { Btn, Card, Field } from "@/components/ui";
 
 type ProductFormData = Omit<Product, "id" | "stock">;
 
@@ -19,7 +19,7 @@ export function ProductForm({ initial, submitLabel, onSubmit, onCancel }: Produc
   const [form, setForm] = useState<ProductFormData>(initial || { name: "", category: "Medicamentos", minStock: 5, price: 0, expiry: "2027-01-01" });
   const [stock, setStock] = useState(0);
   return (
-    <Card className="p-5" style={{ maxWidth: 520 }}>
+    <Card className="p-5">
       <Field label="Nombre"><input style={inputStyle} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
       <div className="grid grid-cols-2 gap-3">
         <Field label="Categoría">

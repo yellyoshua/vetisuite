@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PawPrint, Play, Plus, Trash2 } from "lucide-react";
-import { CONSULT_FEE, GROOM_SERVICES, LAB_TESTS, SERVICE_FLOWS, SPECIES_ICON, F, inputStyle, money, T } from "../../lib/constants";
-import type { Product, ServiceItem, ServiceType } from "../../lib/types";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card, Field, Modal } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { InfoGrid } from "../../components/info-grid";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { CONSULT_FEE, GROOM_SERVICES, LAB_TESTS, SERVICE_FLOWS, SPECIES_ICON, F, inputStyle, money, T } from "@/lib/constants";
+import type { Product, ServiceItem, ServiceType } from "@/lib/types";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card, Field, Modal } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { InfoGrid } from "@/components/info-grid";
+import { ResourceNotFound } from "@/components/resource-not-found";
 
 const TYPE_TONE: Record<ServiceType, "green" | "blue" | "amber" | "gray"> = {
   veterinaria: "green", peluqueria: "blue", laboratorio: "amber", medicamento: "gray", vacuna: "gray",
@@ -42,9 +42,7 @@ export default function VisitEditPage() {
   const patientId = svcPatientId || visit.patientId;
 
   return (
-    <div>
-      <PageHeader backTo="/visits" title="Editar visita" sub="Agrega los servicios de la atención (una mascota por servicio) y pulsa Comenzar para enviarlos a sus módulos." />
-
+    <CustomPage goBack backTo="/visits" title="Editar visita" description="Agrega los servicios de la atención (una mascota por servicio) y pulsa Comenzar para enviarlos a sus módulos.">
       {/* CLIENTE */}
       <Card className="p-5 mb-4">
         <div className="flex items-center gap-3 mb-4">
@@ -135,6 +133,6 @@ export default function VisitEditPage() {
           </div>
         </Modal>
       )}
-    </div>
+    </CustomPage>
   );
 }

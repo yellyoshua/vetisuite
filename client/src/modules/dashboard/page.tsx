@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Bell, CalendarDays, ChevronRight, Clock, Package, Receipt, Scissors } from "lucide-react";
-import { daysUntil, F, money, T, todayLabel } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card, PatientAlerts, SectionHead } from "../../components/ui";
+import { daysUntil, F, money, T, todayLabel } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card, PatientAlerts } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
 
 const MAX_ALERTS = 3;
 
@@ -22,8 +23,7 @@ export default function DashboardPage() {
     { label: "Ingresos de hoy", value: money(revenue), sub: `${s.invoices.length} facturas emitidas`, icon: Receipt, tone: T.dark, to: "/billing" },
   ];
   return (
-    <div>
-      <SectionHead title="Buen día 👋" sub={`Hoy es ${todayLabel}. Este es el pulso de la clínica.`} />
+    <CustomPage title="Buen día 👋" description={`Hoy es ${todayLabel}. Este es el pulso de la clínica.`}>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {kpis.map((k) => (
           <Card key={k.label} className="p-4 cursor-pointer hover:shadow-md transition-shadow">
@@ -94,6 +94,6 @@ export default function DashboardPage() {
           </div>
         </Card>
       </div>
-    </div>
+    </CustomPage>
   );
 }

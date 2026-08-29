@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { inputStyle, money, T } from "../../../lib/constants";
-import type { LabOrder } from "../../../lib/types";
-import { useVetStore } from "../../../states/app.state";
-import { Badge, Btn } from "../../../components/ui";
+import { inputStyle, money, T } from "@/lib/constants";
+import type { LabOrder } from "@/lib/types";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn } from "@/components/ui";
 
 export function LabOrderCard({ order }: { order: LabOrder }) {
   const s = useVetStore();

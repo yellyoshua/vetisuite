@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { inputStyle, LAB_TESTS, money, T } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Btn, Card, Field } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { inputStyle, LAB_TESTS, money, T } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Btn, Card, Field } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { ResourceNotFound } from "@/components/resource-not-found";
 
 export default function LabOrderNewPage() {
   const { patientId } = useParams();
@@ -15,9 +15,8 @@ export default function LabOrderNewPage() {
   if (!patient) return <ResourceNotFound backTo="/clinic" label="el paciente" />;
   const backTo = `/clinic/show/${patient.id}`;
   return (
-    <div>
-      <PageHeader backTo={backTo} title="Orden de laboratorio" sub={`Paciente: ${patient.name} · El examen se carga a la cuenta abierta del cliente.`} />
-      <Card className="p-5" style={{ maxWidth: 520 }}>
+    <CustomPage goBack backTo={backTo} title="Orden de laboratorio" description={`Paciente: ${patient.name} · El examen se carga a la cuenta abierta del cliente.`}>
+      <Card className="p-5">
         <Field label="Examen">
           <select style={inputStyle} value={test} onChange={(e) => setTest(e.target.value)}>
             {Object.entries(LAB_TESTS).map(([name, price]) => <option key={name} value={name}>{name} — {money(price)}</option>)}
@@ -29,6 +28,6 @@ export default function LabOrderNewPage() {
           <Btn onClick={() => { s.orderLab(patient.id, test); navigate(backTo); }}>Generar orden interna</Btn>
         </div>
       </Card>
-    </div>
+    </CustomPage>
   );
 }

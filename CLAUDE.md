@@ -8,9 +8,9 @@ bun workspaces, tres proyectos + infraestructura:
 | Carpeta           | Dominio           | Rol |
 |-------------------|-------------------|-----|
 | `client/`         | app.vetisuite.com | SPA de gestión (React 19 + Vite 8 + TS strict). El producto: dashboard, clientes/pacientes, citas, peluquería, clínica/laboratorio, inventario y facturación. UI en español. Demo MVP sin backend real: estado en memoria (zustand) con datos semilla; `client/src/lib/api.ts` simula la API. Recargar reinicia los datos. |
-| `server/`         | api.vetisuite.com | API backend (Nitro). Hoy solo `GET /healthcheck`; crecerá cuando el client deje de simular la API. Se despliega como AWS Lambda (`build:lambda`, preset `aws-lambda`) vía la infraestructura Terraform. |
-| `landing/`        | vetisuite.com     | Sitio público de marketing (Astro). Hoy un hello world. |
-| `infrastructure/` | —                 | Terraform (AWS): Lambda + API Gateway + ACM + CodePipeline/CodeBuild. Entornos en `infrastructure/environments/*.tfvars`. |
+| `server/`         | api.vetisuite.com | API backend (Nitro + drizzle/Postgres). Estructura en `routes/` → `modules/` → `core/` → `drizzle/`, con `constants/` transversal; `clients` es el módulo de referencia cableado de punta a punta. Compila a AWS Lambda (`build:lambda`, preset `aws-lambda`); sin infra de deploy hoy. Manual: `server/README.md`. |
+| `landing/`        | vetisuite.com     | Sitio público de marketing (Astro + `astro-aws-amplify`). Hoy un hello world. Build a `landing/.amplify-hosting/`. |
+| `amplify.yml`     | —                 | Build spec de AWS Amplify Hosting: una app por `appRoot` (`client`, `landing`). Instala bun en la imagen AL2023. Las apps Amplify se crean en la consola. |
 | `docs/`           | —                 | Documentación de arquitectura, deploy y runbook. |
 
 Cada app se sirve en la raíz de su propio subdominio → ningún proyecto necesita
@@ -34,12 +34,17 @@ manual en navegador (checklist en `client/AGENTS.md` §4).
 
 ```
 client/src/
-  App.tsx                  → layout + rutas anidadas
-  states/app.state.tsx     → único store zustand (useVetStore, tipado con VetState)
+  App.tsx                  → un `if`: perfil staff → <StaffRoutes />, si no null
+  routes/staff.routes.tsx  → rutas del panel interno, envueltas en CustomLayout
+  states/app.state.tsx     → store del dominio (useVetStore, tipado con VetState)
+  states/auth.store.tsx    → sesión (useAuthStore); claves planas, hoy quemadas
   lib/                     → constants.ts (tokens T/F, catálogos), types.ts, api.ts (API simulada)
   components/              → compartidos: ui.tsx (Btn, Badge, Card, Modal, Field…),
-                             page-header, resource-list-item, info-grid, resource-not-found,
-                             client-search, patient-picker, layout, toasts
+                             layouts/custom-layout (sidebar + drawer),
+                             toast (provider sonner + showToast),
+                             pages/custom-page (cáscara de toda pantalla),
+                             resource-list-item, info-grid, resource-not-found,
+                             client-search, patient-picker
   modules/[module]/        → page.tsx (índice) + new-page / show-page / edit-page + components/
 ```
 
@@ -55,11 +60,21 @@ con `:id` renderiza `ResourceNotFound` si el recurso no existe.
 - **Código en inglés, UI en español**: identificadores/archivos/rutas en inglés
   (kebab-case); solo el texto visible al usuario va en español. Los valores de
   estado (`"pendiente"`, `"confirmada"`…) están en español a propósito.
+- **Imports con `@/`**: `@/` apunta a `client/src/` y a la raíz de `server/`.
+  Todo lo que suba de carpeta va con alias (`@/lib/constants`, `@/core/http`);
+  los hermanos siguen relativos (`./repository`). Cada alias vive en **dos**
+  sitios que deben decir lo mismo: `paths` del tsconfig (para tsc y el editor) y
+  el bundler (`resolve.alias` en `client/vite.config.ts`, `alias` en
+  `server/nitro.config.ts`). Si solo pones el tsconfig, compila y revienta en
+  runtime. Excepción: los esquemas `.js` de drizzle se importan relativos —
+  drizzle-kit los lee con su propio bundler, que no conoce `@/`.
 - **Reusar los componentes compartidos** (`client/src/components/`) — nunca
   crear botones/badges/cards/headers ad-hoc.
-- **Estilos**: Tailwind + estilos inline con los tokens `T`/`F` de
-  `client/src/lib/constants.ts`. Prohibido hex fuera de `T`. Detalle en
-  `client/DESIGN.md`.
+- **Estilos**: la paleta se define como variables CSS en el bloque `@theme` de
+  `client/src/index.css` — de ahí salen tanto las utilidades Tailwind
+  (`bg-green-soft`, `text-sub`, `border-line`) como los tokens `T`/`F` de
+  `client/src/lib/constants.ts`, que solo referencian esas variables con
+  `var()`. Prohibido hex fuera de `@theme`. Detalle en `client/DESIGN.md`.
 - **Effects**: prohibido `setState` síncrono en effects (lint lo bloquea) —
   estado derivado, resets en handlers o URL como fuente de verdad
   (`client/AGENTS.md` §3).
@@ -68,5 +83,7 @@ con `:id` renderiza `ResourceNotFound` si el recurso no existe.
 ## Referencias
 
 - Manual completo del client (estilo, testing, deploy): **`client/AGENTS.md`**
+- Estructura y convenciones del server: **`server/README.md`** (y los README de
+  `server/core/`, `server/constants/`, `server/modules/`, `server/drizzle/`)
 - Sistema de diseño: **`client/DESIGN.md`**
 - Estructura del monorepo y deploy: **`docs/`**

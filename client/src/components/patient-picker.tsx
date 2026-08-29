@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { PawPrint } from "lucide-react";
-import { SPECIES_ICON, T } from "../lib/constants";
-import { useVetStore } from "../states/app.state";
+import { SPECIES_ICON, T } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
 import { PatientAlerts } from "./ui";
 
 /* Dependent selector: pets load ONLY from the chosen client

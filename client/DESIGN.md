@@ -1,6 +1,6 @@
 # DESIGN.md — Sistema de diseño de Veti Suite
 
-Especificación de la identidad visual para agentes de IA. **Fuente de verdad: el código.** Los tokens viven en `src/lib/constants.ts` (objetos `T` y `F`); los primitivos de UI en `src/components/ui.tsx`. Si un valor de este documento contradice el código, manda el código — y este archivo debe actualizarse.
+Especificación de la identidad visual para agentes de IA. **Fuente de verdad: el código.** Los hex viven en el bloque `@theme` de `src/index.css`; `src/lib/constants.ts` (objetos `T` y `F`) solo los referencia con `var()`; los primitivos de UI están en `src/components/ui.tsx`. Si un valor de este documento contradice el código, manda el código — y este archivo debe actualizarse.
 
 ## 1. Identidad
 
@@ -11,51 +11,65 @@ Especificación de la identidad visual para agentes de IA. **Fuente de verdad: e
 
 ## 2. Color
 
-Todos los colores se usan a través del objeto `T` de `src/lib/constants.ts`. **Prohibido escribir hex sueltos en componentes**; si necesitas un color nuevo, agrégalo primero a `T`.
+La paleta se define **una sola vez**, como variables CSS en el bloque `@theme` de `src/index.css`. De ahí salen las dos formas de consumirla:
+
+| Forma | Cómo | Cuándo |
+|---|---|---|
+| Utilidad Tailwind | `className="bg-green-soft text-green border-line"` | Cuando ya estás escribiendo clases |
+| Estilo inline | `style={{ color: T.green }}` (`T` de `src/lib/constants.ts`, cuyos valores son `var(--color-green)`) | Valores puntuales mezclados con radios/tamaños |
+
+Ambas resuelven a la misma variable: cambiar un hex en `@theme` cambia toda la app. **Prohibido escribir hex sueltos en componentes.** Color nuevo = primero `--color-*` en `@theme`, después la entrada en `T` si lo vas a usar inline.
+
+El bloque es `@theme static` a propósito: sin `static`, Tailwind poda las variables que ninguna utilidad usa y los estilos inline con `var()` se quedarían sin valor.
 
 ### Tokens principales
 
-| Token | Hex | Uso |
-|---|---|---|
-| `T.bg` | `#F6F4EE` | Fondo de página (crema) |
-| `T.card` | `#FFFFFF` | Fondo de tarjetas, modales, inputs de barra |
-| `T.line` | `#E6E1D5` | Bordes estándar (1px) |
-| `T.lineSoft` | `#EFEBE1` | Bordes/divisores suaves (filas internas) |
-| `T.ink` | `#1E2A26` | Texto principal |
-| `T.sub` | `#6C7A72` | Texto secundario, labels, metadatos |
-| `T.green` | `#186653` | **Primario**: botones principales, éxito, selección activa |
-| `T.greenSoft` | `#E2EFE9` | Fondo de selección/badges verdes/avatares |
-| `T.dark` | `#14312A` | Sidebar, botones `dark` |
-| `T.darkHover` | `#1C4038` | Hover sobre superficies dark |
-| `T.amber` | `#B07314` | Advertencia, estado "pendiente" |
-| `T.amberSoft` | `#FBF0DA` | Fondo de badges/alertas ámbar |
-| `T.red` | `#B3402F` | Peligro, deuda, caducidad, "agresivo" |
-| `T.redSoft` | `#F9E7E3` | Fondo de badges/alertas rojas y botón `danger` |
-| `T.blue` | `#2C6E8F` | Informativo, estado "en proceso/completada" |
-| `T.blueSoft` | `#E4EFF4` | Fondo de badges/alertas azules |
-| `T.wa` | `#1D8F5B` | **Exclusivo** de automatización WhatsApp (botones `wa`, toasts `wa`) |
+| Token `T` | Variable / utilidad | Hex | Uso |
+|---|---|---|---|
+| `T.bg` | `--color-bg` · `bg-bg` | `#F6F4EE` | Fondo de página (crema) |
+| `T.card` | `--color-card` · `bg-card` | `#FFFFFF` | Fondo de tarjetas, modales, inputs de barra |
+| `T.line` | `--color-line` · `border-line` | `#E6E1D5` | Bordes estándar (1px) |
+| `T.lineSoft` | `--color-line-soft` | `#EFEBE1` | Bordes/divisores suaves (filas internas) |
+| `T.ink` | `--color-ink` · `text-ink` | `#1E2A26` | Texto principal |
+| `T.sub` | `--color-sub` · `text-sub` | `#6C7A72` | Texto secundario, labels, metadatos |
+| `T.green` | `--color-green` | `#186653` | **Primario**: botones principales, éxito, selección activa |
+| `T.greenSoft` | `--color-green-soft` | `#E2EFE9` | Fondo de selección/badges verdes/avatares |
+| `T.dark` | `--color-dark` | `#14312A` | Sidebar, botones `dark` |
+| `T.darkHover` | `--color-dark-hover` | `#1C4038` | Hover sobre superficies dark |
+| `T.amber` | `--color-amber` | `#B07314` | Advertencia, estado "pendiente" |
+| `T.amberSoft` | `--color-amber-soft` | `#FBF0DA` | Fondo de badges/alertas ámbar |
+| `T.red` | `--color-red` | `#B3402F` | Peligro, deuda, caducidad, "agresivo" |
+| `T.redSoft` | `--color-red-soft` | `#F9E7E3` | Fondo de badges/alertas rojas y botón `danger` |
+| `T.blue` | `--color-blue` | `#2C6E8F` | Informativo, estado "en proceso/completada" |
+| `T.blueSoft` | `--color-blue-soft` | `#E4EFF4` | Fondo de badges/alertas azules |
+| `T.wa` | `--color-wa` | `#1D8F5B` | **Exclusivo** de automatización WhatsApp (botones `wa`, toasts `wa`) |
 
 Regla de pareja: los tonos `*Soft` son siempre **fondo** y su versión fuerte es siempre **texto/icono** (ej. badge ámbar = fondo `amberSoft` + texto `amber`). Nunca al revés.
 
-### Neutrales auxiliares (hardcodeados en componentes existentes)
+### Neutrales auxiliares
 
-| Hex | Uso |
-|---|---|
-| `#FCFBF8` | Fondo de inputs (`inputStyle`) |
-| `#F1EFE7` | Pista del kanban, chips de signos vitales |
-| `#F0EDE4` | Skeletons de carga |
-| `#F4F1E9` | Hover de opciones (clase `.vs-opt`) |
-| `#FAF8F2` | Pie del dropdown de búsqueda |
-| `#F0EFE9` | Celda de cita completada |
-| `#EEECE4` | Fondo del badge `gray` |
-| `#D8D3C5` | Thumb del scrollbar |
+| Token `T` | Variable | Hex | Uso |
+|---|---|---|---|
+| `T.input` | `--color-input` | `#FCFBF8` | Fondo de inputs (`inputStyle`) |
+| `T.track` | `--color-track` | `#F1EFE7` | Pista del kanban, chips de signos vitales |
+| `T.skeleton` | `--color-skeleton` | `#F0EDE4` | Skeletons de carga |
+| `T.optHover` | `--color-opt-hover` | `#F4F1E9` | Hover de opciones (clase `.vs-opt`) |
+| `T.dropdownFoot` | `--color-dropdown-foot` | `#FAF8F2` | Pie del dropdown de búsqueda |
+| `T.done` | `--color-done` | `#F0EFE9` | Celda de cita completada |
+| `T.graySoft` | `--color-gray-soft` | `#EEECE4` | Fondo del badge `gray` |
+| `T.scrollThumb` | `--color-scroll-thumb` | `#D8D3C5` | Thumb del scrollbar |
+
+### Dos excepciones deliberadas
+
+- **Alfas sobre superficies oscuras** (overlay de modal `rgba(18,28,24,0.5)`, ítem activo del sidebar `rgba(255,255,255,0.11)`, texto inactivo `rgba(255,255,255,0.62)`) siguen inline: son opacidades sobre lo que haya debajo, no colores de la paleta. No las conviertas en tokens.
+- **Color por veterinario** (`vets[].color` en `src/states/app.state.tsx`) es **dato**, no diseño: en producción lo elige el usuario al crear el veterinario. Por eso vive en el store como hex y es el único hex legítimo fuera de `@theme`.
 
 ## 3. Tipografía
 
-Fuentes cargadas por Google Fonts en `src/index.css`; referenciadas vía `F` en `src/lib/constants.ts`.
+Fuentes cargadas por Google Fonts en `src/index.css` y declaradas en el mismo `@theme` que los colores; se consumen inline vía `F` (`src/lib/constants.ts`) o como utilidad Tailwind.
 
-- **`F.head`** = `'Sora', sans-serif` — títulos y cifras. Pesos: 400/600/700.
-- **`F.body`** = `'Inter', system-ui, sans-serif` — todo lo demás. Pesos: 400/500/600/700.
+- **`F.head`** = `--font-head` = `'Sora', sans-serif` (utilidad `font-head`) — títulos y cifras. Pesos: 400/600/700.
+- **`F.body`** = `--font-body` = `'Inter', system-ui, sans-serif` (utilidad `font-body`) — todo lo demás. Pesos: 400/500/600/700.
 
 Escala real en uso (px):
 
@@ -100,21 +114,24 @@ Números tabulares (`fontVariantNumeric: "tabular-nums"`) en horas, montos y sto
 | `Card` | `src/components/ui.tsx` | Contenedor base blanco radius 16 |
 | `Modal` | `src/components/ui.tsx` | Overlay `rgba(18,28,24,0.5)`, header sticky, `width` configurable (default 460) |
 | `Field` + `inputStyle` | `ui.tsx` / `constants.ts` | Label uppercase + input/select/textarea |
-| `SectionHead` | `src/components/ui.tsx` | Header de pantallas **índice** (título + sub + CTA) |
-| `PageHeader` | `src/components/page-header.tsx` | Header de pantallas **show/edit/new** ("← Volver" + título + acciones) |
+| `CustomPage` | `src/components/pages/custom-page.tsx` | **Cáscara de TODA pantalla**: `title`, `description`, `actions`, `goBack` + `backTo`. El cuerpo siempre ocupa todo el ancho |
 | `ResourceListItem` | `src/components/resource-list-item.tsx` | Fila estándar de listados: avatar/icono, título+badges, subtítulo, meta, acciones a la derecha |
 | `InfoGrid` | `src/components/info-grid.tsx` | Pares label/valor en pantallas show |
 | `ResourceNotFound` | `src/components/resource-not-found.tsx` | Obligatorio cuando un `:id` no existe |
 | `Pager` | `src/components/ui.tsx` | Paginación "Mostrando X–Y de Z" + Anterior/Siguiente |
 | `Spinner`, `Elapsed`, `PatientAlerts` | `src/components/ui.tsx` | Carga, cronómetro mm:ss, alertas de paciente (agresivo/alergias) |
-| `Toasts` | `src/components/toasts.tsx` | Bottom-right, auto-dismiss 5.2s; variante `wa` verde con encabezado "Automatización · WhatsApp" |
+| `CustomLayout` | `src/components/layouts/custom-layout.tsx` | Cáscara de la app: sidebar, drawer y barra móviles y contenedor del contenido. Un solo componente; el menú va quemado dentro |
+| `ToastProvider` + `showToast` | `src/components/toast.tsx` | Notificaciones sobre `sonner`. El provider se monta en `main.tsx` junto a `<App />`; `showToast` solo lo llama `notify` del store. Bottom-right, 5.2s; variante `wa` verde con encabezado "Automatización · WhatsApp" |
 | `ClientSearch` / `PatientPicker` | `src/components/` | Typeahead de clientes (debounce 300ms, máx. 8) y selector dependiente de mascotas |
 
 ## 6. Patrones de pantalla
 
-- **Índice** (`/[module]`): `SectionHead` + búsqueda (input con icono `Search`) + listado (`ResourceListItem`) / tabla / kanban + `Pager` + CTA "Nuevo X" `primary` en el header. Acciones por ítem: `Btn small ghost` con iconos `Eye`/`Pencil` ("Ver", "Editar").
-- **Show** (`/[module]/show/:id`): `PageHeader` con Volver + `Card` con `InfoGrid` + acciones contextuales debajo o en el header.
-- **Form new/edit**: `PageHeader` + `Card` centrada-izquierda; botones al pie alineados a la derecha: `Cancelar` (`ghost`) + acción primaria.
+Toda pantalla es un `CustomPage`. Lo único que cambia entre patrones son sus props:
+
+- **Índice** (`/[module]`): `<CustomPage actions={<Btn>Nuevo X</Btn>}>` + búsqueda (input con icono `Search`) + listado (`ResourceListItem`) / tabla / kanban + `Pager`. Acciones por ítem: `Btn small ghost` con iconos `Eye`/`Pencil` ("Ver", "Editar").
+- **Show** (`/[module]/show/:id`): `<CustomPage goBack backTo="/[module]" actions={…}>` + `Card` con `InfoGrid`.
+- **Form new/edit**: `<CustomPage goBack backTo={…}>` + `Card className="p-5"` **sin `maxWidth` propio**; botones al pie alineados a la derecha: `Cancelar` (`ghost`) + acción primaria.
+- **Anchos**: toda pantalla ocupa el ancho completo del contenedor (1180px de `App.tsx`); nada de `style={{ maxWidth: N }}` en la pantalla. Si una pantalla necesita otra cáscara, se crea otro componente en `src/components/pages/` — no se añaden condicionales a `CustomPage`.
 - **Not found**: toda pantalla con `:id` renderiza `ResourceNotFound` si el recurso no existe.
 - **Sidebar**: fondo `T.dark`, ancho 232 (72 colapsado, transición `width .22s ease`); ítem activo `rgba(255,255,255,0.11)` con texto blanco; inactivo `rgba(255,255,255,0.62)`.
 

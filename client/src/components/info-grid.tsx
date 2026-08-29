@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { T } from "../lib/constants";
+import { T } from "@/lib/constants";
 
 /* Label/value pairs for show screens — same look across all modules. */
 export function InfoGrid({ items }: { items: Array<{ label: string; value: ReactNode }> }) {

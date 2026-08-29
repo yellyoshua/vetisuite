@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { X } from "lucide-react";
-import { inputStyle, money, T } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Btn, Card, Field } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { inputStyle, money, T } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Btn, Card, Field } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { ResourceNotFound } from "@/components/resource-not-found";
 
 /* The product is SEARCHED (with thousands of SKUs a global <select>
    is unusable): filter by name/category, max 8 matches. The charge
@@ -25,9 +25,8 @@ export default function ApplyProductPage() {
   const product = s.inventory.find((p) => p.id === productId);
   const matches = s.inventory.filter((p) => p.stock > 0 && (p.name + " " + p.category).toLowerCase().includes(query.toLowerCase())).slice(0, 8);
   return (
-    <div>
-      <PageHeader backTo={backTo} title="Aplicar insumo clínico" sub={`Paciente: ${patient.name} · Descuenta inventario y carga la cuenta del cliente en tiempo real.`} />
-      <Card className="p-5" style={{ maxWidth: 560 }}>
+    <CustomPage goBack backTo={backTo} title="Aplicar insumo clínico" description={`Paciente: ${patient.name} · Descuenta inventario y carga la cuenta del cliente en tiempo real.`}>
+      <Card className="p-5">
         {!product ? (
           <>
             <Field label="Buscar producto en inventario">
@@ -64,6 +63,6 @@ export default function ApplyProductPage() {
           </>
         )}
       </Card>
-    </div>
+    </CustomPage>
   );
 }

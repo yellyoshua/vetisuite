@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2, Clock, Eye, Plus, ShieldAlert } from "lucide-react";
-import { F, money, T } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card, Elapsed, SectionHead } from "../../components/ui";
+import { F, money, T } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card, Elapsed } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
 
 const COLUMNS = [
   { key: "pendiente", label: "Pendiente", tone: T.amber },
@@ -14,9 +15,8 @@ export default function GroomingPage() {
   const s = useVetStore();
   const navigate = useNavigate();
   return (
-    <div>
-      <SectionHead title="Peluquería y Estética" sub="Tablero Kanban con cronómetro por peluquero. Al terminar, el sistema avisa al dueño por WhatsApp y carga el servicio a facturación."
-        action={<Btn onClick={() => navigate("/grooming/new")}><Plus size={14} /> Check-in</Btn>} />
+    <CustomPage title="Peluquería y Estética" description="Tablero Kanban con cronómetro por peluquero. Al terminar, el sistema avisa al dueño por WhatsApp y carga el servicio a facturación."
+      actions={<Btn onClick={() => navigate("/grooming/new")}><Plus size={14} /> Check-in</Btn>}>
       <div className="grid md:grid-cols-3 gap-4">
         {COLUMNS.map((col) => {
           const items = s.grooming.filter((g) => g.status === col.key);
@@ -27,7 +27,7 @@ export default function GroomingPage() {
                 <span style={{ fontFamily: F.head, fontSize: 13.5, fontWeight: 600 }}>{col.label}</span>
                 <span style={{ fontSize: 12, color: T.sub }}>({items.length})</span>
               </div>
-              <div className="flex flex-col gap-3" style={{ minHeight: 120, background: "#F1EFE7", borderRadius: 14, padding: 10 }}>
+              <div className="flex flex-col gap-3" style={{ minHeight: 120, background: T.track, borderRadius: 14, padding: 10 }}>
                 {items.map((g) => {
                   const patient = s.patients.find((p) => p.id === g.patientId)!;
                   const owner = s.clients.find((c) => c.id === patient.clientId)!;
@@ -62,6 +62,6 @@ export default function GroomingPage() {
           );
         })}
       </div>
-    </div>
+    </CustomPage>
   );
 }

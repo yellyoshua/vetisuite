@@ -1,1 +1,3 @@
-export default defineEventHandler(() => ({ status: 'ok' }))
+import { defineHandler } from 'nitro'
+
+export default defineHandler(() => ({ status: 'ok' }))

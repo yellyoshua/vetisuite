@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GROOM_SERVICES, inputStyle, money, T } from "../../lib/constants";
-import type { Client } from "../../lib/types";
-import { useVetStore } from "../../states/app.state";
-import { Btn, Card, Field } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { ClientSearch } from "../../components/client-search";
-import { PatientPicker } from "../../components/patient-picker";
+import { GROOM_SERVICES, inputStyle, money, T } from "@/lib/constants";
+import type { Client } from "@/lib/types";
+import { useVetStore } from "@/states/app.state";
+import { Btn, Card, Field } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { ClientSearch } from "@/components/client-search";
+import { PatientPicker } from "@/components/patient-picker";
 
 export default function GroomingNewPage() {
   const checkInGrooming = useVetStore((s) => s.checkInGrooming);
@@ -15,9 +15,8 @@ export default function GroomingNewPage() {
   const [patientId, setPatientId] = useState<string | null>(null);
   const [form, setForm] = useState({ service: "Baño completo", belongings: "", groomer: "Sofía" });
   return (
-    <div>
-      <PageHeader backTo="/grooming" title="Check-in de estética" sub="Registra la llegada con servicio, peluquero y pertenencias." />
-      <Card className="p-5" style={{ maxWidth: 560 }}>
+    <CustomPage goBack backTo="/grooming" title="Check-in de estética" description="Registra la llegada con servicio, peluquero y pertenencias.">
+      <Card className="p-5">
         <Field label="1 · Cliente">
           <ClientSearch autoFocus selected={client} onSelect={(c) => { setClient(c); setPatientId(null); }} />
         </Field>
@@ -43,6 +42,6 @@ export default function GroomingNewPage() {
           <Btn disabled={!patientId} onClick={() => { checkInGrooming({ ...form, patientId: patientId! }); navigate("/grooming"); }}>Registrar check-in</Btn>
         </div>
       </Card>
-    </div>
+    </CustomPage>
   );
 }

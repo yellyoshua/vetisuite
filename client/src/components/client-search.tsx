@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Search, X } from "lucide-react";
-import { inputStyle, money, T } from "../lib/constants";
-import { searchClientsApi, useDebounced } from "../lib/api";
-import type { Client } from "../lib/types";
+import { inputStyle, money, T } from "@/lib/constants";
+import { searchClientsApi, useDebounced } from "@/lib/api";
+import type { Client } from "@/lib/types";
 import { Badge, Spinner } from "./ui";
 
 /* ================================================================
@@ -70,7 +70,7 @@ export function ClientSearch({ selected, onSelect, placeholder = "Buscar cliente
             </button>
           ))}
           {searched && st.total > st.results.length && (
-            <div className="px-3 py-2" style={{ fontSize: 11.5, color: T.sub, background: "#FAF8F2" }}>{st.results.length} de {st.total} coincidencias — sigue escribiendo para afinar.</div>
+            <div className="px-3 py-2" style={{ fontSize: 11.5, color: T.sub, background: T.dropdownFoot }}>{st.results.length} de {st.total} coincidencias — sigue escribiendo para afinar.</div>
           )}
         </div>
       )}

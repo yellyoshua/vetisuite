@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, Pencil } from "lucide-react";
-import { F, isServiceDone, money, T } from "../../lib/constants";
-import type { Client } from "../../lib/types";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card, Field, Pager, SectionHead } from "../../components/ui";
-import { ClientSearch } from "../../components/client-search";
+import { F, isServiceDone, money, T } from "@/lib/constants";
+import type { Client } from "@/lib/types";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card, Field, Pager } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { ClientSearch } from "@/components/client-search";
 
 /* ================================================================
    BILLING — worklist de cobro: visitas abiertas (con estado de cada
@@ -28,8 +29,7 @@ export default function BillingPage() {
   const visitRows = allVisits.slice(currentVisitsPage * VISITS_PAGE_SIZE, currentVisitsPage * VISITS_PAGE_SIZE + VISITS_PAGE_SIZE);
   const invoiceRows = allInvoices.slice(invoicesPage * INVOICES_PAGE_SIZE, invoicesPage * INVOICES_PAGE_SIZE + INVOICES_PAGE_SIZE);
   return (
-    <div>
-      <SectionHead title="Facturación" sub="Visita abierta → detalle con el estado de cada servicio → cobro con descuento, IVA y método de pago → factura." />
+    <CustomPage title="Facturación" description="Visita abierta → detalle con el estado de cada servicio → cobro con descuento, IVA y método de pago → factura.">
       <Card className="p-4 mb-4">
         <Field label="El cobro parte del cliente — búscalo para ver sus visitas y su historial">
           <ClientSearch selected={filterClient} onSelect={(c) => { setFilterClient(c); setVisitsPage(0); setInvoicesPage(0); }} placeholder="Buscar cliente para cobrar…" />
@@ -112,6 +112,6 @@ export default function BillingPage() {
           {allInvoices.length > INVOICES_PAGE_SIZE && <Pager page={invoicesPage} total={allInvoices.length} pageSize={INVOICES_PAGE_SIZE} onPage={setInvoicesPage} />}
         </div>
       </div>
-    </div>
+    </CustomPage>
   );
 }

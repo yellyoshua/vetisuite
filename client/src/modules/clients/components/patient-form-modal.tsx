@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { inputStyle, T } from "../../../lib/constants";
-import type { Patient } from "../../../lib/types";
-import { useVetStore } from "../../../states/app.state";
-import { Btn, Field, Modal } from "../../../components/ui";
+import { inputStyle, T } from "@/lib/constants";
+import type { Patient } from "@/lib/types";
+import { useVetStore } from "@/states/app.state";
+import { Btn, Field, Modal } from "@/components/ui";
 
 /* One modal for both creating and editing a pet (sub-resource of the client). */
 export function PatientFormModal({ clientId, patient, onClose }: { clientId: string; patient?: Patient; onClose: () => void }) {

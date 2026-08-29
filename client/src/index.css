@@ -1,12 +1,58 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+/* Paleta de Veti Suite (DESIGN.md §2). Fuente única de los colores: estas
+   variables generan utilidades Tailwind (bg-green, text-sub, border-line…) y a
+   la vez alimentan el objeto `T` de src/lib/constants.ts para estilos inline.
+   `static` fuerza a Tailwind a emitir todas las variables aunque ninguna
+   utilidad las use — los estilos inline las leen con var(). */
+@theme static {
+  /* Superficies y texto */
+  --color-bg: #F6F4EE;
+  --color-card: #FFFFFF;
+  --color-line: #E6E1D5;
+  --color-line-soft: #EFEBE1;
+  --color-ink: #1E2A26;
+  --color-sub: #6C7A72;
+
+  /* Primario */
+  --color-green: #186653;
+  --color-green-soft: #E2EFE9;
+  --color-dark: #14312A;
+  --color-dark-hover: #1C4038;
+
+  /* Semánticos (el tono *-soft es siempre fondo; el fuerte, texto/icono) */
+  --color-amber: #B07314;
+  --color-amber-soft: #FBF0DA;
+  --color-red: #B3402F;
+  --color-red-soft: #F9E7E3;
+  --color-blue: #2C6E8F;
+  --color-blue-soft: #E4EFF4;
+
+  /* Exclusivo de automatización WhatsApp */
+  --color-wa: #1D8F5B;
+
+  /* Neutrales auxiliares */
+  --color-input: #FCFBF8;
+  --color-track: #F1EFE7;
+  --color-skeleton: #F0EDE4;
+  --color-opt-hover: #F4F1E9;
+  --color-dropdown-foot: #FAF8F2;
+  --color-done: #F0EFE9;
+  --color-gray-soft: #EEECE4;
+  --color-scroll-thumb: #D8D3C5;
+
+  /* Tipografía (DESIGN.md §3) */
+  --font-head: 'Sora', sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d8d3c5;
+  background: var(--color-scroll-thumb);
   border-radius: 8px;
 }
 
@@ -26,5 +72,5 @@
 }
 
 .vs-opt:hover {
-  background: #f4f1e9;
+  background: var(--color-opt-hover);
 }

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { CONSULT_FEE, inputStyle, money } from "../../lib/constants";
-import { useVetStore } from "../../states/app.state";
-import { Btn, Card, Field } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { CONSULT_FEE, inputStyle, money } from "@/lib/constants";
+import { useVetStore } from "@/states/app.state";
+import { Btn, Card, Field } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { ResourceNotFound } from "@/components/resource-not-found";
 
 export default function ConsultationNewPage() {
   const { patientId } = useParams();
@@ -15,9 +15,8 @@ export default function ConsultationNewPage() {
   if (!patient) return <ResourceNotFound backTo="/clinic" label="el paciente" />;
   const backTo = `/clinic/show/${patient.id}`;
   return (
-    <div>
-      <PageHeader backTo={backTo} title="Nueva consulta médica" sub={`Paciente: ${patient.name} · Al guardar se cobra la consulta (${money(CONSULT_FEE)}) a la cuenta abierta del cliente.`} />
-      <Card className="p-5" style={{ maxWidth: 560 }}>
+    <CustomPage goBack backTo={backTo} title="Nueva consulta médica" description={`Paciente: ${patient.name} · Al guardar se cobra la consulta (${money(CONSULT_FEE)}) a la cuenta abierta del cliente.`}>
+      <Card className="p-5">
         <Field label="Médico tratante">
           <select style={inputStyle} value={form.vetId} onChange={(e) => setForm({ ...form, vetId: e.target.value })}>
             {s.vets.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
@@ -38,6 +37,6 @@ export default function ConsultationNewPage() {
           }}>Guardar consulta</Btn>
         </div>
       </Card>
-    </div>
+    </CustomPage>
   );
 }

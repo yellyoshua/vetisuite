@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { F, T } from "../lib/constants";
+import { F, T } from "@/lib/constants";
 
 /* Standard list row for module indexes: avatar/icon, title + badges,
    subtitle/meta, and an action group (Ver / Editar / extras) on the right. */

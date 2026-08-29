@@ -1,12 +1,12 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowRight, CheckCircle2, MessageCircle, Pencil, Receipt } from "lucide-react";
-import { SERVICE_FLOWS, F, isServiceDone, money, T, waLink } from "../../lib/constants";
-import type { ServiceType } from "../../lib/types";
-import { useVetStore } from "../../states/app.state";
-import { Badge, Btn, Card } from "../../components/ui";
-import { PageHeader } from "../../components/page-header";
-import { InfoGrid } from "../../components/info-grid";
-import { ResourceNotFound } from "../../components/resource-not-found";
+import { SERVICE_FLOWS, F, isServiceDone, money, T, waLink } from "@/lib/constants";
+import type { ServiceType } from "@/lib/types";
+import { useVetStore } from "@/states/app.state";
+import { Badge, Btn, Card } from "@/components/ui";
+import { CustomPage } from "@/components/pages/custom-page";
+import { InfoGrid } from "@/components/info-grid";
+import { ResourceNotFound } from "@/components/resource-not-found";
 
 const TYPE_TONE: Record<ServiceType, "green" | "blue" | "amber" | "gray"> = {
   veterinaria: "green", peluqueria: "blue", laboratorio: "amber", medicamento: "gray", vacuna: "gray",
@@ -26,9 +26,8 @@ export default function VisitShowPage() {
   const ready = svcs.length > 0 && pending === 0;
 
   return (
-    <div>
-      <PageHeader backTo="/visits" title={`Visita · ${client.name}`} sub="Avanza cada servicio en su kanban. Cuando todos terminen, factura."
-        action={<Btn kind="ghost" onClick={() => navigate(`/visits/edit/${visit.id}`)}><Pencil size={14} /> Editar</Btn>} />
+    <CustomPage goBack backTo="/visits" title={`Visita · ${client.name}`} description="Avanza cada servicio en su kanban. Cuando todos terminen, factura."
+      actions={<Btn kind="ghost" onClick={() => navigate(`/visits/edit/${visit.id}`)}><Pencil size={14} /> Editar</Btn>}>
       <Card className="p-5 mb-4">
         <InfoGrid items={[
           { label: "Cliente", value: client.name },
@@ -38,7 +37,7 @@ export default function VisitShowPage() {
         ]} />
       </Card>
 
-      <Card className="p-5" style={{ maxWidth: 640 }}>
+      <Card className="p-5">
         <h2 style={{ fontFamily: F.head, fontSize: 14, fontWeight: 600, marginBottom: 6 }}>Servicios de la atención ({svcs.length})</h2>
         {svcs.map((sv) => {
           const cols = SERVICE_FLOWS[sv.type].columns;
@@ -60,7 +59,7 @@ export default function VisitShowPage() {
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {cols.map((c, i) => (
                     <span key={c} style={{ fontSize: 11, padding: "2px 8px", borderRadius: 99, fontWeight: i === idx ? 700 : 500,
-                      background: i <= idx ? T.greenSoft : "#F1EFE7", color: i <= idx ? T.green : T.sub }}>{c}</span>
+                      background: i <= idx ? T.greenSoft : T.track, color: i <= idx ? T.green : T.sub }}>{c}</span>
                   ))}
                 </div>
                 {done
@@ -88,6 +87,6 @@ export default function VisitShowPage() {
         </div>
         {!ready && svcs.length > 0 && <p style={{ fontSize: 12, color: T.amber, textAlign: "right", marginTop: 8 }}>Faltan {pending} servicio{pending !== 1 ? "s" : ""} por terminar antes de facturar.</p>}
       </Card>
-    </div>
+    </CustomPage>
   );
 }
