@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, Pencil, Plus, Search } from "lucide-react";
-import { daysUntil, inputStyle, money, T } from "@/lib/constants";
+import { PRODUCT_CATEGORIES, expiryLabel, expiryState, inputStyle, isLowStock, money, T } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
-import { Badge, Btn, Card, Pager } from "@/components/ui";
+import { Badge, Btn, Card, Pager, Select, Spinner } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
+import { useDebounced } from "@/lib/api";
+import { useListParams } from "@/lib/use-list-params";
 import { RestockModal } from "./components/restock-modal";
 
 /* ================================================================
@@ -17,12 +19,12 @@ export default function InventoryPage() {
   const s = useVetStore();
   const navigate = useNavigate();
   const [restockId, setRestockId] = useState<string | null>(null);
-  const [q, setQ] = useState("");
-  const [category, setCategory] = useState("Todas");
-  const [page, setPage] = useState(0);
+  const { q, page, param, setQ, setPage, setParam } = useListParams();
+  const debouncedQ = useDebounced(q, 300);
+  const category = param("category", "Todas");
   const filtered = s.inventory.filter((p) =>
     (category === "Todas" || p.category === category) &&
-    (p.name + " " + p.category).toLowerCase().includes(q.toLowerCase())
+    (p.name + " " + p.category).toLowerCase().includes(debouncedQ.toLowerCase())
   );
   const rows = filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
   return (
@@ -31,26 +33,27 @@ export default function InventoryPage() {
       <div className="flex gap-2 flex-wrap mb-3">
         <div className="flex items-center gap-2 flex-1" style={{ ...inputStyle, padding: "8px 11px", minWidth: 200 }}>
           <Search size={14} color={T.sub} className="shrink-0" />
-          <input value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} placeholder="Buscar producto o categoría…"
-            style={{ border: "none", outline: "none", background: "transparent", fontSize: 13, width: "100%", color: T.ink }} />
+          <input type="search" aria-label="Buscar producto" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar producto o categoría…"
+            style={{ border: "none", background: "transparent", fontSize: 13, width: "100%", color: T.ink }} />
+          {q !== debouncedQ && <Spinner />}
         </div>
-        <select style={{ ...inputStyle, width: "auto", minWidth: 140 }} value={category} onChange={(e) => { setCategory(e.target.value); setPage(0); }}>
-          {["Todas", "Vacunas", "Medicamentos", "Alimentos", "Estética", "Otros"].map((x) => <option key={x}>{x}</option>)}
-        </select>
+        <Select aria-label="Filtrar por categoría" style={{ width: "auto", minWidth: 140 }} value={category} onChange={(e) => setParam("category", e.target.value === "Todas" ? "" : e.target.value)}>
+          {["Todas", ...PRODUCT_CATEGORIES].map((x) => <option key={x}>{x}</option>)}
+        </Select>
       </div>
       <Card style={{ overflowX: "auto" }}>
         <table className="w-full" style={{ fontSize: 13, minWidth: 620 }}>
           <thead>
             <tr style={{ borderBottom: `1px solid ${T.line}`, textAlign: "left" }}>
               {["Producto", "Categoría", "Stock", "P. venta", "Caducidad", ""].map((h) => (
-                <th key={h} style={{ padding: "12px 16px", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.4, color: T.sub, fontWeight: 600 }}>{h}</th>
+                <th key={h} scope="col" style={{ padding: "12px 16px", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.4, color: T.sub, fontWeight: 600 }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.map((p) => {
-              const low = p.stock <= p.minStock;
-              const daysToExpiry = daysUntil(p.expiry);
+              const low = isLowStock(p);
+              const expiry = expiryState(p.expiry);
               return (
                 <tr key={p.id} style={{ borderBottom: `1px solid ${T.lineSoft}` }}>
                   <td style={{ padding: "11px 16px", fontWeight: 600, color: T.ink }}>{p.name}</td>
@@ -64,8 +67,10 @@ export default function InventoryPage() {
                   </td>
                   <td style={{ padding: "11px 16px", fontVariantNumeric: "tabular-nums" }}>{money(p.price)}</td>
                   <td style={{ padding: "11px 16px" }}>
-                    <span style={{ color: daysToExpiry <= 60 ? T.red : T.sub, fontSize: 12.5 }}>
-                      {p.expiry}{daysToExpiry <= 60 && ` · ${daysToExpiry} días`}
+                    <span className="inline-flex items-center gap-1.5" style={{ fontSize: 12.5, color: T.sub }}>
+                      {p.expiry || "—"}
+                      {expiry === "caducado" && <Badge tone="red">Caducado</Badge>}
+                      {expiry === "por-caducar" && <Badge tone="amber">{expiryLabel(p.expiry)}</Badge>}
                     </span>
                   </td>
                   <td style={{ padding: "11px 16px" }}>

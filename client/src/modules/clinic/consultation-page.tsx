@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { CONSULT_FEE, inputStyle, money } from "@/lib/constants";
+import { inputStyle } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
-import { Btn, Card, Field } from "@/components/ui";
+import { Btn, Card, Field, Input, Select } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
 import { ResourceNotFound } from "@/components/resource-not-found";
 
@@ -15,17 +15,17 @@ export default function ConsultationNewPage() {
   if (!patient) return <ResourceNotFound backTo="/clinic" label="el paciente" />;
   const backTo = `/clinic/show/${patient.id}`;
   return (
-    <CustomPage goBack backTo={backTo} title="Nueva consulta médica" description={`Paciente: ${patient.name} · Al guardar se cobra la consulta (${money(CONSULT_FEE)}) a la cuenta abierta del cliente.`}>
+    <CustomPage goBack backTo={backTo} title="Nueva consulta médica" description={`Paciente: ${patient.name} · Se guarda en su expediente. El cobro de la consulta lo lleva el servicio de veterinaria de la visita.`}>
       <Card className="p-5">
         <Field label="Médico tratante">
-          <select style={inputStyle} value={form.vetId} onChange={(e) => setForm({ ...form, vetId: e.target.value })}>
+          <Select value={form.vetId} onChange={(e) => setForm({ ...form, vetId: e.target.value })}>
             {s.vets.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
-          </select>
+          </Select>
         </Field>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Field label="Peso"><input style={inputStyle} value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} placeholder="12.5 kg" /></Field>
-          <Field label="Temperatura"><input style={inputStyle} value={form.temp} onChange={(e) => setForm({ ...form, temp: e.target.value })} placeholder="38.5 °C" /></Field>
-          <Field label="Frec. cardíaca"><input style={inputStyle} value={form.hr} onChange={(e) => setForm({ ...form, hr: e.target.value })} placeholder="90 lpm" /></Field>
+          <Field label="Peso"><Input value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} placeholder="12.5 kg" /></Field>
+          <Field label="Temperatura"><Input value={form.temp} onChange={(e) => setForm({ ...form, temp: e.target.value })} placeholder="38.5 °C" /></Field>
+          <Field label="Frec. cardíaca"><Input value={form.hr} onChange={(e) => setForm({ ...form, hr: e.target.value })} placeholder="90 lpm" /></Field>
         </div>
         <Field label="Anamnesis (síntomas reportados)"><textarea style={{ ...inputStyle, minHeight: 64 }} value={form.anamnesis} onChange={(e) => setForm({ ...form, anamnesis: e.target.value })} placeholder="¿Qué reporta el dueño?" /></Field>
         <Field label="Diagnóstico presuntivo"><textarea style={{ ...inputStyle, minHeight: 64 }} value={form.diagnosis} onChange={(e) => setForm({ ...form, diagnosis: e.target.value })} /></Field>

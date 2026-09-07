@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Globe, Pencil, Trash2 } from "lucide-react";
-import { portalUrl, T } from "@/lib/constants";
+import { Pencil, Trash2 } from "lucide-react";
+import { PALETTE_FIELDS, portalUrl, T } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
 import { Btn, Card } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
+import { PortalLogo } from "./components/portal-logo";
 import { InfoGrid } from "@/components/info-grid";
 import { ResourceNotFound } from "@/components/resource-not-found";
 import { DeletePortalModal } from "./components/delete-portal-modal";
@@ -28,15 +29,13 @@ export default function PortalShowPage() {
         <InfoGrid items={[
           { label: "Slug", value: portal.slug },
           {
-            label: "Logo", value: portal.logoUrl
-              ? <img src={portal.logoUrl} alt="Logo del portal" style={{ width: 48, height: 48, objectFit: "contain", borderRadius: 10, border: `1px solid ${T.line}` }} />
-              : <span className="inline-flex items-center gap-1.5" style={{ color: T.sub }}><Globe size={14} /> Sin logo</span>,
+            label: "Logo", value: <PortalLogo url={portal.logoUrl} size={48} alt="Logo del portal" />,
           },
           {
             label: "Paleta", value: (
               <span className="inline-flex gap-1.5">
-                {Object.values(portal.palette).map((c, i) => (
-                  <span key={i} title={c} style={{ width: 22, height: 22, borderRadius: 7, background: c, border: `1px solid ${T.line}` }} />
+                {PALETTE_FIELDS.map((f) => (
+                  <span key={f.key} title={`${f.label}: ${portal.palette[f.key]}`} style={{ width: 22, height: 22, borderRadius: 7, background: portal.palette[f.key], border: `1px solid ${T.line}` }} />
                 ))}
               </span>
             ),

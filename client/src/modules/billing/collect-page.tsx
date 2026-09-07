@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Receipt } from "lucide-react";
-import { F, IVA_RATE, PAY_METHODS, inputStyle, isServiceDone, money, round2, T } from "@/lib/constants";
+import { F, IVA_RATE, PAY_METHODS, isServiceDone, money, round2, T } from "@/lib/constants";
 import type { PayMethod } from "@/lib/types";
 import { useVetStore } from "@/states/app.state";
-import { Btn, Card, Field } from "@/components/ui";
+import { Btn, Card, Field, Input, Select } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
 import { ResourceNotFound } from "@/components/resource-not-found";
 
@@ -53,7 +53,7 @@ export default function CollectPage() {
       <div className="grid md:grid-cols-2 gap-4">
         <Card className="p-5">
           <Field label="Descuento (%)">
-            <input type="number" min={0} max={100} style={inputStyle} value={discountPct} onChange={(e) => setDiscountPct(Number(e.target.value))} />
+            <Input type="number" min={0} max={100} value={discountPct} onChange={(e) => setDiscountPct(Math.min(100, Math.max(0, Number(e.target.value) || 0)))} />
           </Field>
           <Field label="IVA">
             <label className="flex items-center gap-2" style={{ fontSize: 13.5, color: T.ink }}>
@@ -62,9 +62,9 @@ export default function CollectPage() {
             </label>
           </Field>
           <Field label="Método de pago">
-            <select style={inputStyle} value={method} onChange={(e) => setMethod(e.target.value as PayMethod)}>
+            <Select value={method} onChange={(e) => setMethod(e.target.value as PayMethod)}>
               {PAY_METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
-            </select>
+            </Select>
           </Field>
         </Card>
         <Card className="p-5">
@@ -79,7 +79,7 @@ export default function CollectPage() {
           <div className="flex justify-end gap-2 mt-4">
             <Btn kind="ghost" onClick={() => navigate(backTo)}>Cancelar</Btn>
             <Btn onClick={() => {
-              const invId = s.billVisit(visit.id, { discount, ivaRate, method });
+              const invId = s.billVisit(visit.id, { discount, discountPct: pct, ivaRate, method });
               if (invId) navigate(`/billing/show/${invId}`);
             }}><Receipt size={14} /> Emitir factura</Btn>
           </div>

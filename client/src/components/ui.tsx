@@ -1,6 +1,6 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from "react";
 import { AlertTriangle, ChevronLeft, ChevronRight, ShieldAlert, X } from "lucide-react";
-import { F, T } from "@/lib/constants";
+import { F, T, inputStyle } from "@/lib/constants";
 import type { Patient } from "@/lib/types";
 
 export function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -12,10 +12,41 @@ export function Field({ label, children }: { label: string; children: ReactNode 
   );
 }
 
+/* Controles de formulario: el estilo base vive en `inputStyle` (lib/constants).
+   `style` propio se fusiona encima, así que los ajustes puntuales de ancho o
+   padding siguen siendo posibles sin volver a escribir el estilo entero. */
+/* `inputStyle` fija `background` y `color`, así que pisa el estilo nativo de
+   `:disabled`. El atenuado se aplica aquí, con el mismo tratamiento que `Btn`. */
+const disabledStyle = { opacity: 0.5, cursor: "not-allowed" } as const;
+
+export function Input({ style, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+  return <input {...props} style={{ ...inputStyle, ...(props.disabled ? disabledStyle : null), ...style }} />;
+}
+
+export function Select({ style, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+  return <select {...props} style={{ ...inputStyle, ...(props.disabled ? disabledStyle : null), ...style }} />;
+}
+
+export function DateInput(props: InputHTMLAttributes<HTMLInputElement>) {
+  return <Input type="date" {...props} />;
+}
+
+/* Avatar cuadrado de iniciales o icono — la marca visual de cada fila y ficha. */
+export function Avatar({ children, size = 40, style }: { children: ReactNode; size?: number; style?: CSSProperties }) {
+  return (
+    <div
+      className="flex items-center justify-center shrink-0"
+      style={{ width: size, height: size, borderRadius: 12, background: T.greenSoft, color: T.green, fontFamily: F.head, fontWeight: 700, fontSize: Math.round(size * 0.375), ...style }}
+    >
+      {children}
+    </div>
+  );
+}
+
 interface BtnProps {
   children: ReactNode;
   onClick?: () => void;
-  kind?: "primary" | "dark" | "ghost" | "danger" | "amber" | "wa";
+  kind?: "primary" | "dark" | "ghost" | "danger" | "amber";
   small?: boolean;
   disabled?: boolean;
   full?: boolean;
@@ -27,10 +58,10 @@ export function Btn({ children, onClick, kind = "primary", small, disabled, full
     ghost: { background: "transparent", color: T.ink, border: `1px solid ${T.line}` },
     danger: { background: T.redSoft, color: T.red, border: "1px solid transparent" },
     amber: { background: T.amberSoft, color: T.amber, border: "1px solid transparent" },
-    wa: { background: T.wa, color: "#fff", border: "1px solid transparent" },
   }[kind];
   return (
     <button
+      type="button"
       onClick={onClick} disabled={disabled}
       className="inline-flex items-center justify-center gap-1 font-medium transition-opacity"
       style={{
@@ -64,13 +95,37 @@ export function Card({ children, className = "", style = {} }: { children: React
   );
 }
 
+const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
 export function Modal({ title, onClose, children, width = 460 }: { title: string; onClose: () => void; children: ReactNode; width?: number }) {
+  const dialog = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  // `onClose` por ref: el efecto se monta una sola vez aunque el padre pase una
+  // lambda nueva en cada render (si dependiera de ella, robaría el foco al teclear).
+  const close = useRef(onClose);
+  useEffect(() => { close.current = onClose; });
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    dialog.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { close.current(); return; }
+      if (e.key !== "Tab" || !dialog.current) return;
+      const items = [...dialog.current.querySelectorAll<HTMLElement>(FOCUSABLE)];
+      if (items.length === 0) return;
+      const first = items[0], last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("keydown", onKey); opener?.focus(); };
+  }, []);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(18,28,24,0.5)" }} onClick={onClose}>
-      <div className="w-full shadow-2xl" style={{ background: T.card, borderRadius: 18, maxWidth: width, maxHeight: "88vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
+      <div ref={dialog} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby={titleId}
+        className="w-full shadow-2xl" style={{ background: T.card, borderRadius: 18, maxWidth: width, maxHeight: "88vh", overflowY: "auto", overscrollBehavior: "contain" }} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 sticky top-0 z-10" style={{ borderBottom: `1px solid ${T.line}`, background: T.card, borderRadius: "18px 18px 0 0" }}>
-          <h3 style={{ fontFamily: F.head, fontSize: 16, fontWeight: 600, color: T.ink }}>{title}</h3>
-          <button onClick={onClose} style={{ color: T.sub }}><X size={18} /></button>
+          <h3 id={titleId} style={{ fontFamily: F.head, fontSize: 16, fontWeight: 600, color: T.ink }}>{title}</h3>
+          <button type="button" onClick={onClose} aria-label="Cerrar" style={{ color: T.sub }}><X size={18} /></button>
         </div>
         <div className="p-5">{children}</div>
       </div>

@@ -1,8 +1,8 @@
 import { Copy, Plus, X } from "lucide-react";
 import { WEEKDAYS, newWorkday } from "@/lib/availability";
-import { inputStyle, T } from "@/lib/constants";
+import { T } from "@/lib/constants";
 import type { DayAvailability } from "@/lib/types";
-import { Btn } from "@/components/ui";
+import { Btn, Input } from "@/components/ui";
 import { Toggle } from "./toggle";
 
 /* Horario semanal al estilo Calendly: cada día se activa y admite varios
@@ -22,10 +22,10 @@ export function WeekEditor({ week, onChange }: { week: DayAvailability[]; onChan
             {!day.enabled && <span style={{ fontSize: 12.5, color: T.sub }}>Cerrado</span>}
             {day.enabled && day.ranges.map((range, ri) => (
               <div key={ri} className="flex items-center gap-2 mb-2 flex-wrap">
-                <input type="time" style={{ ...inputStyle, width: 118 }} value={range.start}
+                <Input type="time" style={{ width: 118 }} value={range.start}
                   onChange={(e) => patch(i, { ...day, ranges: day.ranges.map((r, x) => (x === ri ? { ...r, start: e.target.value } : r)) })} />
                 <span style={{ color: T.sub, fontSize: 13 }}>a</span>
-                <input type="time" style={{ ...inputStyle, width: 118 }} value={range.end}
+                <Input type="time" style={{ width: 118 }} value={range.end}
                   onChange={(e) => patch(i, { ...day, ranges: day.ranges.map((r, x) => (x === ri ? { ...r, end: e.target.value } : r)) })} />
                 <button title="Quitar bloque" style={{ color: T.sub }}
                   onClick={() => patch(i, { ...day, ranges: day.ranges.filter((_, x) => x !== ri) })}><X size={15} /></button>

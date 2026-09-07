@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, Globe, Pencil, Plus, Trash2 } from "lucide-react";
-import { portalUrl, T } from "@/lib/constants";
+import { PALETTE_FIELDS, portalUrl, T } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
-import { Btn, Card } from "@/components/ui";
+import { Badge, Btn, Card } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
+import { PortalLogo } from "./components/portal-logo";
 import { ResourceListItem } from "@/components/resource-list-item";
 import { DeletePortalModal } from "./components/delete-portal-modal";
 
@@ -18,19 +19,18 @@ export default function PortalsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const deleting = s.portals.find((p) => p.id === deleteId);
   return (
-    <CustomPage title="Portales" description="Páginas públicas de la clínica: contenido, colores y logo por portal."
+    <CustomPage title="Portales" description="Contenido, colores y logo de cada página de la clínica. La dirección queda reservada; las páginas públicas aún no se sirven."
       actions={<Btn onClick={() => navigate("/portals/new")}><Plus size={14} /> Nuevo portal</Btn>}>
       {s.portals.map((p) => (
         <ResourceListItem key={p.id}
-          icon={p.logoUrl
-            ? <img src={p.logoUrl} alt="" style={{ width: 40, height: 40, objectFit: "contain", borderRadius: 12 }} />
-            : <Globe size={18} />}
+          icon={<PortalLogo url={p.logoUrl} size={40} />}
           title={p.name}
           subtitle={portalUrl(p.slug)}
           badges={
             <span className="inline-flex gap-1 items-center">
-              {[p.palette.primary, p.palette.accent, p.palette.bg].map((c, i) => (
-                <span key={i} style={{ width: 12, height: 12, borderRadius: 99, background: c, border: `1px solid ${T.line}` }} />
+              <Badge tone="gray">No publicado</Badge>
+              {PALETTE_FIELDS.map((f) => (
+                <span key={f.key} title={f.label} style={{ width: 12, height: 12, borderRadius: 99, background: p.palette[f.key], border: `1px solid ${T.line}` }} />
               ))}
             </span>
           }
@@ -45,7 +45,7 @@ export default function PortalsPage() {
         <Card className="p-10 text-center">
           <Globe size={26} color={T.sub} className="mx-auto mb-3" />
           <p style={{ fontSize: 14.5, fontWeight: 600, color: T.ink }}>Aún no hay portales.</p>
-          <p style={{ fontSize: 12.5, color: T.sub, marginTop: 4, marginBottom: 16 }}>Crea el primero para publicar una página de la clínica.</p>
+          <p style={{ fontSize: 12.5, color: T.sub, marginTop: 4, marginBottom: 16 }}>Crea el primero para preparar una página de la clínica.</p>
           <Btn onClick={() => navigate("/portals/new")}><Plus size={14} /> Nuevo portal</Btn>
         </Card>
       )}

@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, Pencil } from "lucide-react";
-import { F, isServiceDone, money, T } from "@/lib/constants";
+import { F, isOpenVisit, isServiceDone, money, T } from "@/lib/constants";
 import type { Client } from "@/lib/types";
 import { useVetStore } from "@/states/app.state";
 import { Badge, Btn, Card, Field, Pager } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
 import { ClientSearch } from "@/components/client-search";
+import { useListParams } from "@/lib/use-list-params";
 
 /* ================================================================
    BILLING — worklist de cobro: visitas abiertas (con estado de cada
@@ -18,10 +18,13 @@ const VISITS_PAGE_SIZE = 4, INVOICES_PAGE_SIZE = 5;
 export default function BillingPage() {
   const s = useVetStore();
   const navigate = useNavigate();
-  const [filterClient, setFilterClient] = useState<Client | null>(null);
-  const [visitsPage, setVisitsPage] = useState(0);
-  const [invoicesPage, setInvoicesPage] = useState(0);
-  const allVisits = filterClient ? s.visits.filter((v) => v.clientId === filterClient.id) : s.visits;
+  const { page: visitsPage, param, setPage: setVisitsPage, setParam } = useListParams();
+  const invoicesPage = Math.max(0, Number(param("ipage")) || 0);
+  const setInvoicesPage = (p: number) => setParam("ipage", p > 0 ? String(p) : "");
+  const filterClient: Client | null = s.clients.find((c) => c.id === param("client")) ?? null;
+  const setFilterClient = (c: Client | null) => setParam("client", c ? c.id : "");
+  const openVisits = s.visits.filter(isOpenVisit);
+  const allVisits = filterClient ? openVisits.filter((v) => v.clientId === filterClient.id) : openVisits;
   const allInvoices = filterClient ? s.invoices.filter((i) => i.clientId === filterClient.id) : s.invoices;
   // Clamp instead of resetting in an effect: facturar la última visita de una página no debe dejar una página vacía.
   const visitPages = Math.max(1, Math.ceil(allVisits.length / VISITS_PAGE_SIZE));
@@ -32,9 +35,9 @@ export default function BillingPage() {
     <CustomPage title="Facturación" description="Visita abierta → detalle con el estado de cada servicio → cobro con descuento, IVA y método de pago → factura.">
       <Card className="p-4 mb-4">
         <Field label="El cobro parte del cliente — búscalo para ver sus visitas y su historial">
-          <ClientSearch selected={filterClient} onSelect={(c) => { setFilterClient(c); setVisitsPage(0); setInvoicesPage(0); }} placeholder="Buscar cliente para cobrar…" />
+          <ClientSearch selected={filterClient} onSelect={setFilterClient} placeholder="Buscar cliente para cobrar…" />
         </Field>
-        {!filterClient && <p style={{ fontSize: 12, color: T.sub, marginTop: -6 }}>Sin filtro se muestran todas las visitas abiertas del día, paginadas.</p>}
+        {!filterClient && <p style={{ fontSize: 12, color: T.sub, marginTop: -6 }}>Sin filtro se muestran todas las visitas abiertas, paginadas.</p>}
       </Card>
       <div className="grid lg:grid-cols-2 gap-4">
         <div>
@@ -79,7 +82,7 @@ export default function BillingPage() {
           {allVisits.length > VISITS_PAGE_SIZE && <Pager page={currentVisitsPage} total={allVisits.length} pageSize={VISITS_PAGE_SIZE} onPage={setVisitsPage} />}
         </div>
         <div>
-          <h2 style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Facturas emitidas hoy ({allInvoices.length})</h2>
+          <h2 style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Facturas emitidas ({allInvoices.length})</h2>
           <div className="flex flex-col gap-3">
             {invoiceRows.map((invoice) => {
               const client = s.clients.find((c) => c.id === invoice.clientId)!;
@@ -104,7 +107,7 @@ export default function BillingPage() {
             {allInvoices.length === 0 && (
               <Card className="p-6 text-center">
                 <p style={{ fontSize: 13, color: T.sub }}>
-                  {filterClient ? `Sin facturas de ${filterClient.name} el día de hoy.` : "Aún no se emiten facturas hoy. Cobra una visita lista para generar la primera."}
+                  {filterClient ? `Sin facturas de ${filterClient.name} en esta sesión.` : "Aún no se emite ninguna factura. Cobra una visita lista para generar la primera."}
                 </p>
               </Card>
             )}

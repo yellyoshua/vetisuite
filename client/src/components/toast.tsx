@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, MessageCircle, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, X } from "lucide-react";
 import { Toaster, toast } from "sonner";
 import { F, T } from "@/lib/constants";
 import type { ToastType } from "@/lib/types";
@@ -43,24 +43,5 @@ export function showToast(type: ToastType, msg: string) {
     toast(msg, { icon: <AlertTriangle size={16} color={T.amber} /> });
     return;
   }
-  if (type === "error") {
-    toast(msg, { icon: <X size={16} color={T.red} /> });
-    return;
-  }
-  // wa: automatización de WhatsApp — tarjeta verde con su propio encabezado.
-  toast.custom(
-    () => (
-      <div className="flex items-start gap-2 shadow-lg w-full" style={{
-        background: T.wa, color: "#fff", borderRadius: 14, padding: "11px 13px",
-        fontSize: 12.5, lineHeight: 1.45, fontFamily: F.body,
-      }}>
-        <span className="mt-px shrink-0"><MessageCircle size={16} color="#fff" /></span>
-        <span>
-          <b style={{ display: "block", fontSize: 11, opacity: 0.85, marginBottom: 2 }}>Automatización · WhatsApp</b>
-          {msg}
-        </span>
-      </div>
-    ),
-    { duration: DURATION },
-  );
+  toast(msg, { icon: <X size={16} color={T.red} /> });
 }

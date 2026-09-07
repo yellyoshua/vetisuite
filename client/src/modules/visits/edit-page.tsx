@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PawPrint, Play, Plus, Trash2 } from "lucide-react";
-import { CONSULT_FEE, GROOM_SERVICES, LAB_TESTS, SERVICE_FLOWS, SPECIES_ICON, F, inputStyle, money, T } from "@/lib/constants";
-import type { Product, ServiceItem, ServiceType } from "@/lib/types";
+import { Info, PawPrint, Play, Plus, Trash2 } from "lucide-react";
+import { CONSULT_FEE, GROOM_SERVICES, LAB_TESTS, SERVICE_FLOWS, SPECIES_ICON, F, money, T } from "@/lib/constants";
+import type { ServiceItem, ServiceType } from "@/lib/types";
 import { useVetStore } from "@/states/app.state";
-import { Badge, Btn, Card, Field, Modal } from "@/components/ui";
+import { Badge, Btn, Card, Field, Modal, Select } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
 import { InfoGrid } from "@/components/info-grid";
 import { ResourceNotFound } from "@/components/resource-not-found";
@@ -13,13 +13,17 @@ const TYPE_TONE: Record<ServiceType, "green" | "blue" | "amber" | "gray"> = {
   veterinaria: "green", peluqueria: "blue", laboratorio: "amber", medicamento: "gray", vacuna: "gray",
 };
 
-function catalog(type: ServiceType, inventory: Product[]): { label: string; price: number }[] {
+/* Tipos que se pueden agregar como borrador desde la visita. `medicamento` y
+   `vacuna` quedan FUERA a propósito: son salida de inventario y solo se generan
+   desde /clinic/apply-product, que es lo único que descuenta stock. */
+type DraftType = "veterinaria" | "peluqueria" | "laboratorio";
+const DRAFT_TYPES: DraftType[] = ["veterinaria", "peluqueria", "laboratorio"];
+
+function catalog(type: DraftType): { label: string; price: number }[] {
   switch (type) {
     case "veterinaria": return [{ label: "Consulta médica", price: CONSULT_FEE }];
     case "peluqueria": return Object.entries(GROOM_SERVICES).map(([label, price]) => ({ label, price }));
     case "laboratorio": return Object.entries(LAB_TESTS).map(([label, price]) => ({ label, price }));
-    case "medicamento": return inventory.map((p) => ({ label: p.name, price: p.price }));
-    case "vacuna": return inventory.filter((p) => p.category === "Vacunas").map((p) => ({ label: p.name, price: p.price }));
   }
 }
 
@@ -30,15 +34,28 @@ export default function VisitEditPage() {
   const navigate = useNavigate();
   const visit = s.visits.find((v) => v.id === id);
   const [svcPatientId, setSvcPatientId] = useState(visit?.patientId ?? "");
-  const [type, setType] = useState<ServiceType>("veterinaria");
+  const [type, setType] = useState<DraftType>("veterinaria");
   const [itemLabel, setItemLabel] = useState("Consulta médica");
   const [confirm, setConfirm] = useState<ServiceItem | null>(null);
   if (!visit) return <ResourceNotFound backTo="/visits" label="la visita" />;
+  if (visit.invoiceId) {
+    return (
+      <CustomPage goBack backTo="/visits" title="Visita facturada" description="Una visita ya facturada no se edita.">
+        <Card className="p-6 text-center">
+          <p style={{ fontSize: 13.5, color: T.ink, fontWeight: 600 }}>Esta visita se cerró al emitir su factura.</p>
+          <div className="flex justify-center gap-2 mt-4">
+            <Btn kind="ghost" onClick={() => navigate(`/visits/show/${visit.id}`)}>Ver la visita</Btn>
+            <Btn onClick={() => navigate(`/billing/show/${visit.invoiceId}`)}>Ver la factura</Btn>
+          </div>
+        </Card>
+      </CustomPage>
+    );
+  }
   const client = s.clients.find((c) => c.id === visit.clientId)!;
   const pets = s.patients.filter((p) => p.clientId === client.id);
   const svcs = s.services.filter((x) => x.visitId === visit.id);
   const subtotal = svcs.reduce((t, x) => t + x.price, 0);
-  const options = catalog(type, s.inventory);
+  const options = catalog(type);
   const patientId = svcPatientId || visit.patientId;
 
   return (
@@ -65,21 +82,26 @@ export default function VisitEditPage() {
         <h2 className="flex items-center gap-2" style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, marginBottom: 14 }}><Plus size={15} color={T.green} /> Agregar servicio</h2>
         <div className="grid sm:grid-cols-3 gap-3">
           <Field label="Mascota">
-            <select style={inputStyle} value={patientId} onChange={(e) => setSvcPatientId(e.target.value)}>
+            <Select value={patientId} onChange={(e) => setSvcPatientId(e.target.value)}>
               {pets.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.species}</option>)}
-            </select>
+            </Select>
           </Field>
           <Field label="Tipo">
-            <select style={inputStyle} value={type} onChange={(e) => { const t = e.target.value as ServiceType; setType(t); setItemLabel(catalog(t, s.inventory)[0]?.label ?? ""); }}>
-              {(Object.keys(SERVICE_FLOWS) as ServiceType[]).map((t) => <option key={t} value={t}>{SERVICE_FLOWS[t].label}</option>)}
-            </select>
+            <Select value={type} onChange={(e) => { const t = e.target.value as DraftType; setType(t); setItemLabel(catalog(t)[0]?.label ?? ""); }}>
+              {DRAFT_TYPES.map((t) => <option key={t} value={t}>{SERVICE_FLOWS[t].label}</option>)}
+            </Select>
           </Field>
           <Field label="Servicio">
-            <select style={inputStyle} value={itemLabel} onChange={(e) => setItemLabel(e.target.value)}>
+            <Select value={itemLabel} onChange={(e) => setItemLabel(e.target.value)}>
               {options.map((o) => <option key={o.label} value={o.label}>{o.label} — {money(o.price)}</option>)}
-            </select>
+            </Select>
           </Field>
         </div>
+        <p className="flex items-start gap-1.5" style={{ fontSize: 12, color: T.sub, marginBottom: 10 }}>
+          <Info size={13} className="shrink-0 mt-0.5" />
+          Los medicamentos y las vacunas no se agregan aquí: se aplican desde el expediente del paciente
+          (Clínica → Aplicar insumo), que es lo único que descuenta inventario.
+        </p>
         <div className="flex justify-end">
           <Btn disabled={options.length === 0 || !patientId} onClick={() => {
             const opt = options.find((o) => o.label === itemLabel) ?? options[0];
@@ -119,7 +141,10 @@ export default function VisitEditPage() {
           <span style={{ fontFamily: F.head, fontSize: 16, fontWeight: 700 }}>Subtotal</span>
           <span style={{ fontFamily: F.head, fontSize: 16, fontWeight: 700 }}>{money(subtotal)}</span>
         </div>
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end gap-2 mt-4">
+          {svcs.length === 0 && !visit.started && (
+            <Btn kind="ghost" onClick={() => { s.discardVisit(visit.id); navigate("/visits"); }}><Trash2 size={14} /> Descartar visita</Btn>
+          )}
           <Btn disabled={svcs.length === 0} onClick={() => { s.startVisit(visit.id); navigate(`/visits/show/${visit.id}`); }}><Play size={14} /> Comenzar</Btn>
         </div>
       </Card>

@@ -42,7 +42,6 @@ El bloque es `@theme static` a propósito: sin `static`, Tailwind poda las varia
 | `T.redSoft` | `--color-red-soft` | `#F9E7E3` | Fondo de badges/alertas rojas y botón `danger` |
 | `T.blue` | `--color-blue` | `#2C6E8F` | Informativo, estado "en proceso/completada" |
 | `T.blueSoft` | `--color-blue-soft` | `#E4EFF4` | Fondo de badges/alertas azules |
-| `T.wa` | `--color-wa` | `#1D8F5B` | **Exclusivo** de automatización WhatsApp (botones `wa`, toasts `wa`) |
 
 Regla de pareja: los tonos `*Soft` son siempre **fondo** y su versión fuerte es siempre **texto/icono** (ej. badge ámbar = fondo `amberSoft` + texto `amber`). Nunca al revés.
 
@@ -103,16 +102,26 @@ Números tabulares (`fontVariantNumeric: "tabular-nums"`) en horas, montos y sto
 - Formularios: `Card` con `maxWidth: 520` (560 si incluyen buscador de cliente).
 - Layout: utilidades de Tailwind v4 para flex/grid/spacing; valores puntuales (radios, tamaños de fuente) como estilos inline con tokens.
 
+### Foco visible (regla del sistema, no opcional)
+
+`src/index.css` define una única regla global `:focus-visible` — anillo de
+`2px solid var(--color-green)` con `outline-offset: 2px`. Es una herramienta de
+recepción: el uso con teclado es el caso normal.
+
+**Prohibido `outline: "none"`** en cualquier estilo inline o de componente,
+`inputStyle` incluido. Si un control necesita otro anillo, se ajusta el grosor
+en esa regla global; nunca se apaga.
+
 ## 5. Componentes canónicos
 
 **Nunca construyas un botón, badge, card, modal o header ad-hoc.** Reusa:
 
 | Componente | Path | Variantes / uso |
 |---|---|---|
-| `Btn` | `src/components/ui.tsx` | `kind`: `primary` (verde), `dark`, `ghost`, `danger`, `amber`, `wa`; props `small`, `full`, `disabled` |
+| `Btn` | `src/components/ui.tsx` | `kind`: `primary` (verde), `dark`, `ghost`, `danger`, `amber`; props `small`, `full`, `disabled`. Siempre `type="button"` |
 | `Badge` | `src/components/ui.tsx` | `tone`: `green`, `amber`, `red`, `blue`, `gray` |
 | `Card` | `src/components/ui.tsx` | Contenedor base blanco radius 16 |
-| `Modal` | `src/components/ui.tsx` | Overlay `rgba(18,28,24,0.5)`, header sticky, `width` configurable (default 460) |
+| `Modal` | `src/components/ui.tsx` | Overlay `rgba(18,28,24,0.5)`, header sticky, `width` configurable (default 460). `role="dialog"` + `aria-modal`, cierra con `Escape`, atrapa el foco y lo devuelve al disparador |
 | `Field` + `inputStyle` | `ui.tsx` / `constants.ts` | Label uppercase + input/select/textarea |
 | `CustomPage` | `src/components/pages/custom-page.tsx` | **Cáscara de TODA pantalla**: `title`, `description`, `actions`, `goBack` + `backTo`. El cuerpo siempre ocupa todo el ancho |
 | `ResourceListItem` | `src/components/resource-list-item.tsx` | Fila estándar de listados: avatar/icono, título+badges, subtítulo, meta, acciones a la derecha |
@@ -121,7 +130,7 @@ Números tabulares (`fontVariantNumeric: "tabular-nums"`) en horas, montos y sto
 | `Pager` | `src/components/ui.tsx` | Paginación "Mostrando X–Y de Z" + Anterior/Siguiente |
 | `Spinner`, `Elapsed`, `PatientAlerts` | `src/components/ui.tsx` | Carga, cronómetro mm:ss, alertas de paciente (agresivo/alergias) |
 | `CustomLayout` | `src/components/layouts/custom-layout.tsx` | Cáscara de la app: sidebar, drawer y barra móviles y contenedor del contenido. Un solo componente; el menú va quemado dentro |
-| `ToastProvider` + `showToast` | `src/components/toast.tsx` | Notificaciones sobre `sonner`. El provider se monta en `main.tsx` junto a `<App />`; `showToast` solo lo llama `notify` del store. Bottom-right, 5.2s; variante `wa` verde con encabezado "Automatización · WhatsApp" |
+| `ToastProvider` + `showToast` | `src/components/toast.tsx` | Notificaciones sobre `sonner`. El provider se monta en `main.tsx` junto a `<App />`; `showToast` solo lo llama `notify` del store. Bottom-right, 5.2s |
 | `ClientSearch` / `PatientPicker` | `src/components/` | Typeahead de clientes (debounce 300ms, máx. 8) y selector dependiente de mascotas |
 
 ## 6. Patrones de pantalla
@@ -156,5 +165,5 @@ Los valores de estado se muestran en español tal cual están en los datos:
 
 - Español, "tú", cercano-profesional: instructivo sin ser frío ("Busca al cliente para abrir un expediente").
 - Emojis con moderación y solo donde ya se usan: 🐾 👋 ✨ 📷 🎒 ✂️ ⏱ ℞.
-- Toasts siempre informativos y con nombre propio: "Cliente Ana Cevallos creado.", "WhatsApp a Carolina Ríos: …".
-- Los mensajes de automatización WhatsApp van en toast `wa` y citan el mensaje enviado entre comillas.
+- Toasts siempre informativos y con nombre propio: "Cliente Ana Cevallos creado.", "Nala está listo. El servicio quedó cargado a la visita de Jorge Paredes.".
+- El copy nunca anuncia un cobro, un envío, una publicación ni un filtro que el código no ejecute.

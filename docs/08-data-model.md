@@ -118,7 +118,7 @@ sin actualizar `expiry`.
 |---|---|---|---|
 | `/billing` | `visits`, `services`, `clients`, `invoices` | visitas cobrables (`done === total`) + historial | — |
 | `/billing/collect/:id` (`:id` = **Visit**.id) | `visits`, `clients`, `services` | `subtotal → −discount → base → +IVA → +prevDebt → total`, todo con `round2` | `billVisit{discount$, ivaRate, method}` |
-| `/billing/show/:id` (`:id` = **Invoice**.id) | `invoices`, `clients` | totales congelados + texto de WhatsApp | — |
+| `/billing/show/:id` (`:id` = **Invoice**.id) | `invoices`, `clients` | totales congelados | — |
 
 ---
 

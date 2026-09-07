@@ -1,5 +1,5 @@
 import { Coins, Percent, Receipt, TrendingDown, TrendingUp } from "lucide-react";
-import { F, PAY_METHODS, money, round2, T } from "@/lib/constants";
+import { F, PAY_METHODS, isOpenVisit, money, round2, T } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
 import { Card } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
@@ -13,7 +13,7 @@ type Slice = { label: string; value: number; color: string };
 function Donut({ data, size = 156 }: { data: Slice[]; size?: number }) {
   const total = data.reduce((t, d) => t + d.value, 0);
   if (total <= 0) {
-    return <div className="shrink-0" style={{ width: size, height: size, borderRadius: "50%", border: `14px solid ${T.lineSoft}` }} />;
+    return <div role="img" aria-label="Sin datos todavía" className="shrink-0" style={{ width: size, height: size, borderRadius: "50%", border: `14px solid ${T.lineSoft}` }} />;
   }
   const positive = data.filter((d) => d.value > 0);
   const stops = positive
@@ -24,8 +24,9 @@ function Donut({ data, size = 156 }: { data: Slice[]; size?: number }) {
       return `${d.color} ${start}% ${end}%`;
     })
     .join(", ");
+  const summary = positive.map((d) => `${d.label} ${money(d.value)}`).join(", ");
   return (
-    <div className="shrink-0" style={{ width: size, height: size, borderRadius: "50%", background: `conic-gradient(${stops})`, position: "relative" }}>
+    <div role="img" aria-label={`Distribución: ${summary}`} className="shrink-0" style={{ width: size, height: size, borderRadius: "50%", background: `conic-gradient(${stops})`, position: "relative" }}>
       <div style={{ position: "absolute", inset: size * 0.24, background: T.card, borderRadius: "50%" }} />
     </div>
   );
@@ -53,14 +54,18 @@ function Legend({ data }: { data: Slice[] }) {
 export default function FinancePage() {
   const s = useVetStore();
 
+  // `revenue` es caja cobrada (incluye IVA y saldo anterior). `netSales` es la venta
+  // del periodo — el único denominador honesto para margen y peso del IVA.
   const revenue = round2(s.invoices.reduce((t, f) => t + f.total, 0));
+  const netSales = round2(s.invoices.reduce((t, f) => t + f.subtotal - f.discount, 0));
   const ivaCollected = round2(s.invoices.reduce((t, f) => t + f.iva, 0));
   const totalExpenses = round2(s.expenses.reduce((t, e) => t + e.amount, 0));
-  const profit = round2(revenue - totalExpenses);
-  const margin = revenue > 0 ? Math.round((profit / revenue) * 100) : 0;
-  const ivaPct = revenue > 0 ? Math.round((ivaCollected / revenue) * 100) : 0;
+  const profit = round2(netSales - totalExpenses);
+  const margin = netSales > 0 ? Math.round((profit / netSales) * 100) : null;
+  const ivaPct = netSales > 0 ? Math.round((ivaCollected / netSales) * 100) : null;
+  const openVisitIds = new Set(s.visits.filter(isOpenVisit).map((v) => v.id));
   const receivable = round2(
-    s.clients.reduce((t, c) => t + c.debt, 0) + s.services.reduce((t, sv) => t + sv.price, 0)
+    s.clients.reduce((t, c) => t + c.debt, 0) + s.services.filter((sv) => openVisitIds.has(sv.visitId)).reduce((t, sv) => t + sv.price, 0)
   );
 
   const byArea: Record<string, number> = {};
@@ -74,14 +79,14 @@ export default function FinancePage() {
   const methodData: Slice[] = PAY_METHODS.map((m) => ({ label: m, value: byMethod[m] || 0, color: METHOD_TONE[m] }));
 
   const kpis = [
-    { label: "Ingresos facturados", value: money(revenue), sub: `${s.invoices.length} facturas`, icon: Receipt, tone: T.dark },
-    { label: "Utilidad", value: money(profit), sub: `margen ${margin}%`, icon: profit >= 0 ? TrendingUp : TrendingDown, tone: profit >= 0 ? T.green : T.red },
-    { label: "IVA recaudado", value: money(ivaCollected), sub: `${ivaPct}% de las ventas`, icon: Percent, tone: T.blue },
-    { label: "Por cobrar", value: money(receivable), sub: "deuda + cuentas abiertas", icon: Coins, tone: T.amber },
+    { label: "Ingresos cobrados", value: money(revenue), sub: `${s.invoices.length} facturas · ventas netas ${money(netSales)}`, icon: Receipt, tone: T.dark },
+    { label: "Utilidad", value: money(profit), sub: margin === null ? "sin ventas: margen no aplica" : `margen ${margin}% sobre ventas netas`, icon: profit >= 0 ? TrendingUp : TrendingDown, tone: profit >= 0 ? T.green : T.red },
+    { label: "IVA recaudado", value: money(ivaCollected), sub: ivaPct === null ? "sin ventas" : `${ivaPct}% de las ventas netas`, icon: Percent, tone: T.blue },
+    { label: "Por cobrar", value: money(receivable), sub: "deuda + visitas abiertas (incluye borradores)", icon: Coins, tone: T.amber },
   ];
 
   return (
-    <CustomPage title="Finanzas" description="El pulso económico de la clínica en gráficos. Datos de la sesión actual.">
+    <CustomPage title="Finanzas" description="El pulso económico de la clínica en gráficos. Datos de la sesión actual; los gastos son de ejemplo y no se editan desde la app.">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {kpis.map((k) => (
           <Card key={k.label} className="p-4">
@@ -109,7 +114,7 @@ export default function FinancePage() {
         </Card>
         <Card className="p-5">
           <h2 style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, marginBottom: 4 }}>Ingresos por método de pago</h2>
-          <p style={{ fontSize: 11.5, color: T.sub, marginBottom: 16 }}>Arqueo de caja del día.</p>
+          <p style={{ fontSize: 11.5, color: T.sub, marginBottom: 16 }}>Arqueo de caja: suma el total cobrado, saldo anterior incluido — por eso no coincide con el donut de áreas.</p>
           <div className="flex items-center gap-6">
             <Donut data={methodData} />
             <Legend data={methodData} />

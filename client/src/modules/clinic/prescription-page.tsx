@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Send } from "lucide-react";
-import { inputStyle, T } from "@/lib/constants";
+import { Save } from "lucide-react";
+import { isActiveRecord, T } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
-import { Btn, Card, Field } from "@/components/ui";
+import { Btn, Card, Field, Input } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
 import { ResourceNotFound } from "@/components/resource-not-found";
+import { NoActiveConsultation } from "./components/no-active-consultation";
 
 export default function PrescriptionNewPage() {
   const { patientId } = useParams();
@@ -14,19 +15,19 @@ export default function PrescriptionNewPage() {
   const [form, setForm] = useState({ med: "", dosage: "" });
   const patient = s.patients.find((p) => p.id === patientId);
   if (!patient) return <ResourceNotFound backTo="/clinic" label="el paciente" />;
-  const latestRecord = s.records.filter((r) => r.patientId === patient.id)[0];
+  const activeRecord = s.records.filter((r) => r.patientId === patient.id).find(isActiveRecord);
   const backTo = `/clinic/show/${patient.id}`;
-  if (!latestRecord) return <ResourceNotFound backTo={backTo} label={`una consulta activa para ${patient.name}: abre primero una consulta`} />;
+  if (!activeRecord) return <NoActiveConsultation backTo={backTo} patientId={patient.id} patientName={patient.name} />;
   return (
     <CustomPage goBack backTo={backTo} title="Receta digital" description={`Paciente: ${patient.name} · Se adjunta a la consulta activa del expediente.`}>
       <Card className="p-5">
-        <Field label="Medicamento"><input style={inputStyle} value={form.med} onChange={(e) => setForm({ ...form, med: e.target.value })} placeholder="Ej: Amoxicilina 250 mg" /></Field>
-        <Field label="Posología"><input style={inputStyle} value={form.dosage} onChange={(e) => setForm({ ...form, dosage: e.target.value })} placeholder="1 tableta cada 12 h por 7 días" /></Field>
-        <p style={{ fontSize: 12, color: T.sub, marginBottom: 14 }}>La receta se valida con firma electrónica del veterinario y se envía por correo y WhatsApp.</p>
+        <Field label="Medicamento"><Input value={form.med} onChange={(e) => setForm({ ...form, med: e.target.value })} placeholder="Ej: Amoxicilina 250 mg" /></Field>
+        <Field label="Posología"><Input value={form.dosage} onChange={(e) => setForm({ ...form, dosage: e.target.value })} placeholder="1 tableta cada 12 h por 7 días" /></Field>
+        <p style={{ fontSize: 12, color: T.sub, marginBottom: 14 }}>La receta se guarda en la consulta activa del expediente del paciente.</p>
         <div className="flex justify-end gap-2">
           <Btn kind="ghost" onClick={() => navigate(backTo)}>Cancelar</Btn>
-          <Btn kind="wa" disabled={!form.med || !form.dosage} onClick={() => { s.addPrescription(latestRecord.id, patient.id, form.med, form.dosage); navigate(backTo); }}>
-            <Send size={14} /> Firmar y enviar
+          <Btn disabled={!form.med || !form.dosage} onClick={() => { s.addPrescription(activeRecord.id, patient.id, form.med, form.dosage); navigate(backTo); }}>
+            <Save size={14} /> Guardar receta
           </Btn>
         </div>
       </Card>

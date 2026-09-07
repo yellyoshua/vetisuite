@@ -10,14 +10,17 @@ import { CustomPage } from "@/components/pages/custom-page";
 export default function AppointmentsPage() {
   const s = useVetStore();
   const navigate = useNavigate();
-  const hours = slotsForDate(s.availability, new Date()); // los horarios salen de la disponibilidad de la clínica
+  // Filas = horarios de la disponibilidad ∪ horas de las citas vivas: cambiar la
+  // duración no debe hacer desaparecer de la matriz una cita ya agendada.
+  const live = s.appointments.filter((a) => a.status !== "cancelada");
+  const hours = [...new Set([...slotsForDate(s.availability, new Date()), ...live.map((a) => a.time)])].sort();
   const appointmentAt = (vetId: string, time: string) => s.appointments.find((a) => a.vetId === vetId && a.time === time && a.status !== "cancelada");
   const statusTone = { pendiente: "amber", confirmada: "green", completada: "blue", cancelada: "gray" } as const;
   return (
-    <CustomPage title="Citas" description={`Hoy, ${todayLabel} · la matriz cruza médicos y horarios: no permite sobreagendar.`}
+    <CustomPage title="Citas" description={`Hoy, ${todayLabel} · la matriz cruza médicos y horarios: un médico no puede tener dos citas en el mismo horario.`}
       actions={
         <>
-          <Btn kind="ghost" onClick={() => navigate("/appointments/settings")}><Settings size={14} /> Configurar disponibilidad</Btn>
+          <Btn kind="ghost" onClick={() => navigate("/appointments-clinics")}><Settings size={14} /> Configurar disponibilidad</Btn>
           <Btn onClick={() => navigate("/appointments/new")}><Plus size={14} /> Nueva cita</Btn>
         </>
       }>
@@ -32,7 +35,7 @@ export default function AppointmentsPage() {
       <Card className="p-4" style={{ overflowX: "auto" }}>
         <div style={{ minWidth: 640 }}>
           <div className="grid" style={{ gridTemplateColumns: `64px repeat(${s.vets.length}, 1fr)`, gap: 6 }}>
-            <div />
+            <div role="presentation" />
             {s.vets.map((v) => (
               <div key={v.id} className="flex items-center gap-2 px-2 py-2" style={{ borderBottom: `2px solid ${v.color}` }}>
                 <span style={{ width: 8, height: 8, borderRadius: 99, background: v.color }} />
@@ -45,15 +48,17 @@ export default function AppointmentsPage() {
                 {s.vets.map((v) => {
                   const appt = appointmentAt(v.id, h);
                   if (!appt) return (
-                    <button key={v.id + h} onClick={() => navigate(`/appointments/new?vetId=${v.id}&time=${h}`)}
+                    <button key={v.id + h} type="button" onClick={() => navigate(`/appointments/new?vetId=${v.id}&time=${h}`)}
+                      aria-label={`Agendar a las ${h} con ${v.name}`}
                       className="group flex items-center justify-center"
                       style={{ border: `1px dashed ${T.line}`, borderRadius: 10, minHeight: 52, color: T.sub }}>
-                      <Plus size={14} className="opacity-0 group-hover:opacity-100" />
+                      <Plus size={14} className="opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100" />
                     </button>
                   );
                   const patient = s.patients.find((p) => p.id === appt.patientId)!;
                   return (
-                    <button key={v.id + h} onClick={() => navigate(`/appointments/show/${appt.id}`)} className="text-left px-2.5 py-2"
+                    <button key={v.id + h} type="button" onClick={() => navigate(`/appointments/show/${appt.id}`)} className="text-left px-2.5 py-2"
+                      aria-label={`Cita de las ${h} con ${v.name}: ${patient.name}, ${appt.reason}`}
                       style={{ borderRadius: 10, minHeight: 52, background: appt.status === "completada" ? T.done : T.greenSoft, borderLeft: `3px solid ${v.color}` }}>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span style={{ fontSize: 12.5, fontWeight: 700, color: T.ink }}>{patient.name}</span>

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { X } from "lucide-react";
-import { inputStyle, money, T } from "@/lib/constants";
+import { isActiveRecord, isExpired, money, T } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
-import { Btn, Card, Field } from "@/components/ui";
+import { Btn, Card, Field, Input } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
 import { ResourceNotFound } from "@/components/resource-not-found";
+import { NoActiveConsultation } from "./components/no-active-consultation";
 
 /* The product is SEARCHED (with thousands of SKUs a global <select>
    is unusable): filter by name/category, max 8 matches. The charge
@@ -19,18 +20,19 @@ export default function ApplyProductPage() {
   const [qty, setQty] = useState(1);
   const patient = s.patients.find((p) => p.id === patientId);
   if (!patient) return <ResourceNotFound backTo="/clinic" label="el paciente" />;
-  const latestRecord = s.records.filter((r) => r.patientId === patient.id)[0];
+  const activeRecord = s.records.filter((r) => r.patientId === patient.id).find(isActiveRecord);
   const backTo = `/clinic/show/${patient.id}`;
-  if (!latestRecord) return <ResourceNotFound backTo={backTo} label={`una consulta activa para ${patient.name}: abre primero una consulta`} />;
+  if (!activeRecord) return <NoActiveConsultation backTo={backTo} patientId={patient.id} patientName={patient.name} />;
   const product = s.inventory.find((p) => p.id === productId);
-  const matches = s.inventory.filter((p) => p.stock > 0 && (p.name + " " + p.category).toLowerCase().includes(query.toLowerCase())).slice(0, 8);
+  // Un producto vencido no es aplicable: fuera del buscador de insumos.
+  const matches = s.inventory.filter((p) => p.stock > 0 && !isExpired(p) && (p.name + " " + p.category).toLowerCase().includes(query.toLowerCase())).slice(0, 8);
   return (
     <CustomPage goBack backTo={backTo} title="Aplicar insumo clínico" description={`Paciente: ${patient.name} · Descuenta inventario y carga la cuenta del cliente en tiempo real.`}>
       <Card className="p-5">
         {!product ? (
           <>
             <Field label="Buscar producto en inventario">
-              <input autoFocus style={inputStyle} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Nombre o categoría… (ej: vacuna)" />
+              <Input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Nombre o categoría… (ej: vacuna)" />
             </Field>
             <div className="flex flex-col gap-1.5 mb-2">
               {matches.map((p) => (
@@ -54,11 +56,11 @@ export default function ApplyProductPage() {
               </div>
               <button onClick={() => setProductId(null)} title="Cambiar producto" className="shrink-0" style={{ color: T.sub }}><X size={15} /></button>
             </div>
-            <Field label="Cantidad"><input type="number" min={1} style={inputStyle} value={qty} onChange={(e) => setQty(Math.max(1, +e.target.value || 1))} /></Field>
+            <Field label="Cantidad"><Input type="number" min={1} max={product.stock} value={qty} onChange={(e) => setQty(Math.min(product.stock, Math.max(1, +e.target.value || 1)))} /></Field>
             <p style={{ fontSize: 12, color: T.sub, marginBottom: 14 }}>Se descontará del inventario de forma instantánea y se cargarán {money(product.price * qty)} a la cuenta abierta del cliente.</p>
             <div className="flex justify-end gap-2">
               <Btn kind="ghost" onClick={() => navigate(backTo)}>Cancelar</Btn>
-              <Btn onClick={() => { s.applyProduct(latestRecord.id, patient.id, product.id, qty); navigate(backTo); }}>Aplicar y descontar</Btn>
+              <Btn disabled={qty > product.stock} onClick={() => { s.applyProduct(activeRecord.id, patient.id, product.id, qty); navigate(backTo); }}>Aplicar y descontar</Btn>
             </div>
           </>
         )}

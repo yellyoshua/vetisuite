@@ -1,0 +1,44 @@
+{
+  "pkg": "client",
+  "projectId": "b26b0f4e-81de-46a6-83c9-f8916119d6b2",
+  "globalName": "VetiSuite",
+  "shape": "package",
+  "srcDir": "src",
+  "tsconfig": "ds-sync/tsconfig.paths.json",
+  "buildCmd": "cd client && bunx vite build && mkdir -p .ds-css && cp dist/assets/*.css .ds-css/theme.css",
+  "cssEntry": ".ds-css/theme.css",
+  "guidelinesGlob": [
+    "DESIGN.md"
+  ],
+  "componentSrcMap": {
+    "Btn": "src/components/ui.tsx",
+    "Badge": "src/components/ui.tsx",
+    "Card": "src/components/ui.tsx",
+    "Modal": "src/components/ui.tsx",
+    "Field": "src/components/ui.tsx",
+    "Input": "src/components/ui.tsx",
+    "Select": "src/components/ui.tsx",
+    "DateInput": "src/components/ui.tsx",
+    "Avatar": "src/components/ui.tsx",
+    "Pager": "src/components/ui.tsx",
+    "Spinner": "src/components/ui.tsx",
+    "Toggle": "src/modules/appointments-clinics/components/toggle.tsx",
+    "ToastProvider": "src/components/toast.tsx"
+  },
+  "overrides": {
+    "Modal": {
+      "cardMode": "single",
+      "primaryStory": "Confirmacion",
+      "viewport": "900x620"
+    },
+    "Card": {
+      "cardMode": "column"
+    },
+    "ToastProvider": {
+      "cardMode": "single",
+      "primaryStory": "NotificacionDeExito",
+      "viewport": "900x420"
+    }
+  },
+  "readmeHeader": ".design-sync/conventions.md"
+}

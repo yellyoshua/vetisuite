@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowRight, CheckCircle2, MessageCircle, Pencil, Receipt } from "lucide-react";
-import { SERVICE_FLOWS, F, isServiceDone, money, T, waLink } from "@/lib/constants";
+import { ArrowRight, CheckCircle2, Pencil, Receipt } from "lucide-react";
+import { SERVICE_FLOWS, F, isServiceDone, money, T } from "@/lib/constants";
 import type { ServiceType } from "@/lib/types";
 import { useVetStore } from "@/states/app.state";
 import { Badge, Btn, Card } from "@/components/ui";
@@ -23,11 +23,21 @@ export default function VisitShowPage() {
   const svcs = s.services.filter((x) => x.visitId === visit.id);
   const subtotal = svcs.reduce((t, x) => t + x.price, 0);
   const pending = svcs.filter((x) => !isServiceDone(x.type, x.status)).length;
-  const ready = svcs.length > 0 && pending === 0;
+  const billed = !!visit.invoiceId;
+  const ready = svcs.length > 0 && pending === 0 && !billed;
 
   return (
     <CustomPage goBack backTo="/visits" title={`Visita · ${client.name}`} description="Avanza cada servicio en su kanban. Cuando todos terminen, factura."
-      actions={<Btn kind="ghost" onClick={() => navigate(`/visits/edit/${visit.id}`)}><Pencil size={14} /> Editar</Btn>}>
+      actions={billed
+        ? <Btn kind="ghost" onClick={() => navigate(`/billing/show/${visit.invoiceId}`)}><Receipt size={14} /> Ver factura</Btn>
+        : <Btn kind="ghost" onClick={() => navigate(`/visits/edit/${visit.id}`)}><Pencil size={14} /> Editar</Btn>}>
+      {billed && (
+        <Card className="p-4 mb-4" style={{ borderColor: T.green }}>
+          <p style={{ fontSize: 13, color: T.ink }}>
+            <b>Visita facturada.</b> Queda en solo lectura como historial de la atención.
+          </p>
+        </Card>
+      )}
       <Card className="p-5 mb-4">
         <InfoGrid items={[
           { label: "Cliente", value: client.name },
@@ -44,7 +54,11 @@ export default function VisitShowPage() {
           const idx = cols.indexOf(sv.status);
           const done = isServiceDone(sv.type, sv.status);
           const pet = s.patients.find((p) => p.id === sv.patientId);
-          const boardPath = sv.type === "peluqueria" ? "/grooming" : sv.type === "laboratorio" ? "/clinic" : null;
+          // Al detalle concreto (resuelto por serviceId), no al índice del módulo.
+          const job = sv.type === "peluqueria" ? s.grooming.find((g) => g.serviceId === sv.id) : null;
+          const boardPath = sv.type === "peluqueria"
+            ? (job ? `/grooming/show/${job.id}` : "/grooming")
+            : sv.type === "laboratorio" ? `/clinic/show/${sv.patientId}` : null;
           return (
             <div key={sv.id} className="py-3" style={{ borderBottom: `1px solid ${T.lineSoft}` }}>
               <div className="flex items-center justify-between gap-2">
@@ -62,7 +76,7 @@ export default function VisitShowPage() {
                       background: i <= idx ? T.greenSoft : T.track, color: i <= idx ? T.green : T.sub }}>{c}</span>
                   ))}
                 </div>
-                {done
+                {done || billed
                   ? <Badge tone="green"><CheckCircle2 size={11} /> {sv.status}</Badge>
                   : boardPath
                     ? <Btn small kind="ghost" onClick={() => navigate(boardPath)}>Gestionar en {SERVICE_FLOWS[sv.type].label} <ArrowRight size={12} /></Btn>
@@ -78,11 +92,6 @@ export default function VisitShowPage() {
           <span style={{ fontFamily: F.head, fontSize: 15, fontWeight: 700 }}>{money(subtotal)}</span>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2 mt-4">
-          {client.debt > 0 && (
-            <Btn small kind="wa" onClick={() => window.open(waLink(client.phone, `Hola ${client.name}, te recordamos que tienes un saldo pendiente de ${money(client.debt)} con Veti Suite. ¡Gracias!`), "_blank")}>
-              <MessageCircle size={13} /> Recordar deuda
-            </Btn>
-          )}
           <Btn disabled={!ready} onClick={() => navigate(`/billing/collect/${visit.id}`)}><Receipt size={14} /> Cobrar y facturar</Btn>
         </div>
         {!ready && svcs.length > 0 && <p style={{ fontSize: 12, color: T.amber, textAlign: "right", marginTop: 8 }}>Faltan {pending} servicio{pending !== 1 ? "s" : ""} por terminar antes de facturar.</p>}

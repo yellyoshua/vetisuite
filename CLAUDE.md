@@ -50,10 +50,15 @@ client/src/
 
 Rutas por acción: `/[module]`, `/[module]/new`, `/[module]/show/:id`,
 `/[module]/edit/:id`. Excepciones: **clinic** no tiene edit (historial
-inmutable) y usa acciones propias (`/clinic/consultation/:patientId`,
+append-only) y usa acciones propias (`/clinic/consultation/:patientId`,
 `apply-product`, `lab-order`, `prescription`); **grooming** y **billing** no
-tienen edit. Ids con `useParams`, presets con `useSearchParams`. Toda pantalla
-con `:id` renderiza `ResourceNotFound` si el recurso no existe.
+tienen edit; **appointments-clinics** (disponibilidad de la clínica) es una
+única pantalla en su ruta base, sin fila en el sidebar porque es configuración
+—`/appointments/settings` redirige ahí con `replace`, ruta transitoria.
+Ningún módulo independiente vive anidado bajo la ruta base de otro. Ids con
+`useParams`, presets y estado de listado con `useSearchParams`. Toda pantalla
+con `:id` renderiza `ResourceNotFound` si el recurso no existe; las
+precondiciones de negocio usan su propio mensaje (`NoActiveConsultation`).
 
 ## Convenciones críticas
 
@@ -78,6 +83,11 @@ con `:id` renderiza `ResourceNotFound` si el recurso no existe.
 - **Effects**: prohibido `setState` síncrono en effects (lint lo bloquea) —
   estado derivado, resets en handlers o URL como fuente de verdad
   (`client/AGENTS.md` §3).
+- **Foco visible**: una regla global `:focus-visible` en `client/src/index.css`.
+  Prohibido `outline: "none"` en cualquier estilo inline o de componente.
+- **Sin canal externo**: el client no tiene mensajería ni ninguna llamada de red
+  de dominio. Las únicas URLs externas son Google Fonts, el logo semilla de
+  `placehold.co` y un `placeholder` de formulario.
 - Acciones del store notifican con `notify()`; las que validan devuelven `boolean`.
 
 ## Referencias

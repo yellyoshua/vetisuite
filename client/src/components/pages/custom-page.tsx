@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { F, T } from "@/lib/constants";
 
@@ -15,13 +15,13 @@ function BackButton({ backTo }: { backTo?: string }) {
 
   if (backTo) {
     return (
-      <button onClick={() => navigate(backTo)} className="inline-flex items-center gap-1.5 mb-2" style={style}>
+      <Link to={backTo} className="inline-flex items-center gap-1.5 mb-2" style={style}>
         <ArrowLeft size={14} /> Volver
-      </button>
+      </Link>
     );
   }
   return (
-    <button onClick={() => navigate(-1)} className="inline-flex items-center gap-1.5 mb-2" style={style}>
+    <button type="button" onClick={() => navigate(-1)} className="inline-flex items-center gap-1.5 mb-2" style={style}>
       <ArrowLeft size={14} /> Volver
     </button>
   );

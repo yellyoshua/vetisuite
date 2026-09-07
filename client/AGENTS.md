@@ -10,11 +10,15 @@ Manual centralizado de Veti Suite. Complementos: `../CLAUDE.md` (raíz del monor
 |---|---|---|
 | Dashboard | `/` | KPIs del día, agenda y alertas operativas (stock bajo, caducidad, deudas) |
 | Clientes y Pacientes | `/clients` | CRUD de dueños; mascotas como sub-recurso (modal) |
-| Citas | `/appointments` | Matriz médico × hora sin sobreagendamiento; confirmación por WhatsApp (simulada) |
+| Citas | `/appointments` | Matriz médico × hora: un médico no puede tener dos citas en el mismo horario; confirmar/cancelar como estado |
+| Disponibilidad de la clínica | `/appointments-clinics` | Horario semanal, duración y márgenes, zona horaria, reglas de reserva y excepciones por fecha. **Módulo con ruta base propia; sin fila en el sidebar** (es configuración, no área de trabajo) |
+| Visitas | `/visits` | Contenedor de la atención: agrupa los servicios de un cliente hasta que se factura |
 | Peluquería y Estética | `/grooming` | Kanban check-in → proceso → terminado → entregado, con cronómetro y cargo automático |
 | Clínica y Laboratorio | `/clinic` | Expediente médico inmutable; consultas, insumos, órdenes de laboratorio, recetas |
 | Inventario | `/inventory` | CRUD de productos, stock mínimo, caducidad, ingreso de lotes |
 | Facturación | `/billing` | Cuentas abiertas por cliente (consolidan cargos de todos los módulos) y facturas emitidas |
+| Finanzas | `/finance` | Solo lectura: ingresos por área y por método, utilidad, IVA y por cobrar |
+| Portales | `/portals` | Administración local de páginas de la clínica. La dirección queda **reservada**: nada se publica todavía |
 
 **Stack**: React 19 · Vite 8 (con react-compiler vía babel) · TypeScript strict · zustand 5 · react-router-dom 7 · Tailwind CSS 4 (`@tailwindcss/vite`) · lucide-react · **bun** como package manager.
 
@@ -56,7 +60,7 @@ Convención de rutas (registradas anidadas en `src/App.tsx`): `/[module]`, `/[mo
 
 ### Estado (zustand)
 - Un único store: `useVetStore` en `src/states/app.state.tsx`, tipado con la interfaz `VetState`.
-- Las acciones mutan con `set()` inmutable (map/filter/spread) y notifican con `get().notify(type, msg)` — tipos de toast: `ok`, `warn`, `error`, `wa`.
+- Las acciones mutan con `set()` inmutable (map/filter/spread) y notifican con `get().notify(type, msg)` — tipos de toast: `ok`, `warn`, `error`.
 - En componentes: `useVetStore()` (store completo) o selector `useVetStore((s) => s.x)`. Fuera de React (ej. `src/lib/api.ts`): `useVetStore.getState()`.
 - Acciones que validan devuelven `boolean` (`createAppointment`, `updateAppointment` — choque de horario).
 
@@ -85,14 +89,18 @@ No hay framework de tests. Puertas obligatorias antes de dar por terminado cualq
 1. `bun run build` sin errores (incluye typecheck).
 2. `bun run lint` sin errores.
 3. **Verificación manual en navegador** (`bun run dev`) de los flujos afectados. Checklist de humo completo:
-   - Navegar los 7 módulos desde el sidebar (estado activo correcto).
-   - Deep-links: `/clinic/show/p1`, `/clients/show/c1`, `/clients/edit/c2`, `/inventory/edit/i2`.
+   - Navegar las 10 entradas del sidebar (estado activo correcto). En `/appointments-clinics` **ningún** ítem queda activo y la barra móvil rotula "Disponibilidad de la clínica".
+   - `/appointments/settings` redirige a `/appointments-clinics` con `replace` (el botón "atrás" no rebota).
+   - Deep-links: `/clinic/show/p1`, `/clients/show/c1`, `/clients/edit/c2`, `/inventory/edit/i2`, `/visits/show/vis1`, `/portals/show/po1`.
    - Id inexistente (`/clients/show/zzz`) → pantalla `ResourceNotFound`.
-   - Crear cliente → aterriza en su show; editar cliente → toast + datos actualizados.
-   - Agendar/reprogramar cita en horario ocupado → toast de error "Ese médico ya tiene una cita en ese horario" y no guarda.
-   - Kanban peluquería: terminar servicio → toast WhatsApp + cargo en Facturación (badge del sidebar sube).
-   - Clínica: nueva consulta → cargo de $25; aplicar insumo → stock baja (+alerta si queda bajo mínimo).
-   - Facturación: cobrar cuenta → factura emitida y cuenta cerrada.
+   - Crear cliente → aterriza en su show; editar cliente → toast + datos actualizados. "Visita" está deshabilitado para clientes sin mascotas.
+   - Agendar/reprogramar cita en horario ocupado → toast de error "Ese médico ya tiene una cita en ese horario" y no guarda. `/appointments/edit/<id cancelado>` no ofrece formulario.
+   - Kanban peluquería: 4 columnas; terminar servicio → cargo en Facturación (badge del sidebar sube); "entregado" **no** hace desaparecer la tarjeta. Las alergias se ven en el tablero.
+   - Clínica: la consulta se guarda en el expediente (no cobra). Sin consulta abierta hoy, "Aplicar insumo" y "Emitir receta" muestran la precondición, no `ResourceNotFound`. Aplicar insumo → stock baja (+alerta si queda bajo mínimo).
+   - Inventario: `i4` figura como **Caducado** con días positivos y no es seleccionable como insumo; no hay campo de stock en editar.
+   - Visitas: los medicamentos y las vacunas **no** se agregan desde el borrador (solo desde Clínica) — es la única vía que descuenta stock.
+   - Facturación: cobrar cuenta → factura emitida, visita cerrada y consultable en solo lectura; los badges de área no salen grises; no hay envío externo.
+   - Teclado: `Tab` deja foco visible en toda pantalla; los modales atrapan el foco, cierran con `Escape` y lo devuelven al disparador.
    - Sin errores en la consola del navegador.
 
 Recordatorio: el estado es en memoria — navegar con recarga completa (barra de URL) reinicia los datos; los flujos multi-paso deben probarse dentro de la misma sesión SPA.

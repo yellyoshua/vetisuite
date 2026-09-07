@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { inputStyle, LAB_TESTS, money, T } from "@/lib/constants";
+import { LAB_TESTS, money, T } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
-import { Btn, Card, Field } from "@/components/ui";
+import { Btn, Card, Field, Select } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
 import { ResourceNotFound } from "@/components/resource-not-found";
 
@@ -18,9 +18,9 @@ export default function LabOrderNewPage() {
     <CustomPage goBack backTo={backTo} title="Orden de laboratorio" description={`Paciente: ${patient.name} · El examen se carga a la cuenta abierta del cliente.`}>
       <Card className="p-5">
         <Field label="Examen">
-          <select style={inputStyle} value={test} onChange={(e) => setTest(e.target.value)}>
+          <Select value={test} onChange={(e) => setTest(e.target.value)}>
             {Object.entries(LAB_TESTS).map(([name, price]) => <option key={name} value={name}>{name} — {money(price)}</option>)}
-          </select>
+          </Select>
         </Field>
         <p style={{ fontSize: 12, color: T.sub, marginBottom: 14 }}>La orden entra a la cola del laboratorio y el resultado se carga desde el expediente.</p>
         <div className="flex justify-end gap-2">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CalendarDays, ClipboardList, FileText, PawPrint, Pencil, Plus } from "lucide-react";
-import { F, money, SPECIES_ICON, T } from "@/lib/constants";
+import { F, isOpenVisit, money, SPECIES_ICON, T } from "@/lib/constants";
 import type { Patient } from "@/lib/types";
 import { useVetStore } from "@/states/app.state";
 import { Badge, Btn, Card, PatientAlerts } from "@/components/ui";
@@ -18,7 +18,7 @@ export default function ClientShowPage() {
   const client = s.clients.find((c) => c.id === id);
   if (!client) return <ResourceNotFound backTo="/clients" label="el cliente" />;
   const pets = s.patients.filter((p) => p.clientId === client.id);
-  const visit = s.visits.find((v) => v.clientId === client.id);
+  const visit = s.visits.find((v) => v.clientId === client.id && isOpenVisit(v));
   const visitTotal = visit ? s.services.filter((x) => x.visitId === visit.id).reduce((t, x) => t + x.price, 0) : 0;
   return (
     <CustomPage goBack backTo="/clients" title={client.name} description="Ficha del cliente y sus mascotas."
@@ -26,9 +26,12 @@ export default function ClientShowPage() {
         <>
           <Btn kind="ghost" onClick={() => navigate(`/clients/edit/${client.id}`)}><Pencil size={14} /> Editar</Btn>
           <Btn kind="ghost" onClick={() => setModal({})}><Plus size={14} /> Mascota</Btn>
-          <Btn onClick={() => { const fp = pets[0]?.id ?? ""; navigate(`/visits/edit/${s.openVisit(client.id, fp)}`); }}><ClipboardList size={14} /> Iniciar visita</Btn>
+          <Btn disabled={pets.length === 0} onClick={() => { navigate(`/visits/edit/${s.openVisit(client.id, pets[0].id)}`); }}><ClipboardList size={14} /> Iniciar visita</Btn>
         </>
       }>
+      {pets.length === 0 && (
+        <p style={{ fontSize: 12.5, color: T.amber, marginBottom: 12 }}>Registra primero una mascota: una visita necesita al menos un paciente.</p>
+      )}
       <Card className="p-5 mb-4">
         <InfoGrid items={[
           { label: "Teléfono", value: client.phone },

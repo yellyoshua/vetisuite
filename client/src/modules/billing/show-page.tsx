@@ -1,8 +1,7 @@
 import { useParams } from "react-router-dom";
-import { MessageCircle } from "lucide-react";
-import { F, money, T, waLink } from "@/lib/constants";
+import { F, money, T } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
-import { Badge, Btn, Card } from "@/components/ui";
+import { Badge, Card } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
 import { InfoGrid } from "@/components/info-grid";
 import { ResourceNotFound } from "@/components/resource-not-found";
@@ -16,12 +15,6 @@ export default function InvoiceShowPage() {
   const invoice = s.invoices.find((i) => i.id === id);
   if (!invoice) return <ResourceNotFound backTo="/billing" label="la factura" />;
   const client = s.clients.find((c) => c.id === invoice.clientId)!;
-  const waText = [
-    `Hola ${client.name}, aquí está tu factura ${invoice.num} de Veti Suite:`,
-    ...invoice.items.map((i) => `• ${i.desc}: ${money(i.amount)}`),
-    ...(invoice.prevDebt > 0 ? [`• Saldo anterior: ${money(invoice.prevDebt)}`] : []),
-    `Total: ${money(invoice.total)}. ¡Gracias por tu confianza!`,
-  ].join("\n");
   return (
     <CustomPage goBack backTo="/billing" title={invoice.num} description="Detalle de la factura emitida.">
       <Card className="p-5 mb-4">
@@ -63,11 +56,6 @@ export default function InvoiceShowPage() {
         <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: `1px solid ${T.line}` }}>
           <span style={{ fontFamily: F.head, fontSize: 15, fontWeight: 700 }}>Total</span>
           <span style={{ fontFamily: F.head, fontSize: 17, fontWeight: 700, color: T.green }}>{money(invoice.total)}</span>
-        </div>
-        <div className="flex justify-end mt-4">
-          <Btn small kind="wa" onClick={() => window.open(waLink(client.phone, waText), "_blank")}>
-            <MessageCircle size={13} /> Enviar por WhatsApp
-          </Btn>
         </div>
       </Card>
     </CustomPage>

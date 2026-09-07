@@ -9,7 +9,7 @@ import AppointmentsPage from "@/modules/appointments/page";
 import AppointmentNewPage from "@/modules/appointments/new-page";
 import AppointmentShowPage from "@/modules/appointments/show-page";
 import AppointmentEditPage from "@/modules/appointments/edit-page";
-import AppointmentSettingsPage from "@/modules/appointments/settings-page";
+import AvailabilityPage from "@/modules/appointments-clinics/page";
 import VisitsPage from "@/modules/visits/page";
 import VisitNewPage from "@/modules/visits/new-page";
 import VisitEditPage from "@/modules/visits/edit-page";
@@ -57,8 +57,10 @@ export function StaffRoutes() {
           <Route path="new" element={<AppointmentNewPage />} />
           <Route path="show/:id" element={<AppointmentShowPage />} />
           <Route path="edit/:id" element={<AppointmentEditPage />} />
-          <Route path="settings" element={<AppointmentSettingsPage />} />
+          {/* Transitoria: la disponibilidad se mudó a su propia ruta base. Retirar cuando nadie use la URL vieja. */}
+          <Route path="settings" element={<Navigate to="/appointments-clinics" replace />} />
         </Route>
+        <Route path="/appointments-clinics" element={<AvailabilityPage />} />
         <Route path="/visits">
           <Route index element={<VisitsPage />} />
           <Route path="new" element={<VisitNewPage />} />

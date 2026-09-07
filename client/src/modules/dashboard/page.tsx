@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Bell, CalendarDays, ChevronRight, Clock, Package, Receipt, Scissors } from "lucide-react";
-import { daysUntil, F, money, T, todayLabel } from "@/lib/constants";
+import { expiryLabel, expiryState, F, isLowStock, money, T, todayLabel } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
 import { Badge, Btn, Card, PatientAlerts } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
@@ -12,14 +12,17 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const todayAppointments = s.appointments.filter((a) => a.status !== "cancelada");
   const inGrooming = s.grooming.filter((g) => g.status === "pendiente" || g.status === "proceso");
-  const lowStock = s.inventory.filter((p) => p.stock <= p.minStock);
-  const expiringSoon = s.inventory.filter((p) => daysUntil(p.expiry) <= 60);
+  const lowStock = s.inventory.filter(isLowStock);
+  // Vencido y "por caducar" son categorías distintas: el copy nunca muestra días negativos.
+  const expired = s.inventory.filter((p) => expiryState(p.expiry) === "caducado");
+  const expiringSoon = s.inventory.filter((p) => expiryState(p.expiry) === "por-caducar");
+  const expiryAlerts = [...expired, ...expiringSoon];
   const clientsWithDebt = s.clients.filter((c) => c.debt > 0);
   const revenue = s.invoices.reduce((t, f) => t + f.total, 0);
   const kpis = [
     { label: "Citas de hoy", value: todayAppointments.length, sub: `${todayAppointments.filter((a) => a.status === "confirmada").length} confirmadas`, icon: CalendarDays, tone: T.green, to: "/appointments" },
     { label: "En estética", value: inGrooming.length, sub: "pendientes o en proceso", icon: Scissors, tone: T.blue, to: "/grooming" },
-    { label: "Alertas de stock", value: lowStock.length + expiringSoon.length, sub: `${lowStock.length} bajos · ${expiringSoon.length} por caducar`, icon: Package, tone: T.amber, to: "/inventory" },
+    { label: "Alertas de stock", value: lowStock.length + expiryAlerts.length, sub: `${lowStock.length} bajos · ${expired.length} vencidos · ${expiringSoon.length} por caducar`, icon: Package, tone: T.amber, to: "/inventory" },
     { label: "Ingresos de hoy", value: money(revenue), sub: `${s.invoices.length} facturas emitidas`, icon: Receipt, tone: T.dark, to: "/billing" },
   ];
   return (
@@ -27,7 +30,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {kpis.map((k) => (
           <Card key={k.label} className="p-4 cursor-pointer hover:shadow-md transition-shadow">
-            <button onClick={() => navigate(k.to)} className="w-full text-left">
+            <button type="button" onClick={() => navigate(k.to)} className="w-full text-left">
               <div className="flex items-center justify-between mb-3">
                 <span style={{ fontSize: 12, color: T.sub, fontWeight: 600 }}>{k.label}</span>
                 <k.icon size={16} color={k.tone} />
@@ -60,35 +63,38 @@ export default function DashboardPage() {
               </div>
             );
           })}
+          {todayAppointments.length === 0 && (
+            <p className="py-6 text-center" style={{ fontSize: 13, color: T.sub }}>Hoy no hay citas vivas en la agenda.</p>
+          )}
         </Card>
         <Card className="p-5 lg:col-span-2">
           <h2 style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, marginBottom: 14 }} className="flex items-center gap-2"><Bell size={15} color={T.amber} /> Alertas operativas</h2>
           <div className="flex flex-col gap-2.5">
             {lowStock.slice(0, MAX_ALERTS).map((p) => (
-              <div key={p.id} className="flex items-center gap-2" style={{ background: T.amberSoft, borderRadius: 10, padding: "9px 11px", fontSize: 12.5 }}>
+              <button key={p.id} type="button" onClick={() => navigate(`/inventory/show/${p.id}`)} className="flex items-center gap-2 text-left" style={{ background: T.amberSoft, borderRadius: 10, padding: "9px 11px", fontSize: 12.5 }}>
                 <Package size={14} color={T.amber} /><span><b>{p.name}</b>: {p.stock} uds (mín. {p.minStock}). Reabastecer.</span>
-              </div>
+              </button>
             ))}
             {lowStock.length > MAX_ALERTS && (
               <button onClick={() => navigate("/inventory")} className="text-left" style={{ fontSize: 12, color: T.amber, fontWeight: 600 }}>+{lowStock.length - MAX_ALERTS} productos más con stock bajo → Inventario</button>
             )}
-            {expiringSoon.slice(0, MAX_ALERTS).map((p) => (
-              <div key={p.id} className="flex items-center gap-2" style={{ background: T.redSoft, borderRadius: 10, padding: "9px 11px", fontSize: 12.5 }}>
-                <Clock size={14} color={T.red} /><span><b>{p.name}</b> caduca en {daysUntil(p.expiry)} días.</span>
-              </div>
+            {expiryAlerts.slice(0, MAX_ALERTS).map((p) => (
+              <button key={p.id} type="button" onClick={() => navigate(`/inventory/show/${p.id}`)} className="flex items-center gap-2 text-left" style={{ background: T.redSoft, borderRadius: 10, padding: "9px 11px", fontSize: 12.5 }}>
+                <Clock size={14} color={T.red} /><span><b>{p.name}</b>: {expiryLabel(p.expiry).toLowerCase()}.</span>
+              </button>
             ))}
-            {expiringSoon.length > MAX_ALERTS && (
-              <button onClick={() => navigate("/inventory")} className="text-left" style={{ fontSize: 12, color: T.red, fontWeight: 600 }}>+{expiringSoon.length - MAX_ALERTS} productos más por caducar → Inventario</button>
+            {expiryAlerts.length > MAX_ALERTS && (
+              <button onClick={() => navigate("/inventory")} className="text-left" style={{ fontSize: 12, color: T.red, fontWeight: 600 }}>+{expiryAlerts.length - MAX_ALERTS} productos más vencidos o por caducar → Inventario</button>
             )}
             {clientsWithDebt.slice(0, MAX_ALERTS).map((c) => (
-              <button key={c.id} onClick={() => navigate(`/clients/show/${c.id}`)} className="flex items-center gap-2 text-left" style={{ background: T.blueSoft, borderRadius: 10, padding: "9px 11px", fontSize: 12.5 }}>
+              <button key={c.id} type="button" onClick={() => navigate(`/clients/show/${c.id}`)} className="flex items-center gap-2 text-left" style={{ background: T.blueSoft, borderRadius: 10, padding: "9px 11px", fontSize: 12.5 }}>
                 <Receipt size={14} color={T.blue} /><span><b>{c.name}</b> tiene deuda pendiente de {money(c.debt)}.</span>
               </button>
             ))}
             {clientsWithDebt.length > MAX_ALERTS && (
               <button onClick={() => navigate("/billing")} className="text-left" style={{ fontSize: 12, color: T.blue, fontWeight: 600 }}>+{clientsWithDebt.length - MAX_ALERTS} clientes más con deuda → Facturación</button>
             )}
-            {lowStock.length + expiringSoon.length + clientsWithDebt.length === 0 && (
+            {lowStock.length + expiryAlerts.length + clientsWithDebt.length === 0 && (
               <p style={{ fontSize: 13, color: T.sub }}>Sin alertas. Todo en orden ✨</p>
             )}
           </div>

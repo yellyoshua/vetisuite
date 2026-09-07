@@ -67,7 +67,7 @@ Registro único de dueños y sus mascotas: la base de datos sobre la que se apoy
 
 **Funcionalidades**
 
-- Crear cliente (nombre, teléfono WhatsApp, correo); nombre y teléfono obligatorios.
+- Crear cliente (nombre, teléfono, correo); nombre y teléfono obligatorios.
 - Editar los datos del cliente.
 - Registrar y editar mascotas del cliente: nombre, especie, raza, edad, alergias y marca de paciente agresivo.
 - Buscar cliente por nombre, teléfono o correo, con resultados paginados.
@@ -136,12 +136,12 @@ Formularios de alta y cambio, ambos partiendo del cliente.
 - Elegir médico y hora entre los horarios reales disponibles.
 - Escribir el motivo de la consulta.
 - Reprogramar conservando la hora actual aunque el horario de la clínica haya cambiado.
-- Notificación al dueño simulada por WhatsApp al agendar y al reprogramar.
+- Al agendar y al reprogramar solo cambia el estado de la cita: el producto no tiene canal externo de mensajería.
 
 ### 3.3 Detalle de la cita
 Ficha de la cita y punto de arranque de la atención.
 - Ver paciente, dueño, teléfono, médico, hora, estado, motivo y alertas.
-- Confirmar la cita (flujo de confirmación por WhatsApp).
+- Confirmar la cita desde su detalle (cambio de estado a "confirmada").
 - Seleccionar los tratamientos de la visita (consulta, peluquería, laboratorio, vacuna) e iniciarla.
 - Abrir el expediente clínico del paciente.
 - Cancelar la cita y liberar el espacio.
@@ -177,7 +177,7 @@ Contenedor de la atención: una visita agrupa todos los servicios de un cliente 
 - Comenzar la visita: cada servicio se crea en su módulo (tablero de estética, cola de laboratorio).
 - Avanzar servicios sin módulo propio (veterinaria, medicamento, vacuna) desde la propia visita.
 - Ver el subtotal de la atención y cuántos servicios faltan por terminar.
-- Enviar recordatorio de deuda al dueño por WhatsApp.
+- El saldo pendiente del cliente se muestra en la visita y en su ficha; no hay envío de recordatorios.
 - Pasar al cobro cuando todos los servicios están terminados.
 
 **Submódulos**
@@ -204,7 +204,7 @@ Vista de la visita ya comenzada, con el kanban de cada servicio.
 - Avanzar los servicios que no tienen módulo propio.
 - Saltar al tablero de peluquería o a laboratorio para gestionar los que sí lo tienen.
 - Ver el subtotal y cuántos servicios faltan para poder cobrar.
-- Recordar deuda por WhatsApp y pasar a cobrar y facturar.
+- Ver el saldo anterior y pasar a cobrar y facturar.
 
 ---
 
@@ -222,7 +222,7 @@ Tablero operativo del área de estética, desde el check-in hasta la entrega.
 - El check-in abre o reutiliza la visita del cliente y añade el servicio ya comenzado.
 - Mover el trabajo entre pendiente, en proceso, terminado y entregado.
 - Cronómetro en vivo mientras el servicio está en proceso y duración final al terminar.
-- Aviso simulado por WhatsApp al dueño cuando la mascota está lista.
+- Al marcar el trabajo como terminado, el servicio queda cargado a la visita; el aviso al dueño se hace fuera del sistema.
 - Alerta de manejo con precaución en pacientes marcados como agresivos.
 - Sin edición ni borrado del trabajo: se corrige quitando el servicio desde la visita.
 
@@ -312,7 +312,7 @@ Solicitud de exámenes y captura de resultados.
 ### 6.6 Recetas digitales
 Prescripción adjunta a la consulta activa del paciente.
 - Registrar medicamento y posología.
-- Envío simulado al correo y WhatsApp del dueño, con firma electrónica del veterinario.
+- La receta se guarda en la consulta activa del expediente; no se envía por ningún canal.
 - Requiere una consulta abierta del paciente.
 
 ---
@@ -365,7 +365,7 @@ Cierre económico de la atención: de la visita terminada a la factura emitida.
 
 - **Necesidad.** Cobrar completo, en un solo documento, incluyendo el saldo que el cliente arrastra.
 - **Análisis.** Cuando cada área cobra por su lado, se olvidan ítems, los descuentos se aplican de memoria y la deuda anterior nunca se reclama.
-- **Solución.** Cobro por visita: todos los servicios en una sola cuenta, descuento e IVA calculados, saldo anterior arrastrado y factura inmutable enviable por WhatsApp.
+- **Solución.** Cobro por visita: todos los servicios en una sola cuenta, descuento e IVA calculados, saldo anterior arrastrado y factura inmutable.
 
 **Funcionalidades**
 
@@ -376,7 +376,7 @@ Cierre económico de la atención: de la visita terminada a la factura emitida.
 - Ver el desglose en vivo: subtotal, descuento, base imponible, IVA, saldo anterior y total.
 - Emitir factura numerada; al emitirla se cierra la visita y se salda la deuda anterior.
 - Ver el detalle de las facturas del día, con sus ítems y el área de origen de cada uno.
-- Enviar la factura al dueño por WhatsApp.
+- Consultar la factura emitida en su detalle (solo lectura).
 - Facturas inmutables: sin edición ni anulación.
 
 **Submódulos**
@@ -402,7 +402,7 @@ Documento final, de solo lectura.
 - Ver cliente, teléfono, método de pago y hora de emisión.
 - Ver cada ítem con su área de origen y su importe.
 - Ver subtotal, descuento, IVA, saldo anterior y total.
-- Enviar la factura detallada al dueño por WhatsApp.
+- Consultar el detalle de la factura emitida.
 
 ---
 
@@ -451,7 +451,7 @@ Cuánto debería haber en caja y cuánto entró por otros medios.
 Páginas públicas de la clínica, administradas desde el mismo panel.
 
 - **Necesidad.** Tener presencia propia y una página por campaña sin depender de un proveedor externo cada vez.
-- **Análisis.** La clínica comunica por redes y WhatsApp; para una promoción o una campaña de vacunación necesita una página propia y no tiene quién la haga.
+- **Análisis.** Para una promoción o una campaña de vacunación la clínica necesita una página propia y no tiene quién la haga.
 - **Solución.** Portales autoadministrables con contenido en Markdown, logo y paleta de colores, publicados en el subdominio de la clínica bajo un slug único.
 
 **Funcionalidades**
@@ -493,7 +493,7 @@ Lo que el análisis anterior **no** incluye porque hoy no existe en la plataform
 
 - **Sin login ni roles.** La sesión de staff está fija; no hay usuarios ni permisos.
 - **Agenda de un solo día.** Todas las pantallas trabajan sobre hoy; la antelación mínima y la ventana de reserva se guardan pero aún no se aplican.
-- **WhatsApp simulado.** Solo el envío de factura y el recordatorio de deuda abren un enlace real; el resto son avisos de la demo.
+- **Sin canal externo.** El producto no envía mensajes por ningún canal: ninguna acción abre un enlace ni una petición fuera de la aplicación.
 - **Portales no publicados.** El panel administra el contenido; las páginas públicas y la reserva en línea todavía no se sirven.
 - **Gastos sin pantalla.** La utilidad se calcula con gastos de ejemplo; no hay alta ni baja de gastos.
 - **Deuda sin origen propio.** Facturación consume y salda el saldo anterior, pero ninguna pantalla lo genera.

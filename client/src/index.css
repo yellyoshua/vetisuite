@@ -29,9 +29,6 @@
   --color-blue: #2C6E8F;
   --color-blue-soft: #E4EFF4;
 
-  /* Exclusivo de automatización WhatsApp */
-  --color-wa: #1D8F5B;
-
   /* Neutrales auxiliares */
   --color-input: #FCFBF8;
   --color-track: #F1EFE7;
@@ -73,4 +70,11 @@
 
 .vs-opt:hover {
   background: var(--color-opt-hover);
+}
+
+/* Foco visible: la app se opera con teclado (recepción). Anillo derivado del
+   verde de marca; ningún control debe quedar con foco invisible. */
+:focus-visible {
+  outline: 2px solid var(--color-green);
+  outline-offset: 2px;
 }

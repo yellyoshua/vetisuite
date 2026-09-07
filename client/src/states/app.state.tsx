@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { GROOM_SERVICES, LAB_TESTS, SERVICE_FLOWS, isServiceDone, money, round2, uid } from "@/lib/constants";
+import { GROOM_SERVICES, LAB_TESTS, SERVICE_AREA, SERVICE_FLOWS, isOpenVisit, isServiceDone, money, round2, uid } from "@/lib/constants";
 import { DEFAULT_AVAILABILITY, slotsForDate, validateAvailability } from "@/lib/availability";
 import { showToast } from "@/components/toast";
 import type {
@@ -48,11 +48,13 @@ interface VetState {
   openVisit: (clientId: string, patientId: string) => string;
   addService: (visitId: string, data: { type: ServiceType; label: string; price: number; patientId: string }) => void;
   startVisit: (visitId: string) => void;
+  discardVisit: (id: string) => void;
   advanceService: (id: string) => void;
   removeService: (id: string) => void;
   chargeToVisit: (clientId: string, patientId: string, data: { type: ServiceType; label: string; price: number }) => void;
   invoices: Invoice[];
-  billVisit: (visitId: string, opts: { discount: number; ivaRate: number; method: PayMethod }) => string;
+  invoiceSeq: number; // correlativo monotónico de facturas
+  billVisit: (visitId: string, opts: { discount: number; discountPct: number; ivaRate: number; method: PayMethod }) => string;
 
   expenses: Expense[];
   addExpense: (data: Pick<Expense, "category" | "desc" | "amount">) => void;
@@ -153,20 +155,24 @@ export const useVetStore = create<VetState>((set, get) => ({
       return false;
     }
     const patient = st.patients.find((p) => p.id === patientId)!;
-    const owner = st.clients.find((c) => c.id === patient.clientId)!;
     const vet = st.vets.find((v) => v.id === vetId)!;
     const status: AppointmentStatus = st.availability.autoConfirm ? "confirmada" : "pendiente";
     set((s) => ({ appointments: [...s.appointments, { id: uid(), patientId, vetId, time, reason, status }] }));
-    if (status === "confirmada") get().notify("wa", `WhatsApp a ${owner.name}: "Cita confirmada para ${patient.name} hoy ${time} con ${vet.name} ✅"`);
-    else get().notify("wa", `WhatsApp a ${owner.name}: "Cita para ${patient.name} hoy ${time} con ${vet.name}. Responde CONFIRMAR ✅"`);
+    if (status === "confirmada") get().notify("ok", `Cita confirmada para ${patient.name} hoy ${time} con ${vet.name}.`);
+    else get().notify("ok", `Cita agendada para ${patient.name} hoy ${time} con ${vet.name}. Queda pendiente de confirmar.`);
     return true;
   },
   updateAppointment: (id, data) => {
     const st = get();
+    // Una cita cerrada no se reprograma, ni escribiendo la URL a mano.
+    const current = st.appointments.find((a) => a.id === id)!;
+    if (current.status === "cancelada" || current.status === "completada") {
+      get().notify("error", `La cita está ${current.status} y ya no se puede reprogramar.`);
+      return false;
+    }
     const clash = st.appointments.find((a) => a.id !== id && a.vetId === data.vetId && a.time === data.time && a.status !== "cancelada");
     if (clash) { get().notify("error", "Ese médico ya tiene una cita en ese horario."); return false; }
     // Mover la cita exige un horario válido; conservar el suyo no, aunque el horario haya cambiado después.
-    const current = st.appointments.find((a) => a.id === id)!;
     if (data.time !== current.time && !slotsForDate(st.availability, new Date()).includes(data.time)) {
       get().notify("error", `Las ${data.time} están fuera del horario de atención configurado.`);
       return false;
@@ -179,9 +185,8 @@ export const useVetStore = create<VetState>((set, get) => ({
     const st = get();
     const appt = st.appointments.find((x) => x.id === id)!;
     const patient = st.patients.find((p) => p.id === appt.patientId)!;
-    const owner = st.clients.find((c) => c.id === patient.clientId)!;
     set((s) => ({ appointments: s.appointments.map((x) => (x.id === id ? { ...x, status } : x)) }));
-    if (status === "confirmada") get().notify("wa", `${owner.name} confirmó por WhatsApp la cita de ${patient.name} (${appt.time}).`);
+    if (status === "confirmada") get().notify("ok", `Cita de ${patient.name} (${appt.time}) confirmada.`);
     if (status === "cancelada") get().notify("warn", `Cita de ${appt.time} cancelada. Espacio liberado — avisar a lista de espera.`);
     if (status === "completada") get().notify("ok", `Cita de ${patient.name} marcada como atendida.`);
   },
@@ -219,7 +224,7 @@ export const useVetStore = create<VetState>((set, get) => ({
     if (to === "terminado" && !job.serviceId) {
       get().chargeToVisit(owner.id, job.patientId, { type: "peluqueria", label: `Estética: ${job.service}`, price: job.price });
     }
-    if (to === "terminado") get().notify("wa", `WhatsApp a ${owner.name}: "¡${patient.name} está listo! Ya puedes pasar a recogerlo 🐾"`);
+    if (to === "terminado") get().notify("ok", `${patient.name} está listo. El servicio quedó cargado a la visita de ${owner.name}.`);
     if (to === "entregado") get().notify("ok", `${patient.name} entregado. El servicio quedó terminado en la visita de ${owner.name}.`);
   },
 
@@ -239,7 +244,8 @@ export const useVetStore = create<VetState>((set, get) => ({
     const st = get();
     const patient = st.patients.find((p) => p.id === data.patientId)!;
     const record = { id: uid(), date: Date.now(), products: [], prescriptions: [], ...data };
-    set((s) => ({ records: [record, ...s.records] }));
+    // Orden descendente por fecha (no por orden de inserción): la primera es la más reciente.
+    set((s) => ({ records: [record, ...s.records].sort((a, b) => b.date - a.date) }));
     // El cargo de la consulta lo lleva el servicio de veterinaria de la visita (creado en el check-in), no el expediente.
     get().notify("ok", `Consulta guardada en el expediente de ${patient.name}.`);
     return record.id;
@@ -281,14 +287,17 @@ export const useVetStore = create<VetState>((set, get) => ({
       labOrders: s.labOrders.map((x) => (x.id === orderId ? { ...x, status: "resultado" as const, result } : x)),
       services: order.serviceId ? s.services.map((sv) => (sv.id === order.serviceId ? { ...sv, status: "resultado" } : sv)) : s.services,
     }));
+    // Fallback para órdenes sin servicio enlazado (semilla), simétrico al de peluquería: si no, el examen nunca se cobra.
+    if (!order.serviceId) {
+      get().chargeToVisit(patient.clientId, order.patientId, { type: "laboratorio", label: `Laboratorio: ${order.test}`, price: order.price });
+    }
     get().notify("ok", `Resultado de ${order.test} (${patient.name}) disponible. Se alertó al médico tratante.`);
   },
   addPrescription: (recordId, patientId, med, dosage) => {
     const st = get();
     const patient = st.patients.find((p) => p.id === patientId)!;
-    const owner = st.clients.find((c) => c.id === patient.clientId)!;
     set((s) => ({ records: s.records.map((r) => (r.id === recordId ? { ...r, prescriptions: [...r.prescriptions, { med, dosage }] } : r)) }));
-    get().notify("wa", `Receta digital firmada y enviada al correo y WhatsApp de ${owner.name}.`);
+    get().notify("ok", `Receta firmada y guardada en el expediente de ${patient.name}.`);
   },
 
   inventory: [
@@ -303,11 +312,13 @@ export const useVetStore = create<VetState>((set, get) => ({
     set((s) => ({ inventory: [...s.inventory, { id: uid(), ...data }] }));
     get().notify("ok", `Producto "${data.name}" ingresado al inventario.`);
   },
-  updateProduct: (id, data) => {
-    set((s) => ({ inventory: s.inventory.map((p) => (p.id === id ? { ...p, ...data } : p)) }));
-    get().notify("ok", `Producto "${data.name}" actualizado.`);
+  updateProduct: (id, { name, category, minStock, price, expiry }) => {
+    // Campos explícitos: el stock nunca se edita a mano (solo restock / applyProduct).
+    set((s) => ({ inventory: s.inventory.map((p) => (p.id === id ? { ...p, name, category, minStock, price, expiry } : p)) }));
+    get().notify("ok", `Producto "${name}" actualizado.`);
   },
   restock: (id, qty) => {
+    if (qty <= 0) return;
     set((s) => ({ inventory: s.inventory.map((p) => (p.id === id ? { ...p, stock: p.stock + qty } : p)) }));
     const product = get().inventory.find((x) => x.id === id)!;
     get().notify("ok", `Lote ingresado: +${qty} uds de ${product.name} (stock: ${product.stock}).`);
@@ -321,7 +332,7 @@ export const useVetStore = create<VetState>((set, get) => ({
     { id: "sv1", visitId: "vis1", patientId: "p4", type: "veterinaria", label: "Consulta médica", price: 25, status: "en consulta", started: true },
   ],
   openVisit: (clientId, patientId) => {
-    const existing = get().visits.find((v) => v.clientId === clientId);
+    const existing = get().visits.find((v) => v.clientId === clientId && isOpenVisit(v));
     if (existing) return existing.id;
     const id = uid();
     set((s) => ({ visits: [...s.visits, { id, clientId, patientId, createdAt: Date.now(), started: false }] }));
@@ -351,24 +362,42 @@ export const useVetStore = create<VetState>((set, get) => ({
     });
     get().notify("ok", "Visita comenzada. Los servicios están en sus módulos.");
   },
+  // Descartar una visita solo es posible mientras esté vacía: nunca borra servicios ni facturas.
+  discardVisit: (id) => {
+    const visit = get().visits.find((v) => v.id === id);
+    if (!visit) return;
+    if (get().services.some((sv) => sv.visitId === id)) {
+      get().notify("error", "La visita tiene servicios: quítalos antes de descartarla.");
+      return;
+    }
+    set((s) => ({ visits: s.visits.filter((v) => v.id !== id) }));
+    get().notify("warn", "Visita descartada.");
+  },
   advanceService: (id) => {
     const sv = get().services.find((x) => x.id === id);
     if (!sv) return;
+    // Peluquería y laboratorio tienen tablero propio: ahí está la fuente de verdad.
+    if (sv.type === "peluqueria" || sv.type === "laboratorio") {
+      get().notify("warn", `"${sv.label}" se avanza desde ${SERVICE_FLOWS[sv.type].label}, no desde la visita.`);
+      return;
+    }
     const cols = SERVICE_FLOWS[sv.type].columns;
     const next = cols[Math.min(cols.indexOf(sv.status) + 1, cols.length - 1)];
     set((s) => ({ services: s.services.map((x) => (x.id === id ? { ...x, status: next } : x)) }));
-    if (next === cols[cols.length - 1]) {
-      const visit = get().visits.find((v) => v.id === sv.visitId);
-      const client = visit && get().clients.find((c) => c.id === visit.clientId);
-      if (client) get().notify("wa", `WhatsApp a ${client.name}: "${sv.label} finalizado ✅"`);
-    }
+    if (next === cols[cols.length - 1]) get().notify("ok", `${sv.label} finalizado.`);
   },
-  // Cancelar el servicio lo remueve también de su módulo de origen (peluquería/laboratorio).
-  removeService: (id) => set((s) => ({
-    services: s.services.filter((x) => x.id !== id),
-    grooming: s.grooming.filter((g) => g.serviceId !== id),
-    labOrders: s.labOrders.filter((o) => o.serviceId !== id),
-  })),
+  // Quitar el servicio lo retira también de su módulo de origen. La orden de
+  // laboratorio se ANULA en vez de borrarse: el historial clínico es append-only.
+  removeService: (id) => {
+    const sv = get().services.find((x) => x.id === id);
+    if (!sv) return;
+    set((s) => ({
+      services: s.services.filter((x) => x.id !== id),
+      grooming: s.grooming.filter((g) => g.serviceId !== id),
+      labOrders: s.labOrders.map((o) => (o.serviceId === id ? { ...o, status: "anulado" as const } : o)),
+    }));
+    get().notify("warn", `${sv.label} quitado de la visita.`);
+  },
   // Cargos ya realizados desde módulos de dominio → entran como servicio terminado en la visita abierta del cliente.
   chargeToVisit: (clientId, patientId, { type, label, price }) => {
     const visitId = get().openVisit(clientId, patientId);
@@ -379,7 +408,8 @@ export const useVetStore = create<VetState>((set, get) => ({
     }));
   },
   invoices: [],
-  billVisit: (visitId, { discount, ivaRate, method }) => {
+  invoiceSeq: 0,
+  billVisit: (visitId, { discount, discountPct, ivaRate, method }) => {
     const st = get();
     const visit = st.visits.find((v) => v.id === visitId)!;
     const client = st.clients.find((c) => c.id === visit.clientId)!;
@@ -394,12 +424,14 @@ export const useVetStore = create<VetState>((set, get) => ({
     const iva = round2(base * ivaRate);
     const total = round2(base + iva + prevDebt);
     const id = uid();
-    const num = "FAC-" + String(st.invoices.length + 1).padStart(3, "0");
-    const items: AccountItem[] = svcs.map((sv) => ({ desc: sv.label, amount: sv.price, source: SERVICE_FLOWS[sv.type].label, status: "completado" }));
+    // Correlativo monotónico: no depende de invoices.length (que asume que nunca se borran).
+    const num = "FAC-" + String(st.invoiceSeq + 1).padStart(3, "0");
+    const items: AccountItem[] = svcs.map((sv) => ({ desc: sv.label, amount: sv.price, patientId: sv.patientId, source: SERVICE_AREA[sv.type] }));
     set((s) => ({
-      invoices: [{ id, num, clientId: client.id, items, subtotal, discount, iva, prevDebt, total, method, date: Date.now() }, ...s.invoices],
-      services: s.services.filter((sv) => sv.visitId !== visitId),
-      visits: s.visits.filter((v) => v.id !== visitId),
+      invoices: [{ id, num, clientId: client.id, items, subtotal, discount, discountPct, iva, prevDebt, total, method, date: Date.now() }, ...s.invoices],
+      invoiceSeq: s.invoiceSeq + 1,
+      // La visita se CIERRA, no se borra: queda consultable en solo lectura con enlace a su factura.
+      visits: s.visits.map((v) => (v.id === visitId ? { ...v, invoiceId: id } : v)),
       clients: s.clients.map((c) => (c.id === client.id ? { ...c, debt: 0 } : c)),
     }));
     get().notify("ok", `${num} emitida a ${client.name} por ${money(total)} · ${method}.`);
@@ -411,6 +443,8 @@ export const useVetStore = create<VetState>((set, get) => ({
     { id: "e2", category: "Servicios", desc: "Luz y agua", amount: 60, date: Date.now() - 3600000 * 4 },
     { id: "e3", category: "Compras/Insumos", desc: "Reposición de gasas y jeringas", amount: 85.5, date: Date.now() - 3600000 * 2 },
   ],
+  // ponytail: sin pantalla de gastos en alcance. Se conservan como punto de
+  // extensión: la utilidad y el margen de Finanzas se calculan sobre la semilla.
   addExpense: (data) => {
     set((s) => ({ expenses: [{ id: uid(), date: Date.now(), ...data }, ...s.expenses] }));
     get().notify("ok", `Gasto registrado: ${data.desc} (${money(data.amount)}).`);
@@ -424,7 +458,7 @@ export const useVetStore = create<VetState>((set, get) => ({
       id: "po1", name: "Portal de la clínica", slug: "clinica",
       palette: { primary: "#186653", accent: "#C9A227", bg: "#FFFFFF" },
       logoUrl: "https://placehold.co/120x120/186653/fff?text=Veti",
-      markdown: "# Clínica Veterinaria\n\nAtendemos de **lunes a sábado**, 08:00–18:00.\n\n- Consulta médica\n- Vacunación\n- Peluquería y estética\n\nAgenda tu cita por WhatsApp.",
+      markdown: "# Clínica Veterinaria\n\nAtendemos de **lunes a sábado**, 08:00–18:00.\n\n- Consulta médica\n- Vacunación\n- Peluquería y estética\n\nEscríbenos o acércate a la clínica para agendar tu cita.",
     },
     {
       id: "po2", name: "Campaña de vacunación", slug: "vacunacion-2026",

@@ -4,7 +4,7 @@ import {
   CalendarDays, ChevronsLeft, ChevronsRight, ClipboardList, FlaskConical, Globe,
   LayoutDashboard, Menu, Package, PawPrint, Receipt, Scissors, Users, Wallet, X,
 } from "lucide-react";
-import { F, T } from "@/lib/constants";
+import { F, isOpenVisit, T } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
 
 /* ================================================================
@@ -32,12 +32,17 @@ const MODULES = [
   { path: "/portals", label: "Portales", icon: Globe },
 ];
 
+/* Rótulo de la barra móvil. No es el menú: la disponibilidad tiene ruta base
+   propia pero no fila en el sidebar (es configuración, no área de trabajo). */
+const PAGE_LABELS = [...MODULES, { path: "/appointments-clinics", label: "Disponibilidad de la clínica" }];
+const matchesPath = (pathname: string, path: string) => pathname === path || pathname.startsWith(path + "/");
+
 export function CustomLayout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const location = useLocation();
-  const openVisits = useVetStore((s) => s.visits.length);
-  const moduleLabel = (MODULES.find((m) => m.path !== "/" && location.pathname.startsWith(m.path)) || MODULES[0]).label;
+  const openVisits = useVetStore((s) => s.visits.filter(isOpenVisit).length);
+  const moduleLabel = (PAGE_LABELS.find((m) => m.path !== "/" && matchesPath(location.pathname, m.path)) || MODULES[0]).label;
 
   return (
     <div className="flex h-screen w-full overflow-hidden" style={{ height: "100dvh", background: T.bg, fontFamily: F.body, color: T.ink }}>

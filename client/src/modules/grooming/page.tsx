@@ -1,23 +1,24 @@
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Clock, Eye, Plus, ShieldAlert } from "lucide-react";
+import { CheckCircle2, Clock, Eye, Plus } from "lucide-react";
 import { F, money, T } from "@/lib/constants";
 import { useVetStore } from "@/states/app.state";
-import { Badge, Btn, Card, Elapsed } from "@/components/ui";
+import { Btn, Card, Elapsed, PatientAlerts } from "@/components/ui";
 import { CustomPage } from "@/components/pages/custom-page";
 
 const COLUMNS = [
   { key: "pendiente", label: "Pendiente", tone: T.amber },
   { key: "proceso", label: "En proceso", tone: T.blue },
   { key: "terminado", label: "Terminado", tone: T.green },
+  { key: "entregado", label: "Entregado", tone: T.sub },
 ] as const;
 
 export default function GroomingPage() {
   const s = useVetStore();
   const navigate = useNavigate();
   return (
-    <CustomPage title="Peluquería y Estética" description="Tablero Kanban con cronómetro por peluquero. Al terminar, el sistema avisa al dueño por WhatsApp y carga el servicio a facturación."
+    <CustomPage title="Peluquería y Estética" description="Tablero Kanban con cronómetro por peluquero. Al terminar, el sistema marca el trabajo como terminado y carga el servicio a facturación."
       actions={<Btn onClick={() => navigate("/grooming/new")}><Plus size={14} /> Check-in</Btn>}>
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
         {COLUMNS.map((col) => {
           const items = s.grooming.filter((g) => g.status === col.key);
           return (
@@ -40,7 +41,7 @@ export default function GroomingPage() {
                       </div>
                       <div style={{ fontSize: 12, color: T.sub }}>{g.service} · {owner.name}</div>
                       <div style={{ fontSize: 11.5, color: T.sub, marginTop: 2 }}>🎒 {g.belongings || "Sin pertenencias"} · ✂️ {g.groomer}</div>
-                      {patient.aggressive && <div className="mt-1.5"><Badge tone="red"><ShieldAlert size={11} /> Manejo con precaución</Badge></div>}
+                      <div className="mt-1.5"><PatientAlerts patient={patient} small /></div>
                       {g.status === "proceso" && g.startedAt && (
                         <div className="mt-2 inline-flex items-center gap-1.5" style={{ background: T.blueSoft, color: T.blue, borderRadius: 8, padding: "3px 9px", fontSize: 12, fontWeight: 600 }}>
                           <Clock size={12} /> <Elapsed since={g.startedAt} />
@@ -49,7 +50,7 @@ export default function GroomingPage() {
                       {duration !== null && <div className="mt-1.5" style={{ fontSize: 11.5, color: T.sub }}>⏱ Ejecutado en {duration} min</div>}
                       <div className="mt-3 flex flex-col gap-1.5">
                         {g.status === "pendiente" && <Btn small full kind="dark" onClick={() => s.moveGrooming(g.id, "proceso")}>Iniciar servicio</Btn>}
-                        {g.status === "proceso" && <Btn small full onClick={() => s.moveGrooming(g.id, "terminado")}><CheckCircle2 size={13} /> Terminar y notificar</Btn>}
+                        {g.status === "proceso" && <Btn small full onClick={() => s.moveGrooming(g.id, "terminado")}><CheckCircle2 size={13} /> Terminar</Btn>}
                         {g.status === "terminado" && <Btn small full kind="ghost" onClick={() => s.moveGrooming(g.id, "entregado")}>Marcar entregado</Btn>}
                         <Btn small full kind="ghost" onClick={() => navigate(`/grooming/show/${g.id}`)}><Eye size={13} /> Ver detalle</Btn>
                       </div>

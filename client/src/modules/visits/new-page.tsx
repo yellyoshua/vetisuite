@@ -11,10 +11,10 @@ export default function VisitNewPage() {
   const s = useVetStore();
   const navigate = useNavigate();
   const [client, setClient] = useState<Client | null>(null);
+  const pets = client ? s.patients.filter((p) => p.clientId === client.id) : [];
   const start = () => {
-    if (!client) return;
-    const firstPet = s.patients.find((p) => p.clientId === client.id)?.id ?? "";
-    navigate(`/visits/edit/${s.openVisit(client.id, firstPet)}`);
+    if (!client || pets.length === 0) return;
+    navigate(`/visits/edit/${s.openVisit(client.id, pets[0].id)}`);
   };
   return (
     <CustomPage goBack backTo="/visits" title="Check-in general" description="Selecciona el cliente para iniciar su visita. Las mascotas y servicios se agregan en el siguiente paso.">
@@ -23,9 +23,12 @@ export default function VisitNewPage() {
           <ClientSearch autoFocus selected={client} onSelect={setClient} />
         </Field>
         <p style={{ fontSize: 12, color: T.sub, marginBottom: 14 }}>Si el cliente ya tiene una visita abierta, se reutiliza en lugar de crear otra.</p>
+        {client && pets.length === 0 && (
+          <p style={{ fontSize: 12.5, color: T.amber, marginBottom: 14 }}>{client.name} no tiene mascotas registradas: una visita necesita al menos un paciente.</p>
+        )}
         <div className="flex justify-end gap-2">
           <Btn kind="ghost" onClick={() => navigate("/visits")}>Cancelar</Btn>
-          <Btn disabled={!client} onClick={start}>Iniciar visita</Btn>
+          <Btn disabled={!client || pets.length === 0} onClick={start}>Iniciar visita</Btn>
         </div>
       </Card>
     </CustomPage>

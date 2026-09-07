@@ -36,7 +36,7 @@ export default function GroomingShowPage() {
       </Card>
       <div style={{ maxWidth: 420 }}>
         {job.status === "pendiente" && <Btn full kind="dark" onClick={() => s.moveGrooming(job.id, "proceso")}>Iniciar servicio</Btn>}
-        {job.status === "proceso" && <Btn full onClick={() => s.moveGrooming(job.id, "terminado")}><CheckCircle2 size={13} /> Terminar y notificar</Btn>}
+        {job.status === "proceso" && <Btn full onClick={() => s.moveGrooming(job.id, "terminado")}><CheckCircle2 size={13} /> Terminar</Btn>}
         {job.status === "terminado" && <Btn full kind="ghost" onClick={() => s.moveGrooming(job.id, "entregado")}>Marcar entregado</Btn>}
       </div>
     </CustomPage>

@@ -13,7 +13,7 @@ export default function PortalEditPage() {
   return (
     <CustomPage goBack backTo={`/portals/show/${portal.id}`} title={`Editar · ${portal.name}`} description="Cambiar el slug cambia la dirección pública del portal.">
       <PortalForm initial={{ name: portal.name, slug: portal.slug, palette: portal.palette, markdown: portal.markdown, logoUrl: portal.logoUrl }}
-        submitLabel="Guardar cambios" onCancel={() => navigate(`/portals/show/${portal.id}`)}
+        submitLabel="Guardar cambios" takenSlugs={s.portals.filter((p) => p.id !== portal.id).map((p) => p.slug)} onCancel={() => navigate(`/portals/show/${portal.id}`)}
         onSubmit={(data) => { if (s.updatePortal(portal.id, data)) navigate(`/portals/show/${portal.id}`); }} />
     </CustomPage>
   );

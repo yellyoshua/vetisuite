@@ -40,7 +40,7 @@ export function ClientSearch({ selected, onSelect, placeholder = "Buscar cliente
           <div className="truncate" style={{ fontSize: 13.5, fontWeight: 700, color: T.ink }}>{selected.name}</div>
           <div className="truncate" style={{ fontSize: 11.5, color: T.sub }}>{selected.phone} · {selected.email}</div>
         </div>
-        <button onClick={() => onSelect(null)} title="Cambiar cliente" className="shrink-0" style={{ color: T.sub }}><X size={15} /></button>
+        <button type="button" onClick={() => onSelect(null)} title="Cambiar cliente" aria-label="Cambiar cliente" className="shrink-0" style={{ color: T.sub }}><X size={15} /></button>
       </div>
     );
   }
@@ -49,8 +49,8 @@ export function ClientSearch({ selected, onSelect, placeholder = "Buscar cliente
     <div className="relative">
       <div className="flex items-center gap-2" style={{ ...inputStyle, padding: "8px 11px" }}>
         <Search size={14} color={T.sub} className="shrink-0" />
-        <input autoFocus={autoFocus} value={q} onChange={(e) => setQ(e.target.value)} placeholder={placeholder}
-          style={{ border: "none", outline: "none", background: "transparent", fontSize: 13, width: "100%", color: T.ink }} />
+        <input type="search" aria-label={placeholder} autoFocus={autoFocus} value={q} onChange={(e) => setQ(e.target.value)} placeholder={placeholder}
+          style={{ border: "none", background: "transparent", fontSize: 13, width: "100%", color: T.ink }} />
         {loading && <Spinner />}
       </div>
       {q.trim().length === 1 && <div style={{ fontSize: 11.5, color: T.sub, marginTop: 4 }}>Escribe al menos 2 caracteres…</div>}

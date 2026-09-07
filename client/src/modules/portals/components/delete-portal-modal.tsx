@@ -7,7 +7,7 @@ export function DeletePortalModal({ portal, onClose, onConfirm }: { portal: Port
   return (
     <Modal title="Eliminar portal" onClose={onClose}>
       <p style={{ fontSize: 13.5, color: T.ink }}>
-        ¿Eliminar <b>{portal.name}</b>? La dirección <b>{portalUrl(portal.slug)}</b> dejará de estar publicada.
+        ¿Eliminar <b>{portal.name}</b>? Se libera la dirección reservada <b>{portalUrl(portal.slug)}</b>.
       </p>
       <p style={{ fontSize: 12.5, color: T.sub, marginTop: 6 }}>Esta acción no se puede deshacer.</p>
       <div className="flex justify-end gap-2 mt-5">

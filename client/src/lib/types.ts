@@ -74,7 +74,9 @@ export interface MedicalRecord {
   prescriptions: Prescription[];
 }
 
-type LabOrderStatus = "solicitado" | "resultado";
+/* "anulado": la orden se retiró al quitar su servicio de la visita. No se borra —
+   el historial clínico es append-only (ver removeService en app.state). */
+export type LabOrderStatus = "solicitado" | "resultado" | "anulado";
 
 export interface LabOrder {
   id: string;
@@ -96,14 +98,11 @@ export interface Product {
   expiry: string;
 }
 
-/* Status values are Spanish because they render verbatim in the UI. */
-type ItemStatus = "pendiente" | "completado";
-
 export interface AccountItem {
   desc: string;
   amount: number;
-  source: string;
-  status: ItemStatus;
+  patientId: string;
+  source: BusinessArea;
 }
 
 /* ── Visitas (atención): una visita agrupa servicios; cada servicio tiene su propio kanban. ── */
@@ -126,7 +125,12 @@ export interface Visit {
   patientId: string; // mascota de la visita
   createdAt: number;
   started: boolean; // false = en edición (borrador); true = comenzada (ítems en sus módulos)
+  invoiceId?: string; // presente = ya facturada (cerrada); la visita queda en solo lectura
 }
+
+/* Área de negocio a la que se imputa el ingreso: la comparten Facturación
+   (badge del ítem) y Finanzas (agrupación del donut). Ver SERVICE_AREA. */
+export type BusinessArea = "Clínica" | "Peluquería" | "Laboratorio";
 
 export type PayMethod = "Efectivo" | "Tarjeta" | "Transferencia";
 
@@ -137,6 +141,7 @@ export interface Invoice {
   items: AccountItem[];
   subtotal: number;
   discount: number;
+  discountPct: number; // % aplicado, para auditoría (discount guarda el importe)
   iva: number;
   prevDebt: number;
   total: number;
@@ -200,4 +205,4 @@ export interface Portal {
   logoUrl: string;
 }
 
-export type ToastType = "ok" | "warn" | "error" | "wa";
+export type ToastType = "ok" | "warn" | "error";
