@@ -24,16 +24,19 @@ export interface Vet {
   color: string;
 }
 
-/* Status values are Spanish because they render verbatim in the UI. */
 export type AppointmentStatus = "pendiente" | "confirmada" | "completada" | "cancelada";
+export type AppointmentSource = "staff" | "portal";
 
 export interface Appointment {
   id: string;
   patientId: string;
   vetId: string;
   time: string;
+  date?: string;
   reason: string;
   status: AppointmentStatus;
+  submissionId?: string;
+  source?: AppointmentSource;
 }
 
 export type GroomingStatus = "pendiente" | "proceso" | "terminado" | "entregado";
@@ -190,7 +193,45 @@ export interface Availability {
   autoConfirm: boolean;
 }
 
-interface PortalPalette {
+export type PortalPurpose = "booking" | "capture";
+export type PortalStatus = "draft" | "published" | "archived";
+export type VetPolicy = "clinic_assigns" | "visitor_chooses";
+export type FieldType =
+  | "text"
+  | "textarea"
+  | "email"
+  | "phone"
+  | "number"
+  | "date"
+  | "time_slot"
+  | "select"
+  | "multiselect"
+  | "checkbox";
+export type FieldBinding =
+  | "client.name"
+  | "client.phone"
+  | "client.email"
+  | "patient.name"
+  | "patient.species"
+  | "patient.breed"
+  | "patient.age"
+  | "patient.sex"
+  | "patient.allergies"
+  | "appointment.date"
+  | "appointment.time"
+  | "appointment.vet"
+  | "appointment.reason";
+export type OptionsSource = "static" | "species" | "vets";
+export type SubmissionStatus = "received" | "appointment_created" | "captured" | "rejected";
+export type RejectionReason =
+  | "slot_taken"
+  | "outside_availability"
+  | "max_per_day"
+  | "portal_changed"
+  | "portal_closed"
+  | "duplicate";
+
+export interface PortalPalette {
   primary: string;
   accent: string;
   bg: string;
@@ -199,10 +240,95 @@ interface PortalPalette {
 export interface Portal {
   id: string;
   name: string;
-  slug: string; // se sirve en {CLINIC_DOMAIN}/p/{slug}
+  slug: string;
+  purpose: PortalPurpose;
+  campaignName?: string;
+  status: PortalStatus;
   palette: PortalPalette;
   markdown: string;
   logoUrl: string;
+  vetPolicy: VetPolicy;
+  defaultVetId?: string;
+  defaultReason?: string;
+  autoConfirm: boolean;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string;
+}
+
+export interface PortalStage {
+  id: string;
+  portalId: string;
+  name: string;
+  title: string;
+  description?: string;
+  position: number;
+  active: boolean;
+  deletedAt?: string;
+}
+
+export interface PortalField {
+  id: string;
+  portalId: string;
+  stageId: string;
+  name: string;
+  label: string;
+  helpText?: string;
+  placeholder?: string;
+  type: FieldType;
+  binding: FieldBinding | null;
+  required: boolean;
+  position: number;
+  active: boolean;
+  minLength?: number;
+  maxLength?: number;
+  minValue?: number;
+  maxValue?: number;
+  minDate?: string;
+  maxDate?: string;
+  optionsSource?: OptionsSource;
+  minSelected?: number;
+  maxSelected?: number;
+  deletedAt?: string;
+}
+
+export interface PortalFieldOption {
+  id: string;
+  fieldId: string;
+  value: string;
+  label: string;
+  position: number;
+  active: boolean;
+}
+
+export interface PortalSubmission {
+  id: string;
+  portalId: string;
+  idempotencyKey: string;
+  status: SubmissionStatus;
+  rejectionReason?: RejectionReason;
+  needsReview: boolean;
+  clientId?: string;
+  patientId?: string;
+  appointmentId?: string;
+  campaignName?: string;
+  submittedAt: string;
+  reviewedAt?: string;
+}
+
+export interface PortalAnswer {
+  id: string;
+  submissionId: string;
+  fieldId: string;
+  fieldName: string;
+  fieldLabel: string;
+  fieldType: FieldType;
+  binding: FieldBinding | null;
+  stageTitle: string;
+  position: number;
+  valueText?: string;
+  optionId?: string;
+  optionLabel?: string;
 }
 
 export type ToastType = "ok" | "warn" | "error";

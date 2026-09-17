@@ -54,6 +54,19 @@ export default function AppointmentShowPage() {
           { label: "Hora", value: appointment.time },
           { label: "Estado", value: <Badge tone={STATUS_TONE[appointment.status]}>{appointment.status}</Badge> },
           { label: "Motivo", value: appointment.reason },
+          {
+            label: "Origen",
+            value: appointment.source === "portal" ? (
+              <span className="inline-flex items-center gap-1.5 flex-wrap">
+                <Badge tone="blue">Portal web</Badge>
+                {appointment.submissionId && (
+                  <span className="text-xs text-sub">Envío {appointment.submissionId}</span>
+                )}
+              </span>
+            ) : (
+              <Badge tone="gray">Staff interno</Badge>
+            ),
+          },
         ]} />
         <div className="mt-4"><PatientAlerts patient={patient} /></div>
       </Card>

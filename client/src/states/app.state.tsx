@@ -1,10 +1,13 @@
 import { create } from "zustand";
 import { GROOM_SERVICES, LAB_TESTS, SERVICE_AREA, SERVICE_FLOWS, isOpenVisit, isServiceDone, money, round2, uid } from "@/lib/constants";
-import { DEFAULT_AVAILABILITY, slotsForDate, validateAvailability } from "@/lib/availability";
+import { DEFAULT_AVAILABILITY, slotsForDate, validateAvailability, ymd } from "@/lib/availability";
+import { generateDefaultPortalStructure, isFieldProtected, normalizePhone, validateFieldValue } from "@/lib/portals";
 import { showToast } from "@/components/toast";
 import type {
   AccountItem, Appointment, AppointmentStatus, Availability, Client, Expense, GroomingJob,
-  GroomingStatus, Invoice, LabOrder, MedicalRecord, Patient, PayMethod, Portal, Product, ServiceItem, ServiceType, ToastType, Vet, Visit,
+  GroomingStatus, Invoice, LabOrder, MedicalRecord, Patient, PayMethod, Portal, PortalAnswer,
+  PortalField, PortalFieldOption, PortalStage, PortalStatus, PortalSubmission,
+  Product, RejectionReason, ServiceItem, ServiceType, SubmissionStatus, ToastType, Vet, Visit,
 } from "@/lib/types";
 
 interface VetState {
@@ -61,10 +64,244 @@ interface VetState {
   removeExpense: (id: string) => void;
 
   portals: Portal[];
-  addPortal: (data: Omit<Portal, "id">) => string;
-  updatePortal: (id: string, data: Omit<Portal, "id">) => boolean;
-  removePortal: (id: string) => void;
+  portalStages: PortalStage[];
+  portalFields: PortalField[];
+  portalFieldOptions: PortalFieldOption[];
+  portalSubmissions: PortalSubmission[];
+  portalAnswers: PortalAnswer[];
+
+  addPortal: (data: Omit<Portal, "id" | "createdAt" | "updatedAt">) => string;
+  updatePortal: (id: string, data: Partial<Omit<Portal, "id">>) => boolean;
+  archivePortal: (id: string) => void;
+  removePortal: (id: string) => boolean;
+  resetPortalToDefaults: (portalId: string) => void;
+
+  addStage: (portalId: string, data: { name: string; title: string; description?: string }) => string;
+  updateStage: (id: string, data: Partial<Pick<PortalStage, "title" | "description" | "active">>) => boolean;
+  deleteStage: (id: string) => boolean;
+  reorderStages: (portalId: string, orderedIds: string[]) => void;
+
+  addField: (
+    portalId: string,
+    stageId: string,
+    data: Omit<PortalField, "id" | "portalId" | "stageId" | "position" | "deletedAt">,
+    staticOptions?: { value: string; label: string }[],
+  ) => string;
+  updateField: (id: string, data: Partial<Omit<PortalField, "id" | "portalId" | "stageId" | "deletedAt">>) => boolean;
+  deleteField: (id: string) => boolean;
+  reorderFields: (stageId: string, orderedIds: string[]) => void;
+
+  addFieldOption: (fieldId: string, data: { value: string; label: string }) => string;
+  toggleFieldOption: (id: string, active: boolean) => void;
+
+  submitPortal: (payload: {
+    portalId: string;
+    idempotencyKey: string;
+    answers: Record<string, string>;
+    selectedDate?: string;
+    selectedTime?: string;
+    selectedVetId?: string;
+    selectedPatientId?: string;
+  }) => {
+    success: boolean;
+    submission?: PortalSubmission;
+    appointment?: Appointment;
+    error?: string;
+    rejectionReason?: RejectionReason;
+  };
+  reviewSubmission: (id: string) => void;
 }
+
+const initialPortals: Portal[] = [
+  {
+    id: "po1",
+    name: "Portal de la clínica",
+    slug: "clinica",
+    purpose: "booking",
+    status: "published",
+    palette: { primary: "#186653", accent: "#C9A227", bg: "#FFFFFF" },
+    logoUrl: "https://placehold.co/120x120/186653/fff?text=Veti",
+    markdown: "# Clínica Veterinaria\n\nAtendemos de **lunes a sábado**, 08:00–18:00.\n\n- Consulta médica\n- Vacunación\n- Peluquería y estética\n\nAgenda tu cita en línea seleccionando el día y horario de tu preferencia.",
+    vetPolicy: "clinic_assigns",
+    defaultVetId: "v1",
+    defaultReason: "",
+    autoConfirm: true,
+    createdAt: new Date(Date.now() - 86400000 * 30).toISOString(),
+    updatedAt: new Date(Date.now() - 86400000 * 10).toISOString(),
+  },
+  {
+    id: "po2",
+    name: "Campaña de vacunación",
+    slug: "vacunacion-2026",
+    purpose: "booking",
+    campaignName: "Vacunación 2026",
+    status: "published",
+    palette: { primary: "#2C6E8F", accent: "#E4572E", bg: "#F5F9FB" },
+    logoUrl: "",
+    markdown: "# Campaña de vacunación\n\nSéxtuple y antirrábica con **20% de descuento** durante todo el mes.\n\nElige el especialista y horario de tu preferencia.",
+    vetPolicy: "visitor_chooses",
+    defaultReason: "Vacunación Séxtuple y Antirrábica",
+    autoConfirm: true,
+    createdAt: new Date(Date.now() - 86400000 * 15).toISOString(),
+    updatedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+  },
+];
+
+const po1Struct = generateDefaultPortalStructure("po1", "booking");
+const po2Struct = generateDefaultPortalStructure("po2", "booking", "Vacunación Séxtuple y Antirrábica");
+
+const initialStages: PortalStage[] = [...po1Struct.stages, ...po2Struct.stages];
+const initialFields: PortalField[] = [...po1Struct.fields, ...po2Struct.fields];
+const initialOptions: PortalFieldOption[] = [...po1Struct.options, ...po2Struct.options];
+
+const initialSubmissions: PortalSubmission[] = [
+  {
+    id: "sub-1",
+    portalId: "po1",
+    idempotencyKey: "idem-po1-c1",
+    status: "appointment_created",
+    needsReview: false,
+    clientId: "c1",
+    patientId: "p1",
+    appointmentId: "a1",
+    submittedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+  },
+  {
+    id: "sub-2",
+    portalId: "po2",
+    idempotencyKey: "idem-po2-c2",
+    status: "appointment_created",
+    needsReview: true,
+    clientId: "c2",
+    patientId: "p3",
+    appointmentId: "a2",
+    campaignName: "Vacunación 2026",
+    submittedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+  },
+];
+
+const initialAnswers: PortalAnswer[] = [
+  {
+    id: "ans-1",
+    submissionId: "sub-1",
+    fieldId: po1Struct.fields.find((f) => f.name === "client_name")?.id || "f-cname-1",
+    fieldName: "client_name",
+    fieldLabel: "Nombre y apellido",
+    fieldType: "text",
+    binding: "client.name",
+    stageTitle: "Tus datos",
+    position: 0,
+    valueText: "Carolina Ríos",
+  },
+  {
+    id: "ans-2",
+    submissionId: "sub-1",
+    fieldId: po1Struct.fields.find((f) => f.name === "client_phone")?.id || "f-cphone-1",
+    fieldName: "client_phone",
+    fieldLabel: "Teléfono celular",
+    fieldType: "phone",
+    binding: "client.phone",
+    stageTitle: "Tus datos",
+    position: 1,
+    valueText: "099 812 3344",
+  },
+  {
+    id: "ans-3",
+    submissionId: "sub-1",
+    fieldId: po1Struct.fields.find((f) => f.name === "patient_name")?.id || "f-pname-1",
+    fieldName: "patient_name",
+    fieldLabel: "Nombre de la mascota",
+    fieldType: "text",
+    binding: "patient.name",
+    stageTitle: "Tu mascota",
+    position: 0,
+    valueText: "Max",
+  },
+  {
+    id: "ans-4",
+    submissionId: "sub-1",
+    fieldId: po1Struct.fields.find((f) => f.name === "appointment_time")?.id || "f-atime-1",
+    fieldName: "appointment_time",
+    fieldLabel: "Horario disponible",
+    fieldType: "time_slot",
+    binding: "appointment.time",
+    stageTitle: "Fecha y hora",
+    position: 1,
+    valueText: "09:00",
+  },
+  {
+    id: "ans-5",
+    submissionId: "sub-1",
+    fieldId: po1Struct.fields.find((f) => f.name === "appointment_reason")?.id || "f-areason-1",
+    fieldName: "appointment_reason",
+    fieldLabel: "Motivo de la cita",
+    fieldType: "textarea",
+    binding: "appointment.reason",
+    stageTitle: "Motivo de la visita",
+    position: 0,
+    valueText: "Vacunación anual",
+  },
+  {
+    id: "ans-6",
+    submissionId: "sub-2",
+    fieldId: po2Struct.fields.find((f) => f.name === "client_name")?.id || "f-cname-2",
+    fieldName: "client_name",
+    fieldLabel: "Nombre y apellido",
+    fieldType: "text",
+    binding: "client.name",
+    stageTitle: "Tus datos",
+    position: 0,
+    valueText: "Marco A. Salazar",
+  },
+  {
+    id: "ans-7",
+    submissionId: "sub-2",
+    fieldId: po2Struct.fields.find((f) => f.name === "client_phone")?.id || "f-cphone-2",
+    fieldName: "client_phone",
+    fieldLabel: "Teléfono celular",
+    fieldType: "phone",
+    binding: "client.phone",
+    stageTitle: "Tus datos",
+    position: 1,
+    valueText: "098 455 1290",
+  },
+  {
+    id: "ans-8",
+    submissionId: "sub-2",
+    fieldId: po2Struct.fields.find((f) => f.name === "patient_name")?.id || "f-pname-2",
+    fieldName: "patient_name",
+    fieldLabel: "Nombre de la mascota",
+    fieldType: "text",
+    binding: "patient.name",
+    stageTitle: "Tu mascota",
+    position: 0,
+    valueText: "Rocky",
+  },
+  {
+    id: "ans-9",
+    submissionId: "sub-2",
+    fieldId: po2Struct.fields.find((f) => f.name === "appointment_time")?.id || "f-atime-2",
+    fieldName: "appointment_time",
+    fieldLabel: "Horario disponible",
+    fieldType: "time_slot",
+    binding: "appointment.time",
+    stageTitle: "Fecha y hora",
+    position: 1,
+    valueText: "10:00",
+  },
+  {
+    id: "ans-10",
+    submissionId: "sub-2",
+    fieldId: po2Struct.fields.find((f) => f.name === "appointment_reason")?.id || "f-areason-2",
+    fieldName: "appointment_reason",
+    fieldLabel: "Motivo de la cita",
+    fieldType: "textarea",
+    binding: "appointment.reason",
+    stageTitle: "Motivo de la visita",
+    position: 0,
+    valueText: "Vacunación Séxtuple y Antirrábica",
+  },
+];
 
 export const useVetStore = create<VetState>((set, get) => ({
   // Las notificaciones no son estado de la app: las gestiona sonner (`components/toast`).
@@ -135,10 +372,10 @@ export const useVetStore = create<VetState>((set, get) => ({
   },
 
   appointments: [
-    { id: "a1", patientId: "p1", vetId: "v1", time: "09:00", reason: "Vacunación anual", status: "confirmada" },
-    { id: "a2", patientId: "p3", vetId: "v2", time: "10:00", reason: "Control dermatológico", status: "pendiente" },
-    { id: "a3", patientId: "p5", vetId: "v1", time: "11:00", reason: "Chequeo geriátrico", status: "confirmada" },
-    { id: "a4", patientId: "p2", vetId: "v3", time: "15:00", reason: "Desparasitación", status: "pendiente" },
+    { id: "a1", patientId: "p1", vetId: "v1", time: "09:00", reason: "Vacunación anual", status: "confirmada", source: "portal", submissionId: "sub-1" },
+    { id: "a2", patientId: "p3", vetId: "v2", time: "10:00", reason: "Control dermatológico", status: "pendiente", source: "portal", submissionId: "sub-2" },
+    { id: "a3", patientId: "p5", vetId: "v1", time: "11:00", reason: "Chequeo geriátrico", status: "confirmada", source: "staff" },
+    { id: "a4", patientId: "p2", vetId: "v3", time: "15:00", reason: "Desparasitación", status: "pendiente", source: "staff" },
   ],
   createAppointment: ({ patientId, vetId, time, reason }) => {
     const st = get();
@@ -157,7 +394,7 @@ export const useVetStore = create<VetState>((set, get) => ({
     const patient = st.patients.find((p) => p.id === patientId)!;
     const vet = st.vets.find((v) => v.id === vetId)!;
     const status: AppointmentStatus = st.availability.autoConfirm ? "confirmada" : "pendiente";
-    set((s) => ({ appointments: [...s.appointments, { id: uid(), patientId, vetId, time, reason, status }] }));
+    set((s) => ({ appointments: [...s.appointments, { id: uid(), patientId, vetId, time, reason, status, source: "staff" }] }));
     if (status === "confirmada") get().notify("ok", `Cita confirmada para ${patient.name} hoy ${time} con ${vet.name}.`);
     else get().notify("ok", `Cita agendada para ${patient.name} hoy ${time} con ${vet.name}. Queda pendiente de confirmar.`);
     return true;
@@ -453,37 +690,602 @@ export const useVetStore = create<VetState>((set, get) => ({
     set((s) => ({ expenses: s.expenses.filter((e) => e.id !== id) }));
   },
 
-  portals: [
-    {
-      id: "po1", name: "Portal de la clínica", slug: "clinica",
-      palette: { primary: "#186653", accent: "#C9A227", bg: "#FFFFFF" },
-      logoUrl: "https://placehold.co/120x120/186653/fff?text=Veti",
-      markdown: "# Clínica Veterinaria\n\nAtendemos de **lunes a sábado**, 08:00–18:00.\n\n- Consulta médica\n- Vacunación\n- Peluquería y estética\n\nEscríbenos o acércate a la clínica para agendar tu cita.",
-    },
-    {
-      id: "po2", name: "Campaña de vacunación", slug: "vacunacion-2026",
-      palette: { primary: "#2C6E8F", accent: "#E4572E", bg: "#F5F9FB" },
-      logoUrl: "",
-      markdown: "# Campaña de vacunación\n\nSéxtuple y antirrábica con **20% de descuento** durante todo el mes.",
-    },
-  ],
+  portals: initialPortals,
+  portalStages: initialStages,
+  portalFields: initialFields,
+  portalFieldOptions: initialOptions,
+  portalSubmissions: initialSubmissions,
+  portalAnswers: initialAnswers,
+
   addPortal: (data) => {
-    if (get().portals.some((p) => p.slug === data.slug)) { get().notify("error", `El slug "${data.slug}" ya está en uso por otro portal.`); return ""; }
-    const portal = { id: uid(), ...data };
-    set((s) => ({ portals: [...s.portals, portal] }));
+    const st = get();
+    if (st.portals.some((p) => p.slug === data.slug)) {
+      st.notify("error", `El slug "${data.slug}" ya está en uso por otro portal.`);
+      return "";
+    }
+    if (data.status === "published" && data.purpose === "booking" && !st.availability.onlineBooking) {
+      st.notify("warn", "El portal se creó como borrador porque la reserva en línea está desactivada en la clínica.");
+      data.status = "draft";
+    }
+    const id = uid();
+    const now = new Date().toISOString();
+    const portal: Portal = {
+      id,
+      ...data,
+      createdAt: now,
+      updatedAt: now,
+    };
+    const { stages, fields, options } = generateDefaultPortalStructure(
+      id,
+      portal.purpose,
+      portal.defaultReason,
+    );
+    set((s) => ({
+      portals: [...s.portals, portal],
+      portalStages: [...s.portalStages, ...stages],
+      portalFields: [...s.portalFields, ...fields],
+      portalFieldOptions: [...s.portalFieldOptions, ...options],
+    }));
     get().notify("ok", `Portal "${portal.name}" creado.`);
     return portal.id;
   },
+
   updatePortal: (id, data) => {
-    if (get().portals.some((p) => p.id !== id && p.slug === data.slug)) { get().notify("error", `El slug "${data.slug}" ya está en uso por otro portal.`); return false; }
-    set((s) => ({ portals: s.portals.map((p) => (p.id === id ? { ...p, ...data } : p)) }));
-    get().notify("ok", `Portal "${data.name}" actualizado.`);
+    const st = get();
+    const current = st.portals.find((p) => p.id === id);
+    if (!current) return false;
+
+    if (data.slug && st.portals.some((p) => p.id !== id && p.slug === data.slug)) {
+      st.notify("error", `El slug "${data.slug}" ya está en uso por otro portal.`);
+      return false;
+    }
+
+    const hasSubmissions = st.portalSubmissions.some((s) => s.portalId === id);
+    if (hasSubmissions && data.purpose && data.purpose !== current.purpose) {
+      st.notify("error", "No se puede cambiar el propósito de un portal con envíos registrados.");
+      return false;
+    }
+
+    const nextStatus = data.status ?? current.status;
+    const nextPurpose = data.purpose ?? current.purpose;
+    if (nextStatus === "published" && nextPurpose === "booking" && !st.availability.onlineBooking) {
+      st.notify("error", "No puedes publicar un portal de reserva si la reserva en línea de la clínica está desactivada.");
+      return false;
+    }
+
+    const now = new Date().toISOString();
+    set((s) => ({
+      portals: s.portals.map((p) => (p.id === id ? { ...p, ...data, updatedAt: now } : p)),
+    }));
+    get().notify("ok", `Portal "${data.name || current.name}" actualizado.`);
     return true;
   },
-  removePortal: (id) => {
+
+  archivePortal: (id) => {
     const portal = get().portals.find((p) => p.id === id);
     if (!portal) return;
-    set((s) => ({ portals: s.portals.filter((p) => p.id !== id) }));
+    const now = new Date().toISOString();
+    set((s) => ({
+      portals: s.portals.map((p) =>
+        p.id === id ? { ...p, status: "archived" as PortalStatus, archivedAt: now, updatedAt: now } : p,
+      ),
+    }));
+    get().notify("ok", `Portal "${portal.name}" archivado.`);
+  },
+
+  removePortal: (id) => {
+    const st = get();
+    const portal = st.portals.find((p) => p.id === id);
+    if (!portal) return false;
+    const hasSubmissions = st.portalSubmissions.some((s) => s.portalId === id);
+    if (hasSubmissions) {
+      st.notify("error", "El portal tiene envíos registrados y no puede eliminarse. Usa la opción de archivar.");
+      return false;
+    }
+    const stageIds = new Set(st.portalStages.filter((s) => s.portalId === id).map((s) => s.id));
+    const fieldIds = new Set(st.portalFields.filter((f) => stageIds.has(f.stageId)).map((f) => f.id));
+
+    set((s) => ({
+      portals: s.portals.filter((p) => p.id !== id),
+      portalStages: s.portalStages.filter((stg) => stg.portalId !== id),
+      portalFields: s.portalFields.filter((fld) => !stageIds.has(fld.stageId)),
+      portalFieldOptions: s.portalFieldOptions.filter((opt) => !fieldIds.has(opt.fieldId)),
+    }));
     get().notify("ok", `Portal "${portal.name}" eliminado.`);
+    return true;
+  },
+
+  resetPortalToDefaults: (portalId) => {
+    const st = get();
+    const portal = st.portals.find((p) => p.id === portalId);
+    if (!portal) return;
+    const oldStageIds = new Set(st.portalStages.filter((s) => s.portalId === portalId).map((s) => s.id));
+    const oldFieldIds = new Set(st.portalFields.filter((f) => oldStageIds.has(f.stageId)).map((f) => f.id));
+
+    const { stages, fields, options } = generateDefaultPortalStructure(
+      portalId,
+      portal.purpose,
+      portal.defaultReason,
+    );
+
+    set((s) => ({
+      portalStages: [...s.portalStages.filter((stg) => stg.portalId !== portalId), ...stages],
+      portalFields: [...s.portalFields.filter((fld) => !oldStageIds.has(fld.stageId)), ...fields],
+      portalFieldOptions: [...s.portalFieldOptions.filter((opt) => !oldFieldIds.has(opt.fieldId)), ...options],
+    }));
+    get().notify("ok", "Etapas y campos restablecidos a la configuración predeterminada.");
+  },
+
+  addStage: (portalId, data) => {
+    const st = get();
+    const existing = st.portalStages.filter((s) => s.portalId === portalId && !s.deletedAt);
+    const id = uid();
+    const stage: PortalStage = {
+      id,
+      portalId,
+      name: data.name.trim().toLowerCase().replace(/\s+/g, "_"),
+      title: data.title.trim(),
+      description: data.description?.trim(),
+      position: existing.length,
+      active: true,
+    };
+    set((s) => ({ portalStages: [...s.portalStages, stage] }));
+    get().notify("ok", `Etapa "${stage.title}" agregada.`);
+    return id;
+  },
+
+  updateStage: (id, data) => {
+    const st = get();
+    const stage = st.portalStages.find((s) => s.id === id);
+    if (!stage) return false;
+    const portal = st.portals.find((p) => p.id === stage.portalId);
+
+    if (data.active === false) {
+      const hasActiveProtected = st.portalFields.some(
+        (f) => f.stageId === id && f.active && !f.deletedAt && isFieldProtected(f, portal),
+      );
+      if (hasActiveProtected) {
+        st.notify("error", "No puedes desactivar una etapa que contiene campos protegidos activos.");
+        return false;
+      }
+    }
+
+    set((s) => ({
+      portalStages: s.portalStages.map((stg) => (stg.id === id ? { ...stg, ...data } : stg)),
+    }));
+    get().notify("ok", "Etapa actualizada.");
+    return true;
+  },
+
+  deleteStage: (id) => {
+    const st = get();
+    const stage = st.portalStages.find((s) => s.id === id);
+    if (!stage) return false;
+    const hasBindingFields = st.portalFields.some(
+      (f) => f.stageId === id && !f.deletedAt && f.binding !== null,
+    );
+    if (hasBindingFields) {
+      st.notify("error", "No se puede eliminar una etapa predeterminada del sistema. Puedes desactivarla si no tiene campos protegidos.");
+      return false;
+    }
+    const now = new Date().toISOString();
+    set((s) => ({
+      portalStages: s.portalStages.map((stg) => (stg.id === id ? { ...stg, deletedAt: now } : stg)),
+      portalFields: s.portalFields.map((fld) => (fld.stageId === id ? { ...fld, deletedAt: now } : fld)),
+    }));
+    get().notify("ok", `Etapa "${stage.title}" eliminada.`);
+    return true;
+  },
+
+  reorderStages: (portalId, orderedIds) => {
+    set((s) => ({
+      portalStages: s.portalStages.map((stg) => {
+        if (stg.portalId !== portalId) return stg;
+        const pos = orderedIds.indexOf(stg.id);
+        return pos >= 0 ? { ...stg, position: pos } : stg;
+      }),
+    }));
+  },
+
+  addField: (portalId, stageId, data, staticOptions) => {
+    const st = get();
+    const id = uid();
+    const stage = st.portalStages.find((s) => s.id === stageId);
+    if (!stage) return "";
+    const stageFields = st.portalFields.filter((f) => f.stageId === stageId && !f.deletedAt);
+
+    const field: PortalField = {
+      ...data,
+      id,
+      portalId,
+      stageId,
+      position: stageFields.length,
+      active: data.active ?? true,
+    };
+
+    const newOptions: PortalFieldOption[] = [];
+    if (staticOptions && staticOptions.length > 0) {
+      staticOptions.forEach((opt, idx) => {
+        newOptions.push({
+          id: uid(),
+          fieldId: id,
+          value: opt.value,
+          label: opt.label,
+          position: idx,
+          active: true,
+        });
+      });
+    }
+
+    set((s) => ({
+      portalFields: [...s.portalFields, field],
+      portalFieldOptions: [...s.portalFieldOptions, ...newOptions],
+    }));
+    get().notify("ok", `Campo "${field.label}" creado.`);
+    return id;
+  },
+
+  updateField: (id, data) => {
+    const st = get();
+    const field = st.portalFields.find((f) => f.id === id);
+    if (!field) return false;
+    const portal = st.portals.find((p) => p.id === field.portalId);
+    const hasAnswers = st.portalAnswers.some((a) => a.fieldId === id);
+
+    if (hasAnswers) {
+      if (data.type && data.type !== field.type) {
+        st.notify("error", "No se puede cambiar el tipo de un campo que ya tiene respuestas registradas.");
+        return false;
+      }
+      if (data.name && data.name !== field.name) {
+        st.notify("error", "No se puede cambiar el identificador de un campo con respuestas registradas.");
+        return false;
+      }
+      if (data.binding !== undefined && data.binding !== field.binding) {
+        st.notify("error", "No se puede modificar el enlace de datos de un campo con respuestas.");
+        return false;
+      }
+    }
+
+    if (isFieldProtected(field, portal)) {
+      if (data.required === false) {
+        st.notify("error", "Este campo es esencial y debe ser obligatorio.");
+        return false;
+      }
+      if (data.active === false) {
+        st.notify("error", "Este campo es esencial y no se puede desactivar.");
+        return false;
+      }
+    }
+
+    set((s) => ({
+      portalFields: s.portalFields.map((f) => (f.id === id ? { ...f, ...data } : f)),
+    }));
+    get().notify("ok", `Campo "${data.label || field.label}" actualizado.`);
+    return true;
+  },
+
+  deleteField: (id) => {
+    const st = get();
+    const field = st.portalFields.find((f) => f.id === id);
+    if (!field) return false;
+    if (field.binding !== null) {
+      st.notify("error", "Los campos vinculados al sistema no pueden eliminarse. Puedes ocultarlos si no son protegidos.");
+      return false;
+    }
+    const now = new Date().toISOString();
+    set((s) => ({
+      portalFields: s.portalFields.map((f) => (f.id === id ? { ...f, deletedAt: now } : f)),
+    }));
+    get().notify("ok", `Campo "${field.label}" eliminado.`);
+    return true;
+  },
+
+  reorderFields: (stageId, orderedIds) => {
+    set((s) => ({
+      portalFields: s.portalFields.map((f) => {
+        if (f.stageId !== stageId) return f;
+        const pos = orderedIds.indexOf(f.id);
+        return pos >= 0 ? { ...f, position: pos } : f;
+      }),
+    }));
+  },
+
+  addFieldOption: (fieldId, data) => {
+    const st = get();
+    const existing = st.portalFieldOptions.filter((o) => o.fieldId === fieldId);
+    const id = uid();
+    const option: PortalFieldOption = {
+      id,
+      fieldId,
+      value: data.value.trim(),
+      label: data.label.trim(),
+      position: existing.length,
+      active: true,
+    };
+    set((s) => ({ portalFieldOptions: [...s.portalFieldOptions, option] }));
+    return id;
+  },
+
+  toggleFieldOption: (id, active) => {
+    set((s) => ({
+      portalFieldOptions: s.portalFieldOptions.map((o) => (o.id === id ? { ...o, active } : o)),
+    }));
+  },
+
+  reviewSubmission: (id) => {
+    const now = new Date().toISOString();
+    set((s) => ({
+      portalSubmissions: s.portalSubmissions.map((sub) =>
+        sub.id === id ? { ...sub, needsReview: false, reviewedAt: now } : sub,
+      ),
+    }));
+    get().notify("ok", "Envío marcado como revisado.");
+  },
+
+  submitPortal: (payload) => {
+    const st = get();
+    const portal = st.portals.find((p) => p.id === payload.portalId);
+    if (!portal) {
+      return { success: false, error: "El portal solicitado no existe." };
+    }
+    if (portal.status !== "published") {
+      return {
+        success: false,
+        error: "Este portal ya no acepta solicitudes o se encuentra inactivo.",
+        rejectionReason: "portal_closed",
+      };
+    }
+
+    if (portal.purpose === "booking" && !st.availability.onlineBooking) {
+      return {
+        success: false,
+        error: "La reserva de citas en línea no está activa en la clínica en este momento.",
+        rejectionReason: "outside_availability",
+      };
+    }
+
+    const existingSub = st.portalSubmissions.find(
+      (s) => s.portalId === portal.id && s.idempotencyKey === payload.idempotencyKey,
+    );
+    if (existingSub) {
+      const apt = existingSub.appointmentId
+        ? st.appointments.find((a) => a.id === existingSub.appointmentId)
+        : undefined;
+      return {
+        success: existingSub.status !== "rejected",
+        submission: existingSub,
+        appointment: apt,
+        rejectionReason: existingSub.rejectionReason,
+      };
+    }
+
+    const stages = st.portalStages
+      .filter((s) => s.portalId === portal.id && s.active && !s.deletedAt)
+      .sort((a, b) => a.position - b.position);
+    const stageIds = new Set(stages.map((s) => s.id));
+    const activeFields = st.portalFields.filter(
+      (f) => stageIds.has(f.stageId) && f.active && !f.deletedAt,
+    );
+
+    for (const field of activeFields) {
+      const err = validateFieldValue(field, payload.answers[field.id]);
+      if (err) {
+        return { success: false, error: err };
+      }
+    }
+
+    const getFieldVal = (binding: string): string => {
+      const f = activeFields.find((field) => field.binding === binding);
+      return f ? (payload.answers[f.id] || "").trim() : "";
+    };
+
+    const rawPhone = getFieldVal("client.phone");
+    const normPhoneVal = normalizePhone(rawPhone);
+    const rawEmail = getFieldVal("client.email").toLowerCase();
+    const inputClientName = getFieldVal("client.name") || "Cliente";
+
+    let clientId = "";
+    let clientCreated: Client | null = null;
+    let needsReview = false;
+
+    const matchedByPhone = st.clients.find((c) => normalizePhone(c.phone) === normPhoneVal && normPhoneVal.length >= 7);
+    const matchedByEmail = !matchedByPhone && rawEmail ? st.clients.find((c) => c.email.toLowerCase() === rawEmail) : null;
+    const existingClient = matchedByPhone || matchedByEmail;
+
+    if (existingClient) {
+      clientId = existingClient.id;
+      if (existingClient.name.trim().toLowerCase() !== inputClientName.trim().toLowerCase()) {
+        needsReview = true;
+      }
+    } else {
+      clientId = uid();
+      clientCreated = {
+        id: clientId,
+        name: inputClientName,
+        phone: rawPhone,
+        email: rawEmail,
+        debt: 0,
+      };
+    }
+
+    const inputPetName = getFieldVal("patient.name");
+    let patientId = payload.selectedPatientId || "";
+    let patientCreated: Patient | null = null;
+
+    const clientPet = patientId ? st.patients.find((p) => p.id === patientId && p.clientId === clientId) : null;
+    if (clientPet) {
+      patientId = clientPet.id;
+    } else {
+      const petNameMatch = st.patients.find(
+        (p) => p.clientId === clientId && p.name.trim().toLowerCase() === inputPetName.trim().toLowerCase(),
+      );
+      if (petNameMatch) {
+        patientId = petNameMatch.id;
+      } else {
+        patientId = uid();
+        const allergiesStr = getFieldVal("patient.allergies");
+        const allergiesList = allergiesStr
+          ? allergiesStr.split(",").map((s) => s.trim()).filter(Boolean)
+          : [];
+        patientCreated = {
+          id: patientId,
+          clientId,
+          name: inputPetName || "Mascota",
+          species: getFieldVal("patient.species") || "Perro",
+          breed: getFieldVal("patient.breed"),
+          age: getFieldVal("patient.age"),
+          sex: (getFieldVal("patient.sex") as "M" | "H") || "M",
+          allergies: allergiesList,
+          aggressive: false,
+        };
+      }
+    }
+
+    let appointmentCreated: Appointment | null = null;
+    const targetDate = payload.selectedDate || ymd(new Date());
+    const targetTime = payload.selectedTime || getFieldVal("appointment.time") || "09:00";
+
+    if (portal.purpose === "booking") {
+      const dateObj = new Date(targetDate + "T12:00:00");
+      const availableSlots = slotsForDate(st.availability, dateObj);
+      if (!availableSlots.includes(targetTime)) {
+        return {
+          success: false,
+          error: `Las ${targetTime} no están dentro de los horarios disponibles para el día seleccionado.`,
+          rejectionReason: "outside_availability",
+        };
+      }
+
+      const alreadyReserved = st.appointments.find(
+        (a) =>
+          a.time === targetTime &&
+          (a.date === targetDate || (!a.date && targetDate === ymd(new Date()))) &&
+          a.status !== "cancelada" &&
+          Boolean(a.vetId),
+      );
+      if (alreadyReserved) {
+        return {
+          success: false,
+          error: "Ese horario acaba de ser ocupado. Por favor selecciona otro horario.",
+          rejectionReason: "slot_taken",
+        };
+      }
+
+      const freeVet = st.vets.find((v) => {
+        const hasClash = st.appointments.some(
+          (a) =>
+            a.vetId === v.id &&
+            a.time === targetTime &&
+            (a.date === targetDate || (!a.date && targetDate === ymd(new Date()))) &&
+            a.status !== "cancelada",
+        );
+        return !hasClash;
+      });
+      const vetId = freeVet ? freeVet.id : st.vets[0]?.id;
+
+      if (!vetId) {
+        return {
+          success: false,
+          error: "No hay médicos disponibles para atender en ese horario.",
+          rejectionReason: "slot_taken",
+        };
+      }
+
+      const activeForDay = st.appointments.filter(
+        (a) => (a.date === targetDate || (!a.date && targetDate === ymd(new Date()))) && a.status !== "cancelada",
+      ).length;
+      if (st.availability.maxPerDay > 0 && activeForDay >= st.availability.maxPerDay) {
+        return {
+          success: false,
+          error: "Se ha alcanzado el límite máximo de citas para la fecha seleccionada.",
+          rejectionReason: "max_per_day",
+        };
+      }
+
+      const reasonVal = getFieldVal("appointment.reason") || portal.defaultReason || "Consulta médica";
+      const status: AppointmentStatus = portal.autoConfirm ? "confirmada" : "pendiente";
+      const appointmentId = uid();
+
+      appointmentCreated = {
+        id: appointmentId,
+        patientId,
+        vetId,
+        time: targetTime,
+        date: targetDate,
+        reason: reasonVal,
+        status,
+        source: "portal",
+        submissionId: uid(),
+      };
+    }
+
+    const subId = appointmentCreated ? appointmentCreated.submissionId! : uid();
+    const submissionStatus: SubmissionStatus =
+      portal.purpose === "booking" ? "appointment_created" : "captured";
+
+    const submission: PortalSubmission = {
+      id: subId,
+      portalId: portal.id,
+      idempotencyKey: payload.idempotencyKey,
+      status: submissionStatus,
+      needsReview,
+      clientId,
+      patientId,
+      appointmentId: appointmentCreated ? appointmentCreated.id : undefined,
+      campaignName: portal.campaignName,
+      submittedAt: new Date().toISOString(),
+    };
+
+    const newAnswers: PortalAnswer[] = activeFields.map((fld) => {
+      const stage = stages.find((s) => s.id === fld.stageId);
+      const valText = payload.answers[fld.id] ?? "";
+      let optId: string | undefined = undefined;
+      let optLabel: string | undefined = undefined;
+
+      if (fld.optionsSource === "static") {
+        const opt = st.portalFieldOptions.find((o) => o.fieldId === fld.id && o.value === valText);
+        if (opt) {
+          optId = opt.id;
+          optLabel = opt.label;
+        }
+      }
+
+      return {
+        id: uid(),
+        submissionId: subId,
+        fieldId: fld.id,
+        fieldName: fld.name,
+        fieldLabel: fld.label,
+        fieldType: fld.type,
+        binding: fld.binding,
+        stageTitle: stage ? stage.title : "",
+        position: fld.position,
+        valueText: valText,
+        optionId: optId,
+        optionLabel: optLabel,
+      };
+    });
+
+    set((s) => ({
+      clients: clientCreated ? [...s.clients, clientCreated] : s.clients,
+      patients: patientCreated ? [...s.patients, patientCreated] : s.patients,
+      appointments: appointmentCreated ? [...s.appointments, appointmentCreated] : s.appointments,
+      portalSubmissions: [submission, ...s.portalSubmissions],
+      portalAnswers: [...s.portalAnswers, ...newAnswers],
+    }));
+
+    if (submission.status === "appointment_created") {
+      const vetName = st.vets.find((v) => v.id === appointmentCreated?.vetId)?.name || "el equipo médico";
+      get().notify("ok", `Nueva solicitud de cita recibida de ${inputClientName} para ${targetTime} con ${vetName}.`);
+    } else {
+      get().notify("ok", `Información recibida exitosamente desde "${portal.name}".`);
+    }
+
+    return {
+      success: true,
+      submission,
+      appointment: appointmentCreated || undefined,
+    };
   },
 }));

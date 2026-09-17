@@ -11,7 +11,7 @@ bun workspaces, tres proyectos + infraestructura:
 | `server/`         | api.vetisuite.com | API backend (Nitro + drizzle/Postgres). Estructura en `routes/` → `modules/` → `core/` → `drizzle/`, con `constants/` transversal; `clients` es el módulo de referencia cableado de punta a punta. Compila a AWS Lambda (`build:lambda`, preset `aws-lambda`); sin infra de deploy hoy. Manual: `server/README.md`. |
 | `landing/`        | vetisuite.com     | Sitio público de marketing (Astro + `astro-aws-amplify`). Hoy un hello world. Build a `landing/.amplify-hosting/`. |
 | `amplify.yml`     | —                 | Build spec de AWS Amplify Hosting: una app por `appRoot` (`client`, `landing`). Instala bun en la imagen AL2023. Las apps Amplify se crean en la consola. |
-| `docs/`           | —                 | Documentación de arquitectura, deploy y runbook. |
+| `docs/`           | —                 | Documentación: `docs/product/` (negocio, modelo SaaS, roles, módulos) y `docs/technical/` (arquitectura, deploy, runbook). |
 
 Cada app se sirve en la raíz de su propio subdominio → ningún proyecto necesita
 `base` en Vite/Astro.
@@ -96,4 +96,4 @@ precondiciones de negocio usan su propio mensaje (`NoActiveConsultation`).
 - Estructura y convenciones del server: **`server/README.md`** (y los README de
   `server/core/`, `server/constants/`, `server/modules/`, `server/drizzle/`)
 - Sistema de diseño: **`client/DESIGN.md`**
-- Estructura del monorepo y deploy: **`docs/`**
+- Estructura técnica y de producto: **`docs/`** (`docs/product/` y `docs/technical/`)
