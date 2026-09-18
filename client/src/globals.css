@@ -1,21 +1,53 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-canvas: #f3f6f8;
-  --color-surface: #ffffff;
-  --color-ink: #0f1f2b;
-  --color-sub: #556675;
-  --color-line: #d8e1e8;
-  --color-brand: #0f766e;
-  --color-brand-strong: #115e59;
-  --color-brand-soft: #e4f3f0;
-  --color-alert: #a4201a;
-  --color-alert-soft: #fdeceb;
-  --color-alert-line: #f3b6b2;
-  --color-focus: #0b57d0;
+  --color-bg: #f6f4ee;
+  --color-card: #ffffff;
+  --color-line: #e6e1d5;
+  --color-line-soft: #efebe1;
+  --color-ink: #1e2a26;
+  --color-sub: #616e67;
+  --color-green: #186653;
+  --color-green-soft: #e2efe9;
+  --color-dark: #14312a;
+  --color-amber: #976311;
+  --color-amber-soft: #fbf0da;
+  --color-red: #b3402f;
+  --color-red-soft: #f9e7e3;
+  --color-blue: #2c6e8f;
+  --color-blue-soft: #e4eff4;
+  --color-input: #fcfbf8;
+  --color-track: #f1efe7;
+  --color-gray-soft: #eeece4;
+  --color-scroll-thumb: #d8d3c5;
+  --color-shade: #121c18;
+
+  --font-head: 'Sora', sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --radius-control: 10px;
+  --radius-avatar: 12px;
+  --radius-row: 14px;
+  --radius-card: 16px;
+  --radius-modal: 18px;
+
+  --shadow-menu: 0 16px 34px rgb(18 28 24 / 0.18);
+  --shadow-drawer: 0 20px 50px rgb(18 28 24 / 0.45);
+  --shadow-sticky: 10px 0 12px -12px rgb(18 28 24 / 0.28);
+  --shadow-tooltip: 0 6px 16px rgb(18 28 24 / 0.22);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-scroll-thumb);
+  border-radius: 8px;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: 2px solid var(--color-green);
   outline-offset: 2px;
 }

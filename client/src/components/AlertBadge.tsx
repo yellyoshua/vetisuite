@@ -6,7 +6,7 @@ type AlertBadgeProps = {
 
 export default function AlertBadge({ children }: AlertBadgeProps) {
   return (
-    <strong className="inline-flex items-center gap-1.5 rounded-md border border-alert-line bg-alert-soft px-2 py-1 text-xs font-bold tracking-wide text-alert uppercase">
+    <strong className="inline-flex items-center gap-1.5 rounded-md border border-red/25 bg-red-soft px-2 py-1 text-xs font-bold tracking-wide text-red uppercase">
       <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false" className="size-4 shrink-0 fill-current">
         <path
           fillRule="evenodd"

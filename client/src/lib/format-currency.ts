@@ -1,3 +1,5 @@
-export function formatCurrency(_amount: number, _currency?: string): string {
-  throw new Error('Not implemented: formatCurrency')
+const CURRENCY_FORMAT = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
+
+export function formatCurrency(amount: number): string {
+  return CURRENCY_FORMAT.format(amount)
 }

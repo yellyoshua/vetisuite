@@ -1,25 +1,38 @@
-import type { ReactNode } from 'react'
-
-type ButtonVariant = 'primary' | 'secondary'
+import type { ReactNode, Ref } from 'react'
+import { buttonClassName, type ButtonSize, type ButtonVariant } from './button-class-name'
 
 type ButtonProps = {
   children: ReactNode
-  type?: 'button' | 'submit'
+  type?: 'button' | 'submit' | 'reset'
   variant?: ButtonVariant
+  size?: ButtonSize
+  isDisabled?: boolean
+  ariaLabel?: string
+  form?: string
+  ref?: Ref<HTMLButtonElement>
   onClick?: () => void
 }
 
-const VARIANT_CLASS_NAMES: Record<ButtonVariant, string> = {
-  primary: 'bg-brand text-surface hover:bg-brand-strong',
-  secondary: 'border border-line bg-surface text-brand hover:bg-brand-soft',
-}
-
-export default function Button({ children, type = 'button', variant = 'primary', onClick }: ButtonProps) {
+export default function Button({
+  children,
+  type = 'button',
+  variant = 'primary',
+  size = 'md',
+  isDisabled = false,
+  ariaLabel,
+  form,
+  ref,
+  onClick,
+}: ButtonProps) {
   return (
     <button
+      ref={ref}
       type={type}
+      form={form}
       onClick={onClick}
-      className={`inline-flex min-h-12 items-center justify-center rounded-lg px-5 text-base font-semibold transition-colors ${VARIANT_CLASS_NAMES[variant]}`}
+      disabled={isDisabled}
+      aria-label={ariaLabel}
+      className={buttonClassName(variant, size)}
     >
       {children}
     </button>

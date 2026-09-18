@@ -372,16 +372,21 @@ SPA de los paneles. React puro sobre HTTP: sin Server Actions, `action()`, `useA
 
 ### Pantalla
 
-- `modules/<rol>/<feature>/page.jsx` + `resolvers.js` (siempre, aunque vacío) + su
-  `<feature>.service.js`, registrada en el árbol de rutas de su rol.
-- Componentes propios de la pantalla en su `components/`; reutilizables en `src/components/`.
+- Cada pantalla es una carpeta `modules/<rol>/<módulo>/<módulo>-<list|create|edit>/` con `page.tsx` +
+  `resolvers.ts`. El `<módulo>.schema.ts` y el `<módulo>.service.ts` van en la raíz del módulo. Se
+  registra con su path completo en `routes/<rol>.routes.tsx`.
+- Componentes de una pantalla en su `components/`; de varias pantallas del módulo, en el
+  `components/` del módulo; en `src/components/` solo con 3+ pantallas.
 - Separado por rol aunque apunte al mismo endpoint. **No se abstrae entre perfiles**; solo los campos
   de formulario se comparten.
 
 ### Módulos
 
+El frontend vive en `client/` y es TypeScript: donde esta sección dice `app/` y `.js/.jsx`, aplica a
+`client/` con `.ts/.tsx`.
+
 ```
-app/src/modules/<rol>/<feature>/     pantalla + su service
+client/src/modules/<rol>/<módulo>/   pantallas + schema + service del módulo
 server/modules/<feature>/            repository (lecturas) · schema (Zod) · service (escrituras)
 ```
 
@@ -391,6 +396,124 @@ repository lee. Ninguna ruta abre la base por su cuenta.
 **`.repository.js` solo existe en `server/`**: en `app/` todo acceso al backend es un `.service.js`,
 porque la abstracción es REST genérica, no una consulta. Los servicios de `app/` siguen separados
 por rol aunque apunten al mismo path: el API resuelve la forma según la sesión.
+
+#### Estructura de `client/src/`
+
+```text
+client/src/
+├── components/                      # compartido: UI reutilizable (3+ pantallas)
+│   ├── ui/                          # primitivos del DS (Button, Badge, Card, Field, Input, Select, Pager, Tooltip…)
+│   └── [Component-Group]/           # p. ej. DataTable/, layouts/
+├── constants/[resource].ts          # catálogos de dominio (no mocks)
+├── core/                            # service.ts, upload.ts
+├── hooks/use-[name].ts              # use-resolver, use-list-query, use-mutation, use-modal-query
+├── lib/[utility].ts
+├── modals/[ModalName]/              # un modal por query
+│   ├── [modal-name].tsx
+│   └── resolvers.ts                 # resolver propio con su mock
+├── routes/[role].routes.tsx         # rutas planas con el path completo
+├── routes/[role].pages.ts           # páginas del rol cargadas con React.lazy (un chunk por pantalla)
+├── stores/[name].store.ts
+└── modules/[role]/[module]/         # módulo principal, p. ej. employee/clients
+    ├── [module].schema.ts           # zod + tipos del módulo (y de sus submódulos)
+    ├── [module].service.ts          # llamadas al API (stubs hasta conectar)
+    ├── components/                  # usados por varias pantallas del módulo
+    ├── [module]-list/{page.tsx, resolvers.ts, components/?}
+    ├── [module]-create/{page.tsx, resolvers.ts}
+    ├── [module]-edit/{page.tsx, resolvers.ts}
+    └── [submodule]/                 # p. ej. patients
+        ├── [submodule].schema.ts    # solo si tiene contrato propio
+        ├── [submodule].service.ts
+        └── [submodule]-list|create|edit/{page.tsx, resolvers.ts}
+```
+
+Ejemplo real:
+
+```text
+modules/employee/clients/
+├── clients.schema.ts
+├── clients.service.ts
+├── components/ClientForm.tsx
+├── clients-list/{page.tsx, resolvers.ts}
+├── clients-create/{page.tsx, resolvers.ts}
+├── clients-edit/{page.tsx, resolvers.ts}
+└── patients/
+    ├── patients.schema.ts
+    ├── patients.service.ts
+    ├── components/PatientForm.tsx
+    ├── patients-list/{page.tsx, resolvers.ts}
+    ├── patients-create/{page.tsx, resolvers.ts}
+    └── patients-edit/{page.tsx, resolvers.ts}
+```
+
+Solo hay pantallas **list, create y edit**: sin `show` (el detalle va en `edit` o en un modal por
+query), borrar es un modal de confirmación y no hay carpetas vacías "para después". Excepciones
+vigentes: los resúmenes de cada workspace viven en `dashboard/<workspace>-summary/` y las pantallas de
+configuración sin id (`appointments-clinics-edit`, `settings-edit`) se sirven en su path base
+(`/appointments-clinics`, `/settings`), sin sufijo `/edit`.
+
+#### Reglas
+
+- **Mocks en la frontera**: todo mock vive en un `resolvers.ts` que devuelve `Promise<T>` tipada con el
+  `*.schema.ts`; la pantalla lee solo con `useResolver` y conectar el API es cambiar el cuerpo del
+  resolver por la llamada al `*.service.ts`.
+- **Modales por query**: `hooks/use-modal-query.ts` es el único mecanismo de apertura (nada de
+  `useState(isOpen)`); cada modal se monta una sola vez en el layout (`StaffLayout`).
+- **Tooltips**: siempre con `components/ui/Tooltip.tsx` (o `IconButton`, que lo incluye).
+- **Tablas**: todo listado en tabla usa `components/DataTable/`, agnóstica del dominio, con la
+  primera columna fija, scroll horizontal interno y paginación en la URL.
+- **Compartir**: un componente sube a `components/` solo si lo usan 3+ pantallas y extraerlo
+  simplifica.
+- **Rutas**: planas, un objeto por pantalla con el path completo; `create`/`edit` son el sufijo final
+  y la única anidación es el layout (padre sin path con `<Outlet />`).
+- **Independencia**: un módulo no importa nada de otro módulo principal (un submódulo sí de su
+  padre); lo común sale de `components/`, `constants/`, `core/`, `hooks/`, `lib/`, `modals/` y
+  `stores/`, y entre módulos solo hay navegación con `<Link>`.
+
+#### Rutas
+
+| Pantalla | Path |
+|---|---|
+| Listado de clientes | `/clients` |
+| Crear cliente | `/clients/create` |
+| Editar cliente | `/clients/:clientId/edit` |
+| Listado de pacientes de un cliente | `/clients/:clientId/patients` |
+| Crear paciente | `/clients/:clientId/patients/create` |
+| Editar paciente | `/clients/:clientId/patients/:patientId/edit` |
+
+Solo un submódulo cuelga del path de su módulo. No hay rutas `new` ni `show`. Un `:id` inexistente
+hace que el resolver lance `NotFoundError` y `ErrorState` muestra "No encontrado".
+
+#### `use-modal-query`
+
+`useModalQuery(modalName, paramKeys)` → `{ isOpen, params, openModal(params), closeModal() }`, con
+`params: Record<clave, string | null>`. Nombre y claves en `constants/modals.ts`.
+
+- `openModal` escribe `?modal=<nombre>&<clave>=<valor>` con push: el botón atrás cierra el modal.
+- `closeModal` borra `modal` y sus claves con `replace`. Recargar reabre, porque la URL es el estado.
+- El modal (`modals/<ModalName>/<modal-name>.tsx`) carga sus datos con `useResolver` a partir de
+  `params`, abre y cierra el `<dialog>` nativo con `showModal()`/`close()` según `isOpen` y llama a
+  `closeModal` en `onCancel`. Solo importa de `components/`, `hooks/`, `lib/`, `constants/` y `core/`.
+  Referencia: `modals/ConfirmDialog/`.
+
+#### `DataTable`
+
+`DataTable<TRow>` recibe `{ label, columns, data: ListPage<TRow> | null, error, isLoading, pageSize,
+minWidth, rowKey, onPageChange, emptyTitle?, emptyHint? }`; cada columna es `{ key, header, align?,
+isHeaderHidden?, render(row) }`. La primera columna es `<th scope="row">` fija (`sticky left-0`); la
+tabla mide `minWidth` y se desplaza dentro de su contenedor `overflow-x-auto`. Pinta cargando, error,
+vacío y el `Pager`; no filtra ni pagina.
+
+```tsx
+const { query, setPage } = useListQuery(FILTER_KEYS)             // page, pageSize, search y filtros en la URL
+const { data, error, isLoading } = useResolver(resolveClientsList, query)
+// resolver: return Promise.resolve().then(() => paginateRows(filterClients(query), query))  → { rows, total, page }
+<DataTable label="Clientes" columns={COLUMNS} data={data} error={error} isLoading={isLoading}
+  pageSize={query.pageSize} minWidth={TABLE_MIN_WIDTH} rowKey={(client) => client.id} onPageChange={setPage} />
+```
+
+Piezas de apoyo en la misma carpeta: `DataTableToolbar` (búsqueda y selects), `FilterPresets`
+(chips), `IdentityCell` (avatar y título de la primera columna) y `RowActions` (Ver/Editar).
 
 ### Datos y Servicios
 

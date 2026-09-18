@@ -1,10 +1,74 @@
-import type { RouteObject } from 'react-router'
-import ClientsPage from '@/modules/employee/clients/page'
-import NewPatientPage from '@/modules/employee/clients-patients/page'
+import { Navigate, type RouteObject } from 'react-router'
+import StaffLayout from '@/components/layouts/StaffLayout'
+import RouteNotFound from '@/components/RouteNotFound'
+import {
+  AdministrationSummaryPage,
+  AppointmentsClinicsEditPage,
+  AppointmentsListPage,
+  BatchesListPage,
+  BillingListPage,
+  BillingSummaryPage,
+  CareSummaryPage,
+  ClientsCreatePage,
+  ClientsEditPage,
+  ClientsListPage,
+  ClinicListPage,
+  FinanceListPage,
+  GroomingListPage,
+  GroomingSummaryPage,
+  InventoryListPage,
+  InventorySummaryPage,
+  LaboratorySummaryPage,
+  MarketingSummaryPage,
+  MovementsListPage,
+  PatientsCreatePage,
+  PatientsEditPage,
+  PatientsListPage,
+  PortalsListPage,
+  ReceptionSummaryPage,
+  SettingsEditPage,
+  UsersListPage,
+  VisitsListPage,
+} from './employee.pages'
 
 const employeeRoutes: RouteObject[] = [
-  { path: '/clients', element: <ClientsPage /> },
-  { path: '/clients/:clientId/patients/new', element: <NewPatientPage /> },
+  {
+    element: <StaffLayout />,
+    children: [
+      { path: '/', element: <Navigate to="/reception" replace /> },
+      { path: '/marketing', element: <MarketingSummaryPage /> },
+      { path: '/portals', element: <PortalsListPage /> },
+      { path: '/appointments-clinics', element: <AppointmentsClinicsEditPage /> },
+      { path: '/reception', element: <ReceptionSummaryPage /> },
+      { path: '/appointments', element: <AppointmentsListPage /> },
+      { path: '/reception-visits', element: <VisitsListPage scope="all" /> },
+      { path: '/care', element: <CareSummaryPage /> },
+      { path: '/visits', element: <VisitsListPage scope="ambulatory" /> },
+      { path: '/grooming-home', element: <GroomingSummaryPage /> },
+      { path: '/grooming-visits', element: <VisitsListPage scope="grooming" /> },
+      { path: '/grooming', element: <GroomingListPage /> },
+      { path: '/laboratory', element: <LaboratorySummaryPage /> },
+      { path: '/lab-visits', element: <VisitsListPage scope="laboratory" /> },
+      { path: '/clinic', element: <ClinicListPage /> },
+      { path: '/inventory-home', element: <InventorySummaryPage /> },
+      { path: '/inventory', element: <InventoryListPage /> },
+      { path: '/inventory-batches', element: <BatchesListPage /> },
+      { path: '/inventory-moves', element: <MovementsListPage /> },
+      { path: '/billing-home', element: <BillingSummaryPage /> },
+      { path: '/billing', element: <BillingListPage /> },
+      { path: '/finance', element: <FinanceListPage /> },
+      { path: '/administration', element: <AdministrationSummaryPage /> },
+      { path: '/users', element: <UsersListPage /> },
+      { path: '/settings', element: <SettingsEditPage /> },
+      { path: '/clients', element: <ClientsListPage /> },
+      { path: '/clients/create', element: <ClientsCreatePage /> },
+      { path: '/clients/:clientId/edit', element: <ClientsEditPage /> },
+      { path: '/clients/:clientId/patients', element: <PatientsListPage /> },
+      { path: '/clients/:clientId/patients/create', element: <PatientsCreatePage /> },
+      { path: '/clients/:clientId/patients/:patientId/edit', element: <PatientsEditPage /> },
+      { path: '*', element: <RouteNotFound /> },
+    ],
+  },
 ]
 
 export default employeeRoutes

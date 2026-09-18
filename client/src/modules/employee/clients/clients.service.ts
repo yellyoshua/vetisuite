@@ -1,19 +1,8 @@
-import type { Client, ClientInput } from './clients.schema'
-
-export type ClientListQuery = {
-  search?: string
-  page?: number
-  pageSize?: number
-}
-
-export type ClientListPage = {
-  clients: Client[]
-  total: number
-  page: number
-}
+import type { ListPage } from '@/hooks/use-list-query'
+import type { Client, ClientInput, ClientListQuery } from './clients.schema'
 
 const clientsService = {
-  list(_query: ClientListQuery): Promise<ClientListPage> {
+  list(_query: ClientListQuery): Promise<ListPage<Client>> {
     throw new Error('Not implemented: clientsService.list')
   },
   get(_clientId: string): Promise<Client> {
