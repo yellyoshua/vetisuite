@@ -1,7 +1,22 @@
 services:
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: vetisuite
+      POSTGRES_PASSWORD: vetisuite
+      POSTGRES_DB: vetisuite
+    volumes:
+      - vetisuite-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vetisuite -d vetisuite"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   floci:
     image: floci/floci:latest
-    # root: requerido para hablar con el docker.sock y levantar contenedores Lambda
     user: root
     ports:
       - "4566:4566"
@@ -10,7 +25,8 @@ services:
       - ./floci-data:/app/data
     environment:
       FLOCI_STORAGE_MODE: hybrid
-      # Lambda: monta server/cloudtasks/ desde el host (sin re-zip en cada cambio)
       FLOCI_SERVICES_LAMBDA_HOT_RELOAD_ENABLED: "true"
-      # Los handlers hacen queries a Postgres y llaman a Resend — 3s default insuficiente
       FLOCI_SERVICES_LAMBDA_DEFAULT_TIMEOUT_SECONDS: "30"
+
+volumes:
+  vetisuite-postgres-data:

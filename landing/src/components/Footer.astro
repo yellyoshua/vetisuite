@@ -1,0 +1,37 @@
+---
+const currentYear = new Date().getFullYear()
+---
+
+<footer class="border-line bg-surface mt-20 border-t">
+  <div
+    class="text-sub mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm sm:flex-row sm:items-start sm:justify-between"
+  >
+    <div class="max-w-sm">
+      <p class="text-brand-strong text-base font-bold">
+        Veti<span class="text-accent">Suite</span>
+      </p>
+      <p class="mt-2">
+        Plataforma de gestión para clínicas veterinarias: agenda, expediente clínico,
+        inventario y facturación en un solo lugar.
+      </p>
+    </div>
+    <nav aria-label="Pie de página">
+      <ul class="flex flex-col gap-2">
+        <li><a href="/pricing" class="hover:text-brand-strong transition-colors">Precios</a></li>
+        <li>
+          <a href="/#modules" class="hover:text-brand-strong transition-colors">Módulos</a>
+        </li>
+        <li>
+          <a href="/legal/terms" class="hover:text-brand-strong transition-colors">
+            Términos del servicio
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <div class="border-line text-sub border-t">
+    <p class="mx-auto max-w-6xl px-4 py-4 text-xs">
+      © {currentYear} VetiSuite. Todos los derechos reservados.
+    </p>
+  </div>
+</footer>

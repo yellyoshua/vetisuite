@@ -1,0 +1,33 @@
+---
+import RequestDemo from '@/modals/RequestDemo/request-demo'
+
+const NAV_LINKS = [
+  { href: '/#modules', label: 'Módulos' },
+  { href: '/#how-it-works', label: 'Cómo funciona' },
+  { href: '/pricing', label: 'Precios' },
+]
+---
+
+<header class="border-line bg-surface/90 sticky top-0 z-40 border-b backdrop-blur">
+  <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3">
+    <a href="/" class="text-brand-strong text-lg font-bold tracking-tight">
+      Veti<span class="text-accent">Suite</span>
+    </a>
+    <nav aria-label="Principal" class="order-3 w-full sm:order-2 sm:w-auto">
+      <ul class="text-sub flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-medium">
+        {
+          NAV_LINKS.map((link) => (
+            <li>
+              <a href={link.href} class="hover:text-brand-strong transition-colors">
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="order-2 ml-auto sm:order-3">
+      <RequestDemo client:idle />
+    </div>
+  </div>
+</header>

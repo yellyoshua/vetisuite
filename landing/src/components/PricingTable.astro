@@ -1,0 +1,70 @@
+---
+import { BASE_PLAN, ADDON_MODULES, USAGE_SERVICES } from '@/data/plans'
+---
+
+<div class="flex flex-col gap-14">
+  <section aria-labelledby="base-plan-heading">
+    <div class="border-brand/30 bg-surface rounded-2xl border p-6 shadow-sm sm:p-8">
+      <p class="text-brand bg-brand-soft inline-block rounded-full px-3 py-1 text-xs font-semibold">
+        Obligatorio · cuota mensual mínima
+      </p>
+      <h2 id="base-plan-heading" class="text-ink mt-4 text-2xl font-bold">
+        {BASE_PLAN.name}
+      </h2>
+      <p class="text-sub mt-2 max-w-2xl">{BASE_PLAN.tagline}</p>
+      <ul class="mt-6 grid gap-3 sm:grid-cols-2">
+        {
+          BASE_PLAN.capabilities.map((capability) => (
+            <li class="text-ink flex gap-3 text-sm">
+              <span aria-hidden="true" class="text-brand font-bold">
+                ✓
+              </span>
+              <span>{capability}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="addons-heading">
+    <h2 id="addons-heading" class="text-ink text-2xl font-bold">
+      Módulos add-on a la carta
+    </h2>
+    <p class="text-sub mt-2 max-w-2xl">
+      Se activan y se desactivan desde la configuración de la clínica. Pagas solo por lo
+      que tu operación usa hoy.
+    </p>
+    <ul class="mt-6 grid gap-4 md:grid-cols-2">
+      {
+        ADDON_MODULES.map((addon) => (
+          <li class="border-line bg-surface rounded-2xl border p-6">
+            <h3 class="text-ink text-lg font-semibold">{addon.name}</h3>
+            <p class="text-brand-strong mt-2 text-sm font-medium">{addon.audience}</p>
+            <p class="text-sub mt-2 text-sm">{addon.value}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="usage-heading">
+    <h2 id="usage-heading" class="text-ink text-2xl font-bold">
+      Consumibles por uso
+    </h2>
+    <p class="text-sub mt-2 max-w-2xl">
+      Recursos variables que se adquieren en paquetes prepagados según el volumen real de
+      la clínica.
+    </p>
+    <ul class="mt-6 grid gap-4 md:grid-cols-3">
+      {
+        USAGE_SERVICES.map((service) => (
+          <li class="border-line bg-accent-soft/60 rounded-2xl border p-6">
+            <h3 class="text-ink text-base font-semibold">{service.name}</h3>
+            <p class="text-sub mt-2 text-sm">{service.description}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</div>

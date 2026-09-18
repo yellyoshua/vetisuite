@@ -1,14 +1,171 @@
 ---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { BASE_PLAN, ADDON_MODULES } from '@/data/plans'
+
+const WORKFLOW_STEPS = [
+  {
+    title: 'Recepción y check-in',
+    detail:
+      'El paciente llega, se abre la visita y todos los servicios del día quedan colgados de ella.',
+  },
+  {
+    title: 'Atención y servicios',
+    detail:
+      'Consulta, laboratorio o peluquería registran su trabajo y cargan productos a la misma visita.',
+  },
+  {
+    title: 'Cobro y cierre',
+    detail:
+      'La factura sale de la visita con IVA calculado y el saldo pendiente queda a la vista del mostrador.',
+  },
+]
+
+const OUTCOMES = [
+  {
+    title: 'Sin dobles reservas',
+    detail:
+      'La matriz de médicos bloquea los solapes antes de que ocurran y muestra la carga real del día.',
+  },
+  {
+    title: 'Historia clínica confiable',
+    detail:
+      'El expediente es append-only: lo que se registró no se reescribe, y cada consulta queda trazada.',
+  },
+  {
+    title: 'Dinero bajo control',
+    detail:
+      'Saldos arrastrados, conciliación por método de pago y margen real de la jornada.',
+  },
+]
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Veti Suite</title>
-  </head>
-  <body>
-    <h1>Hola mundo — Veti Suite</h1>
-    <a href="https://app.vetisuite.com">Entrar a la app</a>
-  </body>
-</html>
+<BaseLayout
+  title="VetiSuite · Software de gestión para clínicas veterinarias"
+  description="Agenda, expediente clínico, peluquería, inventario y facturación en una sola plataforma modular. Empieza con el plan base y activa solo los módulos que tu clínica necesita."
+>
+  <section class="mx-auto max-w-6xl px-4 pt-16 pb-20 sm:pt-24">
+    <div class="max-w-3xl">
+      <p class="text-brand bg-brand-soft inline-block rounded-full px-3 py-1 text-xs font-semibold">
+        Software modular para clínicas veterinarias
+      </p>
+      <h1 class="text-ink mt-5 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
+        Toda la clínica en una sola pantalla, sin pagar por lo que no usas
+      </h1>
+      <p class="text-sub mt-5 text-lg">
+        VetiSuite reúne clientes y pacientes, agenda, visitas, inventario y facturación en
+        un plan base operativo. Cuando tu clínica crece, activas peluquería, laboratorio,
+        portales o finanzas a la carta.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a
+          href="/pricing"
+          class="bg-brand hover:bg-brand-strong rounded-lg px-5 py-3 text-sm font-semibold text-white transition-colors"
+        >
+          Ver planes y módulos
+        </a>
+        <a
+          href="#how-it-works"
+          class="border-line text-ink hover:border-brand rounded-lg border px-5 py-3 text-sm font-semibold transition-colors"
+        >
+          Cómo funciona
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="base-heading" class="border-line bg-surface border-y">
+    <div class="mx-auto max-w-6xl px-4 py-16">
+      <h2 id="base-heading" class="text-ink text-3xl font-bold tracking-tight">
+        Lo que incluye el {BASE_PLAN.name}
+      </h2>
+      <p class="text-sub mt-3 max-w-2xl">{BASE_PLAN.tagline}</p>
+      <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          BASE_PLAN.capabilities.map((capability) => (
+            <li class="border-line bg-canvas rounded-xl border p-5 text-sm">{capability}</li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section id="modules" aria-labelledby="modules-heading" class="mx-auto max-w-6xl px-4 py-16">
+    <h2 id="modules-heading" class="text-ink text-3xl font-bold tracking-tight">
+      Módulos que enciendes cuando los necesitas
+    </h2>
+    <p class="text-sub mt-3 max-w-2xl">
+      Un consultorio pequeño no debería pagar por hospitalización ni estética. Cada módulo
+      se activa por separado desde la configuración de la clínica.
+    </p>
+    <ul class="mt-8 grid gap-4 md:grid-cols-2">
+      {
+        ADDON_MODULES.map((addon) => (
+          <li class="border-line bg-surface rounded-2xl border p-6">
+            <h3 class="text-ink text-lg font-semibold">{addon.name}</h3>
+            <p class="text-brand-strong mt-2 text-sm font-medium">{addon.audience}</p>
+            <p class="text-sub mt-2 text-sm">{addon.value}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section
+    id="how-it-works"
+    aria-labelledby="how-it-works-heading"
+    class="border-line bg-surface border-y"
+  >
+    <div class="mx-auto max-w-6xl px-4 py-16">
+      <h2 id="how-it-works-heading" class="text-ink text-3xl font-bold tracking-tight">
+        El día de la clínica, de principio a fin
+      </h2>
+      <ol class="mt-8 grid gap-4 md:grid-cols-3">
+        {
+          WORKFLOW_STEPS.map((step, index) => (
+            <li class="border-line bg-canvas rounded-2xl border p-6">
+              <span class="bg-brand-soft text-brand-strong inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold">
+                {index + 1}
+              </span>
+              <h3 class="text-ink mt-4 text-lg font-semibold">{step.title}</h3>
+              <p class="text-sub mt-2 text-sm">{step.detail}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="outcomes-heading" class="mx-auto max-w-6xl px-4 py-16">
+    <h2 id="outcomes-heading" class="text-ink text-3xl font-bold tracking-tight">
+      Lo que cambia en la operación
+    </h2>
+    <ul class="mt-8 grid gap-4 md:grid-cols-3">
+      {
+        OUTCOMES.map((outcome) => (
+          <li class="border-line bg-surface rounded-2xl border p-6">
+            <h3 class="text-ink text-lg font-semibold">{outcome.title}</h3>
+            <p class="text-sub mt-2 text-sm">{outcome.detail}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="cta-heading" class="mx-auto max-w-6xl px-4 pb-8">
+    <div class="bg-brand-strong rounded-2xl px-6 py-12 text-center sm:px-12">
+      <h2 id="cta-heading" class="text-2xl font-bold text-white sm:text-3xl">
+        Empieza con la base y crece al ritmo de tu clínica
+      </h2>
+      <p class="text-brand-soft mx-auto mt-3 max-w-2xl">
+        Barrera de entrada baja, puesta en marcha inmediata y módulos que se activan el día
+        que los necesitas.
+      </p>
+      <a
+        href="/pricing"
+        class="text-brand-strong mt-8 inline-block rounded-lg bg-white px-5 py-3 text-sm font-semibold"
+      >
+        Ver planes y módulos
+      </a>
+    </div>
+  </section>
+</BaseLayout>

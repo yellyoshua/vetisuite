@@ -5,12 +5,25 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
+const unusedArgsIgnorePattern = {
+  '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+}
+
 export default defineConfig([
-  // `ds-bundle/` es salida generada del converter de design-sync y `.design-sync/`
-  // + `client/ds-sync/` son sus entradas (barrel y previews), no código de la app.
-  globalIgnores(['**/dist', '**/.output', '**/.nitro', '**/.astro', 'ds-bundle', '.design-sync', 'client/ds-sync']),
+  globalIgnores([
+    '**/dist',
+    '**/.output',
+    '**/.nitro',
+    '**/.astro',
+    '**/.amplify-hosting',
+    'old_client',
+    'packages/database/src/migrations',
+    'ds-bundle',
+    '.design-sync',
+    '.ds-sync',
+  ]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['client/**/*.{ts,tsx}', 'landing/**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
@@ -19,6 +32,22 @@ export default defineConfig([
     ],
     languageOptions: {
       globals: globals.browser,
+    },
+    rules: unusedArgsIgnorePattern,
+  },
+  {
+    files: ['server/**/*.ts', 'cloudtasks/**/*.{ts,tsx}', 'packages/**/*.ts'],
+    extends: [js.configs.recommended, tseslint.configs.recommended],
+    languageOptions: {
+      globals: globals.node,
+    },
+    rules: unusedArgsIgnorePattern,
+  },
+  {
+    files: ['*.js', '*.ts'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      globals: globals.node,
     },
   },
 ])

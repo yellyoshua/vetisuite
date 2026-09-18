@@ -1,15 +1,19 @@
-import { Route, Routes } from "react-router-dom";
-import { useAuthStore } from "./states/auth.store";
-import { StaffRoutes } from "./routes/staff.routes";
-import PublicPortalPage from "./modules/portals/public/portal-public-page";
+import { useRoutes, type RouteObject } from 'react-router'
+import employeeRoutes from '@/routes/employee.routes'
+import ownerRoutes from '@/routes/owner.routes'
+import publicRoutes from '@/routes/public.routes'
+import superadminRoutes from '@/routes/superadmin.routes'
+import useSessionStore, { type SessionRole } from '@/stores/session.store'
+
+const ROUTES_BY_ROLE: Record<SessionRole, RouteObject[]> = {
+  superadmin: superadminRoutes,
+  owner: ownerRoutes,
+  employee: employeeRoutes,
+  public: publicRoutes,
+}
 
 export default function App() {
-  const profile = useAuthStore((s) => s.profile);
+  const role = useSessionStore((state) => state.role)
 
-  return (
-    <Routes>
-      <Route path="/p/:slug" element={<PublicPortalPage />} />
-      <Route path="/*" element={profile === "staff" ? <StaffRoutes /> : null} />
-    </Routes>
-  );
+  return useRoutes(ROUTES_BY_ROLE[role])
 }

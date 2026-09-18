@@ -1,0 +1,29 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import PricingTable from '@/components/PricingTable.astro'
+---
+
+<BaseLayout
+  title="Precios y módulos · VetiSuite"
+  description="Plan base operativo obligatorio, módulos add-on a la carta y consumibles por uso. Cada clínica paga únicamente por los módulos que activa."
+>
+  <section class="mx-auto max-w-6xl px-4 pt-16 pb-10">
+    <h1 class="text-ink text-4xl font-bold tracking-tight text-balance">
+      Un plan base, y de ahí en adelante lo eliges tú
+    </h1>
+    <p class="text-sub mt-5 max-w-3xl text-lg">
+      VetiSuite se cobra como suscripción modular: una cuota mensual mínima con la
+      operación esencial, módulos que se activan a la carta y consumibles que se compran
+      por volumen. Sin niveles rígidos ni funciones que nunca vas a usar.
+    </p>
+    <p class="text-sub border-line bg-surface mt-6 max-w-3xl rounded-xl border p-4 text-sm">
+      Las tarifas se cotizan según el tamaño de la clínica y los módulos activados.
+      Escríbenos desde «Solicitar demo» y te enviamos la propuesta con el detalle de tu
+      configuración.
+    </p>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 pb-16">
+    <PricingTable />
+  </section>
+</BaseLayout>

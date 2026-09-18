@@ -1,0 +1,152 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+const LAST_UPDATED_LABEL = '17 de septiembre de 2026'
+
+const SECTIONS = [
+  {
+    id: 'objeto',
+    title: '1. Objeto y aceptación',
+    paragraphs: [
+      'Estos Términos del Servicio regulan el acceso y uso de VetiSuite, una plataforma de gestión en la nube para clínicas veterinarias («el Servicio»), prestada bajo la modalidad de software como servicio (SaaS).',
+      'Al contratar una suscripción, crear una cuenta o utilizar el Servicio, la clínica contratante («el Cliente») acepta íntegramente estos Términos. Si la persona que acepta lo hace en nombre de una organización, declara contar con facultades suficientes para obligarla.',
+    ],
+  },
+  {
+    id: 'cuentas',
+    title: '2. Cuentas y usuarios',
+    paragraphs: [
+      'El Cliente es responsable de crear, mantener y desactivar las cuentas de sus usuarios, así como de asignar los roles y permisos que correspondan a cada puesto de la clínica.',
+      'Las credenciales son personales e intransferibles. El Cliente responde por toda actividad realizada desde las cuentas asociadas a su organización y debe notificar sin demora cualquier acceso no autorizado.',
+    ],
+  },
+  {
+    id: 'suscripcion',
+    title: '3. Suscripción, módulos y consumibles',
+    paragraphs: [
+      'El Servicio se contrata mediante un plan base operativo de cuota mensual mínima obligatoria, al que el Cliente puede añadir módulos opcionales activables a la carta.',
+      'Determinados recursos variables, como la mensajería transaccional, el almacenamiento clínico extendido o las sedes adicionales, se facturan por consumo mediante paquetes prepagados.',
+      'La activación o desactivación de un módulo surte efecto sobre el siguiente ciclo de facturación, salvo que se indique lo contrario en la propuesta comercial aceptada por el Cliente.',
+    ],
+  },
+  {
+    id: 'facturacion',
+    title: '4. Facturación y pagos',
+    paragraphs: [
+      'Las cuotas se facturan por adelantado en cada periodo, y los consumibles según el consumo registrado o los paquetes adquiridos. Los importes se expresan sin impuestos, que se añadirán cuando corresponda.',
+      'El impago de una factura vencida faculta a VetiSuite a suspender el acceso al Servicio, previo aviso al Cliente, hasta la regularización del saldo.',
+    ],
+  },
+  {
+    id: 'uso-aceptable',
+    title: '5. Uso aceptable',
+    paragraphs: [
+      'El Cliente se obliga a utilizar el Servicio conforme a la ley y a no emplearlo para actividades fraudulentas, para vulnerar derechos de terceros, para introducir código malicioso ni para intentar acceder a datos de otras organizaciones.',
+      'Queda prohibida la reventa, la cesión a terceros no autorizados y cualquier intento de descompilación o extracción masiva y automatizada de los contenidos de la plataforma.',
+    ],
+  },
+  {
+    id: 'datos',
+    title: '6. Datos del Cliente y protección de datos personales',
+    paragraphs: [
+      'Los datos de clientes, pacientes, historias clínicas y facturación introducidos en la plataforma son propiedad del Cliente. VetiSuite los trata como encargado del tratamiento y únicamente para prestar el Servicio y sus funciones de soporte.',
+      'VetiSuite aplica medidas técnicas y organizativas razonables para proteger la información, incluidos el cifrado en tránsito, el control de accesos por rol y las copias de seguridad periódicas.',
+      'El Cliente es responsable de la licitud de los datos que incorpora y de atender los derechos de las personas titulares de esos datos.',
+    ],
+  },
+  {
+    id: 'propiedad',
+    title: '7. Propiedad intelectual',
+    paragraphs: [
+      'El Servicio, su software, su interfaz, su documentación y sus marcas son titularidad de VetiSuite. La suscripción concede al Cliente un derecho de uso no exclusivo, intransferible y limitado a la vigencia del contrato.',
+      'Ninguna disposición de estos Términos transfiere al Cliente derechos de propiedad intelectual sobre la plataforma.',
+    ],
+  },
+  {
+    id: 'disponibilidad',
+    title: '8. Disponibilidad y soporte',
+    paragraphs: [
+      'VetiSuite procura una disponibilidad continuada del Servicio y podrá realizar tareas de mantenimiento programado, avisando con antelación razonable cuando estas impliquen una interrupción.',
+      'El soporte se presta por los canales indicados en la propuesta comercial y dentro del horario allí establecido.',
+    ],
+  },
+  {
+    id: 'responsabilidad',
+    title: '9. Limitación de responsabilidad',
+    paragraphs: [
+      'El Servicio es una herramienta de gestión y no sustituye el criterio clínico del personal veterinario, que conserva la responsabilidad profesional sobre sus diagnósticos, tratamientos y prescripciones.',
+      'En la medida permitida por la ley, la responsabilidad total de VetiSuite frente al Cliente por cualquier reclamación derivada del Servicio se limita a los importes efectivamente abonados por el Cliente en los doce meses anteriores al hecho que la origine.',
+    ],
+  },
+  {
+    id: 'vigencia',
+    title: '10. Vigencia, terminación y portabilidad',
+    paragraphs: [
+      'El contrato se renueva automáticamente por periodos iguales salvo cancelación por cualquiera de las partes antes del cierre del periodo en curso.',
+      'Cualquiera de las partes podrá resolver el contrato por incumplimiento grave de la otra que no haya sido subsanado tras el requerimiento correspondiente.',
+      'Finalizada la relación, el Cliente dispondrá de un plazo razonable para exportar sus datos antes de su eliminación definitiva de los sistemas de producción.',
+    ],
+  },
+  {
+    id: 'modificaciones',
+    title: '11. Modificaciones de los Términos',
+    paragraphs: [
+      'VetiSuite podrá actualizar estos Términos para reflejar cambios legales, técnicos o funcionales. Los cambios sustanciales se comunicarán con antelación razonable y, de no ser aceptados, el Cliente podrá cancelar la suscripción antes de su entrada en vigor.',
+    ],
+  },
+  {
+    id: 'ley-aplicable',
+    title: '12. Ley aplicable y contacto',
+    paragraphs: [
+      'Estos Términos se rigen por la legislación aplicable en el domicilio social de VetiSuite, y las partes se someten a los tribunales competentes de dicha jurisdicción, salvo norma imperativa en contrario.',
+      'Para cualquier consulta sobre estos Términos, el Cliente puede escribir a legal@vetisuite.com.',
+    ],
+  },
+]
+---
+
+<BaseLayout
+  title="Términos del servicio · VetiSuite"
+  description="Condiciones de contratación y uso de VetiSuite: suscripción modular, cuentas, facturación, protección de datos clínicos, disponibilidad y terminación."
+>
+  <article class="mx-auto max-w-3xl px-4 pt-16 pb-10">
+    <h1 class="text-ink text-4xl font-bold tracking-tight text-balance">
+      Términos del servicio
+    </h1>
+    <p class="text-sub mt-3 text-sm">Última actualización: {LAST_UPDATED_LABEL}</p>
+    <p class="text-sub mt-6">
+      Este documento describe las condiciones bajo las que VetiSuite presta su plataforma de
+      gestión a las clínicas veterinarias suscritas.
+    </p>
+
+    <nav aria-label="Índice de contenidos" class="border-line bg-surface mt-8 rounded-2xl border p-6">
+      <h2 class="text-ink text-sm font-semibold">Contenido</h2>
+      <ol class="text-sub mt-3 grid gap-2 text-sm sm:grid-cols-2">
+        {
+          SECTIONS.map((section) => (
+            <li>
+              <a href={`#${section.id}`} class="hover:text-brand-strong transition-colors">
+                {section.title}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    <div class="mt-12 flex flex-col gap-10">
+      {
+        SECTIONS.map((section) => (
+          <section id={section.id} aria-labelledby={`${section.id}-heading`}>
+            <h2 id={`${section.id}-heading`} class="text-ink text-xl font-semibold">
+              {section.title}
+            </h2>
+            {section.paragraphs.map((paragraph) => (
+              <p class="text-sub mt-3 leading-relaxed">{paragraph}</p>
+            ))}
+          </section>
+        ))
+      }
+    </div>
+  </article>
+</BaseLayout>

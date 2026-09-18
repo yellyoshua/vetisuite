@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-canvas: #f3f6f8;
+  --color-surface: #ffffff;
+  --color-ink: #0f1f2b;
+  --color-sub: #556675;
+  --color-line: #d8e1e8;
+  --color-brand: #0f766e;
+  --color-brand-strong: #115e59;
+  --color-brand-soft: #e4f3f0;
+  --color-alert: #a4201a;
+  --color-alert-soft: #fdeceb;
+  --color-alert-line: #f3b6b2;
+  --color-focus: #0b57d0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

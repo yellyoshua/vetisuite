@@ -1,15 +1,19 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import './index.css'
-import App from './App.tsx'
-import { ToastProvider } from './components/toast.tsx'
+import { BrowserRouter } from 'react-router'
+import App from '@/App'
+import '@/globals.css'
 
-createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root')
+
+if (!rootElement) {
+  throw new Error('No se encontró el elemento raíz de la aplicación')
+}
+
+createRoot(rootElement).render(
   <StrictMode>
     <BrowserRouter>
       <App />
-      <ToastProvider />
     </BrowserRouter>
   </StrictMode>,
 )

@@ -1,6 +1,24 @@
 {
   "name": "vetisuite",
   "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "client",
+    "landing",
+    "server",
+    "packages/*",
+    "cloudtasks",
+    "cloudtasks/*"
+  ],
+  "scripts": {
+    "dev": "./start-local-development.sh",
+    "build": "bun run --filter '*' build",
+    "lint": "eslint .",
+    "typecheck": "bun run --filter '*' typecheck",
+    "db:generate": "bun run --filter @vetisuite/database db:generate",
+    "db:migrate": "bun run --filter @vetisuite/database db:migrate"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.6.0",
@@ -8,17 +26,5 @@
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
     "typescript-eslint": "^8.62.0"
-  },
-  "private": true,
-  "scripts": {
-    "dev": "bun run --filter client dev",
-    "build": "bun run --filter '*' build",
-    "lint": "eslint ."
-  },
-  "type": "module",
-  "workspaces": [
-    "client",
-    "server",
-    "landing"
-  ]
+  }
 }
