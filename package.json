@@ -12,12 +12,20 @@
     "cloudtasks/*"
   ],
   "scripts": {
-    "dev": "./start-local-development.sh",
+    "dev": "bun run --filter client dev",
+    "dev:setup": "bash start-local-development.sh",
+    "dev:server": "bun --cwd server dev",
     "build": "bun run --filter '*' build",
+    "build:server": "bun --cwd server build",
+    "test:server": "bun --cwd server test",
     "lint": "eslint .",
     "typecheck": "bun run --filter '*' typecheck",
     "db:generate": "bun run --filter @vetisuite/database db:generate",
-    "db:migrate": "bun run --filter @vetisuite/database db:migrate"
+    "db:migrate": "bun run --filter @vetisuite/database db:migrate",
+    "drizzle:migrate:generate": "bun --cwd packages/database drizzle:migrate:generate",
+    "drizzle:migrate:apply": "bun --cwd packages/database drizzle:migrate:apply",
+    "drizzle:migrate:check": "bun --cwd packages/database drizzle:migrate:check",
+    "deltas:launch": "bun --cwd server deltas:launch"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

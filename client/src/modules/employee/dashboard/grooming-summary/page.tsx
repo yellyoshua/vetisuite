@@ -1,7 +1,7 @@
 import ErrorState from '@/components/ErrorState'
 import LoadingState from '@/components/LoadingState'
 import PageHeader from '@/components/PageHeader'
-import useResolver from '@/hooks/use-resolver'
+import useResolver from '@/hooks/legacy/use-resolver'
 import SummaryKpis, { type KpiDefinition } from '../components/SummaryKpis'
 import SummaryListPanels, { type ListPanelDefinition } from '../components/SummaryListPanels'
 import type { GroomingKpiKey, GroomingPanelKey } from '../dashboard.schema'

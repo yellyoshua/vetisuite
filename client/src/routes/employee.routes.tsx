@@ -1,6 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router'
-import StaffLayout from '@/components/layouts/StaffLayout'
-import RouteNotFound from '@/components/RouteNotFound'
+import EmployeeLayout from '@/components/Employee/EmployeeLayout'
+import NotFoundScreen from '@/components/NotFoundScreen/NotFoundScreen'
 import {
   AdministrationSummaryPage,
   AppointmentsClinicsEditPage,
@@ -13,6 +13,7 @@ import {
   ClientsEditPage,
   ClientsListPage,
   ClinicListPage,
+  DisabledAccountPage,
   FinanceListPage,
   GroomingListPage,
   GroomingSummaryPage,
@@ -21,11 +22,14 @@ import {
   LaboratorySummaryPage,
   MarketingSummaryPage,
   MovementsListPage,
+  PasswordEditPage,
   PatientsCreatePage,
   PatientsEditPage,
   PatientsListPage,
   PortalsListPage,
+  ProfileEditPage,
   ReceptionSummaryPage,
+  SessionsListPage,
   SettingsEditPage,
   UsersListPage,
   VisitsListPage,
@@ -33,7 +37,7 @@ import {
 
 const employeeRoutes: RouteObject[] = [
   {
-    element: <StaffLayout />,
+    element: <EmployeeLayout />,
     children: [
       { path: '/', element: <Navigate to="/reception" replace /> },
       { path: '/marketing', element: <MarketingSummaryPage /> },
@@ -66,7 +70,11 @@ const employeeRoutes: RouteObject[] = [
       { path: '/clients/:clientId/patients', element: <PatientsListPage /> },
       { path: '/clients/:clientId/patients/create', element: <PatientsCreatePage /> },
       { path: '/clients/:clientId/patients/:patientId/edit', element: <PatientsEditPage /> },
-      { path: '*', element: <RouteNotFound /> },
+      { path: '/profile', element: <ProfileEditPage /> },
+      { path: '/profile/password', element: <PasswordEditPage /> },
+      { path: '/profile/sessions', element: <SessionsListPage /> },
+      { path: '/disabled-account', element: <DisabledAccountPage /> },
+      { path: '*', element: <NotFoundScreen /> },
     ],
   },
 ]

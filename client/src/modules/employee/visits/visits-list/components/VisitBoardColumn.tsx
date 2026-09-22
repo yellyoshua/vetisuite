@@ -1,4 +1,4 @@
-import IconButton from '@/components/ui/IconButton'
+import IconButton from '@/components/legacy-ui/IconButton'
 import { VISIT_STATUS_DOT_CLASS_NAMES } from '@/constants/visits'
 import type { VisitBoardColumn as VisitBoardColumnData } from '../../visits.schema'
 import VisitCard from './VisitCard'

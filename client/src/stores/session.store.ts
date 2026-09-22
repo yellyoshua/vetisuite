@@ -1,15 +1,40 @@
 import { create } from 'zustand'
+import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
-export type SessionRole = 'superadmin' | 'owner' | 'employee' | 'public'
+export type SessionRole = 'superadmin' | 'owner' | 'employee'
 
-export type SessionState = {
+export type SessionUser = {
+  id: string
+  email: string
   role: SessionRole
-  setRole: (role: SessionRole) => void
+  emailConfirmed: boolean
+  disabled: boolean
+  bannedUntil: string | null
 }
 
-const useSessionStore = create<SessionState>((set) => ({
-  role: 'employee',
-  setRole: (role) => set({ role }),
-}))
+export type SessionProfile = {
+  id: string
+  firstName: string
+  lastName: string
+  avatar: string | null
+  user: SessionUser
+}
 
-export default useSessionStore
+type SessionState = {
+  profile: SessionProfile | null
+}
+
+const initialState: SessionState = { profile: null }
+
+export const useSessionStore = create(persist(combine(
+  initialState,
+  (set) => ({
+    setSession: ({ profile }: { profile: SessionProfile }) => set({ profile }),
+    clear: () => set({ profile: null }),
+  }),
+), {
+  name: 'vetisuite.session',
+  storage: createJSONStorage(() => localStorage),
+  version: 2,
+  migrate: () => ({ profile: null }),
+}))

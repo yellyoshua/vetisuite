@@ -1,5 +1,5 @@
 import type { DonutSegment } from '@/components/DonutChart'
-import type { BadgeTone } from '@/components/ui/Badge'
+import type { BadgeTone } from '@/components/legacy-ui/Badge'
 
 export type KpiValue = {
   value: string

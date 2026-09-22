@@ -1,4 +1,4 @@
-import type { IconName } from '@/components/ui/Icon'
+import type { IconName } from '@/components/legacy-ui/Icon'
 
 export const SETTINGS_SECTION_VALUES = ['clinic', 'billing', 'operations', 'notifications', 'security'] as const
 

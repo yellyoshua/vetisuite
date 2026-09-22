@@ -1,0 +1,54 @@
+version: v1.0
+name: Migration Deltas
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2204
+global_job_config:
+  prologue:
+    commands:
+      - checkout
+      - curl -fsSL https://bun.sh/install | bash
+      - export PATH="$HOME/.bun/bin:$PATH"
+      - bun install --frozen-lockfile
+blocks:
+  - name: Migration Deltas (development)
+    dependencies: []
+    run:
+      when: "branch = 'main'"
+    task:
+      secrets:
+        - name: vetisuite-development
+      env_vars:
+        - name: APP_ENV
+          value: development
+        - name: IS_LOCAL
+          value: "false"
+        - name: AWS_ENDPOINT_URL
+          value: ""
+        - name: AWS_REGION
+          value: us-east-1
+      jobs:
+        - name: Apply
+          commands:
+            - bun run deltas:launch
+  - name: Migration Deltas (production)
+    dependencies: []
+    run:
+      when: "branch = 'production'"
+    task:
+      secrets:
+        - name: vetisuite-production
+      env_vars:
+        - name: APP_ENV
+          value: production
+        - name: IS_LOCAL
+          value: "false"
+        - name: AWS_ENDPOINT_URL
+          value: ""
+        - name: AWS_REGION
+          value: us-east-1
+      jobs:
+        - name: Apply
+          commands:
+            - bun run deltas:launch

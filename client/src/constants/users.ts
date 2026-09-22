@@ -1,4 +1,4 @@
-import type { BadgeTone } from '@/components/ui/Badge'
+import type { BadgeTone } from '@/components/legacy-ui/Badge'
 
 export const USER_ROLE_VALUES = ['admin', 'veterinarian', 'groomer', 'reception'] as const
 

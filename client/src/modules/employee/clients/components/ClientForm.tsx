@@ -1,10 +1,10 @@
 import type { FormEvent } from 'react'
-import Button from '@/components/ui/Button'
-import ButtonLink from '@/components/ui/ButtonLink'
-import Card from '@/components/ui/Card'
-import Field from '@/components/ui/Field'
-import Icon from '@/components/ui/Icon'
-import Input from '@/components/ui/Input'
+import Button from '@/components/legacy-ui/Button'
+import ButtonLink from '@/components/legacy-ui/ButtonLink'
+import Card from '@/components/legacy-ui/Card'
+import Field from '@/components/legacy-ui/Field'
+import Icon from '@/components/legacy-ui/Icon'
+import Input from '@/components/legacy-ui/Input'
 import type { ClientInput } from '../clients.schema'
 
 type ClientFormProps = {

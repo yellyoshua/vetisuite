@@ -35,3 +35,11 @@ ds-bundle/
 .design-sync/learnings/
 .design-sync/node_modules
 client/.ds-css/
+
+# server
+server/.output/
+server/.nitro/
+server/coverage/
+**/.env
+!**/.env.local
+floci-data/

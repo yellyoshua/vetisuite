@@ -1,5 +1,5 @@
 import DonutChart from '@/components/DonutChart'
-import Card from '@/components/ui/Card'
+import Card from '@/components/legacy-ui/Card'
 import { FINANCE_PAYMENT_METHOD_LABELS, FINANCE_PAYMENT_METHOD_TONES } from '@/constants/finance'
 import type { FinancePaymentShare } from '../../finance.schema'
 

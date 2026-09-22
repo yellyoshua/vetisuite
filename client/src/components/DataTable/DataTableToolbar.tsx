@@ -1,7 +1,7 @@
-import Button from '@/components/ui/Button'
-import Icon from '@/components/ui/Icon'
-import Input from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
+import Button from '@/components/legacy-ui/Button'
+import Icon from '@/components/legacy-ui/Icon'
+import Input from '@/components/legacy-ui/Input'
+import Select from '@/components/legacy-ui/Select'
 
 export type FilterOption = {
   value: string

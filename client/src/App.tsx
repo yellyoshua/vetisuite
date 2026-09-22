@@ -1,19 +1,19 @@
-import { useRoutes, type RouteObject } from 'react-router'
-import employeeRoutes from '@/routes/employee.routes'
-import ownerRoutes from '@/routes/owner.routes'
-import publicRoutes from '@/routes/public.routes'
-import superadminRoutes from '@/routes/superadmin.routes'
-import useSessionStore, { type SessionRole } from '@/stores/session.store'
-
-const ROUTES_BY_ROLE: Record<SessionRole, RouteObject[]> = {
-  superadmin: superadminRoutes,
-  owner: ownerRoutes,
-  employee: employeeRoutes,
-  public: publicRoutes,
-}
+import { Toaster } from 'sonner'
+import { CheckCircleIcon, InfoIcon, TriangleAlertIcon, XCircleIcon } from 'lucide-react'
+import Authorization from '@/components/Authorization/Authorization'
+import ConfirmationDialog from '@/components/confirmation-dialog'
 
 export default function App() {
-  const role = useSessionStore((state) => state.role)
-
-  return useRoutes(ROUTES_BY_ROLE[role])
+  return (
+    <>
+      <Authorization />
+      <Toaster position="top-right" closeButton={true} icons={{
+        success: <CheckCircleIcon className="w-5 h-5 text-green-500" />,
+        error: <XCircleIcon className="w-5 h-5 text-red-500" />,
+        warning: <TriangleAlertIcon className="w-5 h-5 text-yellow-500" />,
+        info: <InfoIcon className="w-5 h-5 text-blue-500" />,
+      }} duration={5000} richColors={true} />
+      <ConfirmationDialog />
+    </>
+  )
 }

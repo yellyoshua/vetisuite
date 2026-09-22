@@ -1,4 +1,4 @@
-import type { BadgeTone } from '@/components/ui/Badge'
+import type { BadgeTone } from '@/components/legacy-ui/Badge'
 
 export const PRODUCT_CATEGORY_VALUES = ['vaccines', 'medicines', 'supplies', 'food', 'grooming'] as const
 

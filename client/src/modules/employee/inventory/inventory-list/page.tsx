@@ -4,9 +4,9 @@ import FilterPresets from '@/components/DataTable/FilterPresets'
 import IdentityCell from '@/components/DataTable/IdentityCell'
 import RowActions from '@/components/DataTable/RowActions'
 import PageHeader from '@/components/PageHeader'
-import Badge from '@/components/ui/Badge'
-import Button from '@/components/ui/Button'
-import Icon from '@/components/ui/Icon'
+import Badge from '@/components/legacy-ui/Badge'
+import Button from '@/components/legacy-ui/Button'
+import Icon from '@/components/legacy-ui/Icon'
 import {
   PRODUCT_CATEGORY_LABELS,
   PRODUCT_CATEGORY_VALUES,
@@ -14,7 +14,7 @@ import {
   PRODUCT_STATUS_TONES,
 } from '@/constants/inventory'
 import useListQuery from '@/hooks/use-list-query'
-import useResolver from '@/hooks/use-resolver'
+import useResolver from '@/hooks/legacy/use-resolver'
 import { formatCurrency } from '@/lib/format-currency'
 import { formatDate } from '@/lib/format-date'
 import type { Product, ProductFilterKey } from '../inventory.schema'

@@ -1,5 +1,5 @@
-import Card from '@/components/ui/Card'
-import Meter from '@/components/ui/Meter'
+import Card from '@/components/legacy-ui/Card'
+import Meter from '@/components/legacy-ui/Meter'
 import { FINANCE_TREND_CLASS_NAMES } from '@/constants/finance'
 import type { FinanceArea } from '../../finance.schema'
 

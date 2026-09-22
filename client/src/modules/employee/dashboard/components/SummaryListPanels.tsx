@@ -1,7 +1,7 @@
 import EmptyState from '@/components/EmptyState'
-import Badge from '@/components/ui/Badge'
-import Card from '@/components/ui/Card'
-import Icon, { type IconName } from '@/components/ui/Icon'
+import Badge from '@/components/legacy-ui/Badge'
+import Card from '@/components/legacy-ui/Card'
+import Icon, { type IconName } from '@/components/legacy-ui/Icon'
 import type { ListPanelData } from '../dashboard.schema'
 
 type PanelIconTone = 'green' | 'amber' | 'blue' | 'red' | 'sub'

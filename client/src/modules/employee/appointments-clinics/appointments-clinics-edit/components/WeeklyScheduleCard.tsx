@@ -1,11 +1,11 @@
 import type { Dispatch } from 'react'
-import Button from '@/components/ui/Button'
-import Card from '@/components/ui/Card'
-import Icon from '@/components/ui/Icon'
-import IconButton from '@/components/ui/IconButton'
-import Input from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
-import Toggle from '@/components/ui/Toggle'
+import Button from '@/components/legacy-ui/Button'
+import Card from '@/components/legacy-ui/Card'
+import Icon from '@/components/legacy-ui/Icon'
+import IconButton from '@/components/legacy-ui/IconButton'
+import Input from '@/components/legacy-ui/Input'
+import Select from '@/components/legacy-ui/Select'
+import Toggle from '@/components/legacy-ui/Toggle'
 import {
   ESTIMATE_SLOT_MINUTES,
   PARALLEL_CAPACITY_LABELS,

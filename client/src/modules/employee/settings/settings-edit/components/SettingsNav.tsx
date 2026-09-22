@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
-import Card from '@/components/ui/Card'
-import Icon from '@/components/ui/Icon'
+import Card from '@/components/legacy-ui/Card'
+import Icon from '@/components/legacy-ui/Icon'
 import {
   SETTINGS_SECTION_ICONS,
   SETTINGS_SECTION_LABELS,

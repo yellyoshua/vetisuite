@@ -21,3 +21,5 @@ docs
 seeds/db
 *.log
 .DS_Store
+**/.env
+server/coverage

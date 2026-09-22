@@ -1,4 +1,4 @@
-import type { BadgeTone } from '@/components/ui/Badge'
+import type { BadgeTone } from '@/components/legacy-ui/Badge'
 
 export const BILLING_STATUS_VALUES = ['open', 'receivable', 'paid'] as const
 

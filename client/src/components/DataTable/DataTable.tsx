@@ -2,8 +2,8 @@ import { useState, type ReactNode } from 'react'
 import EmptyState from '@/components/EmptyState'
 import ErrorState from '@/components/ErrorState'
 import LoadingState from '@/components/LoadingState'
-import Card from '@/components/ui/Card'
-import Pager from '@/components/ui/Pager'
+import Card from '@/components/legacy-ui/Card'
+import Pager from '@/components/legacy-ui/Pager'
 import type { ListPage } from '@/hooks/use-list-query'
 
 export type DataTableColumn<TRow> = {

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router'
 import PageHeader from '@/components/PageHeader'
-import useMutation from '@/hooks/use-mutation'
+import useMutation from '@/hooks/legacy/use-mutation'
 import ClientForm from '../components/ClientForm'
 import { createClient } from './resolvers'
 

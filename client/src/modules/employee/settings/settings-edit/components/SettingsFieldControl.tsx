@@ -1,7 +1,7 @@
-import Field from '@/components/ui/Field'
-import Icon from '@/components/ui/Icon'
-import Input from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
+import Field from '@/components/legacy-ui/Field'
+import Icon from '@/components/legacy-ui/Icon'
+import Input from '@/components/legacy-ui/Input'
+import Select from '@/components/legacy-ui/Select'
 import type { SettingsField } from '../../settings.schema'
 
 type SettingsFieldControlProps = {

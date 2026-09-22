@@ -1,8 +1,8 @@
 import type { Dispatch } from 'react'
-import Card from '@/components/ui/Card'
-import Field from '@/components/ui/Field'
-import Select from '@/components/ui/Select'
-import Toggle from '@/components/ui/Toggle'
+import Card from '@/components/legacy-ui/Card'
+import Field from '@/components/legacy-ui/Field'
+import Select from '@/components/legacy-ui/Select'
+import Toggle from '@/components/legacy-ui/Toggle'
 import {
   BOOKING_RULE_LABELS,
   BOOKING_RULE_OPTIONS,

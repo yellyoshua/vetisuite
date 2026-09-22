@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm'
-import { check, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core'
+import { boolean, check, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core'
 import { employeesTable } from '../employees/employees.table'
 import { role } from '../enums'
 import { organizationsTable } from '../organizations/organizations.table'
@@ -13,9 +13,14 @@ export const usersTable = pgTable(
     organization: uuid()
       .notNull()
       .references(() => organizationsTable.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    email: text().notNull(),
+    email: text().notNull().unique(),
     password: text().notNull(),
     role: role().notNull(),
+    emailConfirmed: boolean().notNull().default(false),
+    emailConfirmedAt: timestamp({ mode: 'date', withTimezone: true }),
+    lastSignInAt: timestamp({ mode: 'date', withTimezone: true }),
+    bannedUntil: timestamp({ mode: 'date', withTimezone: true }),
+    disabled: boolean().notNull().default(false),
     createdAt: timestamp({ mode: 'date', withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ mode: 'date', withTimezone: true })
       .notNull()

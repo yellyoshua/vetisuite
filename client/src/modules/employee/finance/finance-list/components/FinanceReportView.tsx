@@ -1,6 +1,6 @@
 import KpiCard, { type KpiTone } from '@/components/KpiCard'
 import KpiGrid from '@/components/KpiGrid'
-import type { IconName } from '@/components/ui/Icon'
+import type { IconName } from '@/components/legacy-ui/Icon'
 import type { FinanceKpiKey, FinanceReport } from '../../finance.schema'
 import AreaDetailCard from './AreaDetailCard'
 import AreaIncomeCard from './AreaIncomeCard'

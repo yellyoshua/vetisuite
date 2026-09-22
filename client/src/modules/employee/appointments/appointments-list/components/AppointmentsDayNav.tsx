@@ -1,5 +1,5 @@
-import Button from '@/components/ui/Button'
-import IconButton from '@/components/ui/IconButton'
+import Button from '@/components/legacy-ui/Button'
+import IconButton from '@/components/legacy-ui/IconButton'
 import type { AppointmentsAgenda } from '../../appointments.schema'
 
 type AppointmentsDayNavProps = {

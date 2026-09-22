@@ -27,3 +27,7 @@ export const PortalsListPage = lazy(() => import('@/modules/employee/portals/por
 export const SettingsEditPage = lazy(() => import('@/modules/employee/settings/settings-edit/page'))
 export const UsersListPage = lazy(() => import('@/modules/employee/users/users-list/page'))
 export const VisitsListPage = lazy(() => import('@/modules/employee/visits/visits-list/page'))
+export const DisabledAccountPage = lazy(() => import('@/modules/employee/disabled-account/page'))
+export const PasswordEditPage = lazy(() => import('@/modules/employee/profile/password/password-edit/page'))
+export const ProfileEditPage = lazy(() => import('@/modules/employee/profile/profile-edit/page'))
+export const SessionsListPage = lazy(() => import('@/modules/employee/profile/sessions/sessions-list/page'))

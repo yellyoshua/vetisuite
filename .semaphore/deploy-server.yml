@@ -1,0 +1,51 @@
+version: v1.0
+name: Deploy server
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2204
+blocks:
+  - name: Deploy server (development)
+    dependencies: []
+    run:
+      when: "branch = 'main'"
+    task:
+      secrets:
+        - name: vetisuite-development
+      env_vars:
+        - name: APP_ENV
+          value: development
+        - name: AWS_REGION
+          value: us-east-1
+        - name: AWS_DEFAULT_REGION
+          value: us-east-1
+        - name: LAMBDA_FUNCTION_NAME
+          value: vetisuite-development-api-server
+      jobs:
+        - name: Image and deploy
+          commands:
+            - checkout
+            - infrastructure/server/image.sh
+            - infrastructure/server/deploy.sh
+  - name: Deploy server (production)
+    dependencies: []
+    run:
+      when: "branch = 'production'"
+    task:
+      secrets:
+        - name: vetisuite-production
+      env_vars:
+        - name: APP_ENV
+          value: production
+        - name: AWS_REGION
+          value: us-east-1
+        - name: AWS_DEFAULT_REGION
+          value: us-east-1
+        - name: LAMBDA_FUNCTION_NAME
+          value: vetisuite-production-api-server
+      jobs:
+        - name: Image and deploy
+          commands:
+            - checkout
+            - infrastructure/server/image.sh
+            - infrastructure/server/deploy.sh

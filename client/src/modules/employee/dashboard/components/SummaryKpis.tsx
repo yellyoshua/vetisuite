@@ -1,6 +1,6 @@
 import KpiCard, { type KpiTone } from '@/components/KpiCard'
 import KpiGrid from '@/components/KpiGrid'
-import type { IconName } from '@/components/ui/Icon'
+import type { IconName } from '@/components/legacy-ui/Icon'
 import type { KpiValue } from '../dashboard.schema'
 
 export type KpiDefinition<TKey extends string> = {

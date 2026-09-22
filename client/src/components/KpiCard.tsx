@@ -1,5 +1,5 @@
-import Card from '@/components/ui/Card'
-import Icon, { type IconName } from '@/components/ui/Icon'
+import Card from '@/components/legacy-ui/Card'
+import Icon, { type IconName } from '@/components/legacy-ui/Icon'
 
 export type KpiTone = 'green' | 'amber' | 'blue' | 'red' | 'sub' | 'dark'
 

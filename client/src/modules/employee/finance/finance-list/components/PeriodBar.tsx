@@ -1,5 +1,5 @@
-import Input from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
+import Input from '@/components/legacy-ui/Input'
+import Select from '@/components/legacy-ui/Select'
 import {
   FINANCE_COMPARISON_LABELS,
   FINANCE_COMPARISON_VALUES,

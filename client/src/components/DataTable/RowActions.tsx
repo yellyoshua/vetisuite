@@ -1,6 +1,6 @@
-import Button from '@/components/ui/Button'
-import ButtonLink from '@/components/ui/ButtonLink'
-import Icon from '@/components/ui/Icon'
+import Button from '@/components/legacy-ui/Button'
+import ButtonLink from '@/components/legacy-ui/ButtonLink'
+import Icon from '@/components/legacy-ui/Icon'
 
 type RowActionsProps = {
   subject: string

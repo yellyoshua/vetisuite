@@ -8,7 +8,9 @@ bun workspaces, tres proyectos + infraestructura:
 | Carpeta           | Dominio           | Rol |
 |-------------------|-------------------|-----|
 | `client/`         | app.vetisuite.com | SPA de gestión (React 19 + Vite 8 + TS strict). El producto: dashboard, clientes/pacientes, citas, peluquería, clínica/laboratorio, inventario y facturación. UI en español. Demo MVP sin backend real: estado en memoria (zustand) con datos semilla; `client/src/lib/api.ts` simula la API. Recargar reinicia los datos. |
-| `server/`         | api.vetisuite.com | API backend (Nitro + drizzle/Postgres). Estructura en `routes/` → `modules/` → `core/` → `drizzle/`, con `constants/` transversal; `clients` es el módulo de referencia cableado de punta a punta. Compila a AWS Lambda (`build:lambda`, preset `aws-lambda`); sin infra de deploy hoy. Manual: `server/README.md`. |
+| `server/`         | api.vetisuite.com | API backend en JavaScript (Nitro 2 / h3 1). Tres capas: `api/<modulo>.<verbo>.js` → `modules/<modulo>/` (repository · schema · service) → `@vetisuite/database`; `core/` (baseRoute, repository, auth-core), `middleware/`, `permissions/` (pkit; auditoría de rutas privadas en `permissions/README.md`), `migrations/deltas/` (datos). Sesión en cookie httpOnly vía OAuth2 propio; archivos por presigned POST a S3; eventos a SQS; rate limit en DynamoDB. Una sola Lambda de imagen (preset `aws-lambda`). Dominio hoy: `clients`, `clients-count`, `clients-patients`. |
+| `packages/database/` | —            | `@vetisuite/database` (TS): schemas, enums, migraciones de drizzle-kit y conexión (postgres-js). Único dueño de `drizzle-orm`; el server importa sus re-exports con extensión (`@vetisuite/database/db.js`, `orm.js`, `schemas/schemas.js`). |
+| `infrastructure/server/`, `setup-local/`, `.semaphore/` | — | Dockerfile + `image.sh`/`deploy.sh`/`bootstrap.sh` de la Lambda; scripts de floci (S3, DynamoDB, SQS) para local; CI y promotions manuales (Migration Drizzle → Deploy server → Migration Deltas). |
 | `landing/`        | vetisuite.com     | Sitio público de marketing (Astro + `astro-aws-amplify`). Hoy un hello world. Build a `landing/.amplify-hosting/`. |
 | `amplify.yml`     | —                 | Build spec de AWS Amplify Hosting: una app por `appRoot` (`client`, `landing`). Instala bun en la imagen AL2023. Las apps Amplify se crean en la consola. |
 | `docs/`           | —                 | Documentación: `docs/product/` (negocio, modelo SaaS, roles, módulos) y `docs/technical/` (arquitectura, deploy, runbook). |
@@ -19,16 +21,42 @@ Cada app se sirve en la raíz de su propio subdominio → ningún proyecto neces
 ## Comandos (raíz)
 
 ```sh
-bun install                     # instala todos los workspaces (lockfile único)
-bun run dev                     # dev del client
-bun run --filter server dev     # dev del server (localhost:3000)
-bun run --filter landing dev    # dev de la landing (localhost:4321)
-bun run build                   # build de los tres
-bun run lint                    # eslint desde la raíz (config compartida)
+bun install                        # instala todos los workspaces (lockfile único)
+bun run dev                        # dev del client
+bun run dev:setup                  # docker compose (postgres + floci) + bucket, tablas y colas locales
+bun run dev:server                 # dev del server (localhost:4000)
+bun run --filter landing dev       # dev de la landing (localhost:4321)
+bun run build                      # build de todos los workspaces
+bun run build:server               # build del server para Lambda
+bun run test:server                # tests del server (Vitest + PGlite, sin Docker)
+bun run lint                       # eslint desde la raíz (config compartida)
+bun run drizzle:migrate:generate   # SQL nuevo desde los schemas de packages/database
+bun run drizzle:migrate:apply      # aplica migraciones de esquema
+bun run deltas:launch              # aplica migraciones de datos (server/migrations/deltas)
 ```
 
-No hay tests: la puerta de calidad es `build` + `lint` limpios + verificación
-manual en navegador (checklist en `client/AGENTS.md` §4).
+El server tiene tests: `test:server`, `lint` y `build:server` en verde antes de dar
+algo por terminado. Client y landing no tienen tests: su puerta es `build` + `lint`
+limpios + verificación manual en navegador.
+
+## Entornos
+
+- `APP_ENV` vale `development` o `production`. `development` es a la vez la máquina
+  local y el ambiente cloud de desarrollo (rama `main`); `production` sale de la rama
+  `production`. Solo arma los nombres de recursos AWS (`vetisuite-<APP_ENV>-storage`,
+  `-rate-limits`, `-public-rate-limits`, `-cloudtask-<tarea>`) y el guard de la delta de
+  cuentas demo. Nunca `NODE_ENV`.
+- `IS_LOCAL="true"` marca solo la máquina del desarrollador (`server/.env.local`) y
+  nunca va en la nube. La lee únicamente `server/utils/environment.js`: cookie sin
+  `Secure`, logs planos en vez de JSON y rate limit desactivado.
+- `AWS_ENDPOINT_URL` (floci, `localhost:4566`) tampoco va en la nube; la promotion de
+  deltas lo pisa vacío porque carga `server/.env.local`.
+- `server/.env.local` y `packages/database/.env.local` están versionados sin secretos.
+  `server/.env` (gitignored) es la copia de cada máquina: `bun run dev:server` (Nitro)
+  lee solo ese archivo; `deltas:launch` carga `.env.local` y encima `.env`;
+  `drizzle-kit` carga `packages/database/.env.local`; los tests fijan sus variables en
+  `server/tests/setup.js`. En la nube, las variables se cargan en la consola de la
+  Lambda.
 
 ## Arquitectura del client
 
@@ -66,12 +94,13 @@ precondiciones de negocio usan su propio mensaje (`NoActiveConsultation`).
   (kebab-case); solo el texto visible al usuario va en español. Los valores de
   estado (`"pendiente"`, `"confirmada"`…) están en español a propósito.
 - **Imports con `@/`**: `@/` apunta a `client/src/` y a la raíz de `server/`.
-  Todo lo que suba de carpeta va con alias (`@/lib/constants`, `@/core/http`);
-  los hermanos siguen relativos (`./repository`). Cada alias vive en **dos**
-  sitios que deben decir lo mismo: `paths` del tsconfig (para tsc y el editor) y
-  el bundler (`resolve.alias` en `client/vite.config.ts`, `alias` en
-  `server/nitro.config.ts`). Si solo pones el tsconfig, compila y revienta en
-  runtime. Excepción: los esquemas `.js` de drizzle se importan relativos —
+  Todo lo que suba de carpeta va con alias (`@/lib/constants`, `@/core/base-route.js`);
+  los hermanos siguen relativos (`./repository`). Cada alias vive en los sitios
+  que lo resuelven y deben decir lo mismo: en el client, `paths` del tsconfig y
+  `resolve.alias` de `client/vite.config.ts`; en el server, `paths` de
+  `server/jsconfig.json` (editor y Bun), `alias` de `server/nitro.config.js` y de
+  `server/vitest.config.js`. Si falta uno, revienta en runtime o en tests.
+  Excepción: los schemas de `packages/database` se importan relativos —
   drizzle-kit los lee con su propio bundler, que no conoce `@/`.
 - **Reusar los componentes compartidos** (`client/src/components/`) — nunca
   crear botones/badges/cards/headers ad-hoc.
@@ -93,7 +122,8 @@ precondiciones de negocio usan su propio mensaje (`NoActiveConsultation`).
 ## Referencias
 
 - Manual completo del client (estilo, testing, deploy): **`client/AGENTS.md`**
-- Estructura y convenciones del server: **`server/README.md`** (y los README de
-  `server/core/`, `server/constants/`, `server/modules/`, `server/drizzle/`)
+- Reglas del server y del monorepo: **`AGENTS.md`** (y `.agent/rules/`); arquitectura
+  del server paso a paso: **`migration-plan/`**; auditoría de rutas privadas y
+  permisos: **`server/permissions/README.md`**
 - Sistema de diseño: **`client/DESIGN.md`**
 - Estructura técnica y de producto: **`docs/`** (`docs/product/` y `docs/technical/`)

@@ -1,4 +1,4 @@
-import type { BadgeTone } from '@/components/ui/Badge'
+import type { BadgeTone } from '@/components/legacy-ui/Badge'
 
 export const PORTAL_TYPE_VALUES = ['institutional', 'booking', 'campaign'] as const
 

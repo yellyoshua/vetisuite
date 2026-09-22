@@ -1,6 +1,6 @@
-import type { BadgeTone } from '@/components/ui/Badge'
-import type { ButtonVariant } from '@/components/ui/button-class-name'
-import type { IconName } from '@/components/ui/Icon'
+import type { BadgeTone } from '@/components/legacy-ui/Badge'
+import type { ButtonVariant } from '@/components/legacy-ui/button-class-name'
+import type { IconName } from '@/components/legacy-ui/Icon'
 
 export const VISIT_STATUS_VALUES = ['pending', 'in-progress', 'done'] as const
 

@@ -1,4 +1,4 @@
-import type { BadgeTone } from '@/components/ui/Badge'
+import type { BadgeTone } from '@/components/legacy-ui/Badge'
 
 export const PATIENT_SPECIES_VALUES = ['dog', 'cat', 'bird', 'other'] as const
 

@@ -80,3 +80,5 @@ export const rejectionReason = pgEnum('rejection_reason', [
   'portal_closed',
   'duplicate',
 ])
+
+export const accountTokenType = pgEnum('account_token_type', ['email_confirmation', 'password_reset'])

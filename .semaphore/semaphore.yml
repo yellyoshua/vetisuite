@@ -1,0 +1,33 @@
+version: v1.0
+name: Verify
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2204
+global_job_config:
+  prologue:
+    commands:
+      - checkout
+      - curl -fsSL https://bun.sh/install | bash
+      - export PATH="$HOME/.bun/bin:$PATH"
+      - bun install --frozen-lockfile
+blocks:
+  - name: Verify
+    task:
+      jobs:
+        - name: Lint
+          commands:
+            - bun run lint
+        - name: Test server
+          commands:
+            - bun run test:server
+        - name: Build server
+          commands:
+            - bun run build:server
+promotions:
+  - name: Migration Drizzle
+    pipeline_file: migration-drizzle.yml
+  - name: Deploy server
+    pipeline_file: deploy-server.yml
+  - name: Migration Deltas
+    pipeline_file: migration-deltas.yml

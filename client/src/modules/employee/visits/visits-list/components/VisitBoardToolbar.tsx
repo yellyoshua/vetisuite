@@ -1,5 +1,5 @@
-import Input from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
+import Input from '@/components/legacy-ui/Input'
+import Select from '@/components/legacy-ui/Select'
 import type { VisitBoardSummary } from '../../visits.schema'
 
 const SEARCH_PLACEHOLDER = 'Busca por paciente o dueño…'
