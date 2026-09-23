@@ -1,41 +1,22 @@
-import ErrorState from '@/components/ErrorState'
-import LoadingState from '@/components/LoadingState'
-import PageHeader from '@/components/PageHeader'
-import useResolver from '@/hooks/legacy/use-resolver'
-import SummaryKpis, { type KpiDefinition } from '../components/SummaryKpis'
-import SummaryListPanels, { type ListPanelDefinition } from '../components/SummaryListPanels'
-import type { BillingKpiKey, BillingPanelKey } from '../dashboard.schema'
-import { resolveBillingSummary } from './resolvers'
+import useResolver from '@/hooks/use-resolver'
+import { PageError, PageLoading } from '@/components/PageState/PageState'
+import resolvers from './resolvers'
+import BillingOverview from './components/BillingOverview'
 
-const KPIS: KpiDefinition<BillingKpiKey>[] = [
-  { key: 'todayRevenue', label: 'Ingresos de hoy', icon: 'receipt', tone: 'dark' },
-  { key: 'openAccounts', label: 'Cuentas abiertas', icon: 'folder-open', tone: 'blue' },
-  { key: 'receivables', label: 'Por cobrar', icon: 'circle-alert', tone: 'red' },
-  { key: 'averageTicket', label: 'Ticket promedio', icon: 'wallet', tone: 'green' },
-]
+export default function Page() {
+  const { data, error, isLoading } = useResolver(resolvers)
 
-const PANELS: ListPanelDefinition<BillingPanelKey>[] = [
-  { key: 'accountsToClose', title: 'Cuentas por cerrar', icon: 'folder-open', tone: 'amber' },
-  { key: 'pendingCollections', title: 'Cobros pendientes', icon: 'circle-alert', tone: 'red' },
-]
+  if (isLoading) {
+    return <PageLoading />
+  }
 
-export default function BillingSummaryPage() {
-  const { data, error, isLoading } = useResolver(resolveBillingSummary, {})
+  if (error) {
+    return <PageError message={error} />
+  }
 
-  return (
-    <>
-      <PageHeader
-        title="Facturación"
-        description="Salida del cliente: reúne los cargos de todos los módulos, factura, cobra y cierra el caso."
-      />
-      {isLoading && <LoadingState />}
-      {error && <ErrorState error={error} />}
-      {data && (
-        <>
-          <SummaryKpis definitions={KPIS} values={data.kpis} />
-          <SummaryListPanels definitions={PANELS} panels={data.panels} />
-        </>
-      )}
-    </>
-  )
+  if (!data.summary) {
+    return <PageLoading />
+  }
+
+  return <BillingOverview summary={data.summary} />
 }

@@ -1,7 +1,8 @@
-import KpiCard, { type KpiTone } from '@/components/KpiCard'
-import KpiGrid from '@/components/KpiGrid'
-import type { IconName } from '@/components/legacy-ui/Icon'
-import type { FinanceKpiKey, FinanceReport } from '../../finance.schema'
+import { CircleAlertIcon, PercentIcon, TrendingUpIcon, WalletIcon, type LucideIcon } from 'lucide-react'
+import KpiCard, { type KpiTone } from '@/components/KpiCard/KpiCard'
+import KpiGrid from '@/components/KpiGrid/KpiGrid'
+import { formatCurrency } from '@/lib/format-currency'
+import type { FinanceKpi, FinanceKpiKey, FinanceReport } from '@/modules/employee/finance/finance.schema'
 import AreaDetailCard from './AreaDetailCard'
 import AreaIncomeCard from './AreaIncomeCard'
 import PaymentMethodsCard from './PaymentMethodsCard'
@@ -13,16 +14,35 @@ type FinanceReportViewProps = {
 type KpiCardDefinition = {
   metric: FinanceKpiKey
   label: string
-  icon: IconName
+  icon: LucideIcon
   tone: KpiTone
 }
 
 const KPI_CARDS: KpiCardDefinition[] = [
-  { metric: 'income', label: 'Ingresos del mes', icon: 'wallet', tone: 'green' },
-  { metric: 'profit', label: 'Utilidad', icon: 'trending-up', tone: 'green' },
-  { metric: 'vat', label: 'IVA por declarar', icon: 'percent', tone: 'amber' },
-  { metric: 'receivable', label: 'Por cobrar', icon: 'circle-alert', tone: 'red' },
+  { metric: 'income', label: 'Ingresos del mes', icon: WalletIcon, tone: 'green' },
+  { metric: 'profit', label: 'Utilidad', icon: TrendingUpIcon, tone: 'green' },
+  { metric: 'vat', label: 'IVA por declarar', icon: PercentIcon, tone: 'amber' },
+  { metric: 'receivable', label: 'Por cobrar', icon: CircleAlertIcon, tone: 'red' },
 ]
+
+function formatKpiDetail(metric: FinanceKpiKey, kpi: FinanceKpi, periodLabel: string): string {
+  if (metric === 'income') {
+    return periodLabel
+  }
+  if (metric === 'profit') {
+    return `${kpi.margin ?? 0}% de margen`
+  }
+  if (metric === 'vat') {
+    return `al ${kpi.rate ?? 0}%`
+  }
+  if (metric === 'receivable') {
+    const count = kpi.count ?? 0
+
+    return `${count} ${count === 1 ? 'cliente' : 'clientes'}`
+  }
+
+  return ''
+}
 
 export default function FinanceReportView({ report }: FinanceReportViewProps) {
   return (
@@ -32,8 +52,8 @@ export default function FinanceReportView({ report }: FinanceReportViewProps) {
           <KpiCard
             key={card.metric}
             label={card.label}
-            value={report.kpis[card.metric].value}
-            detail={report.kpis[card.metric].detail}
+            value={formatCurrency(report.kpis[card.metric].value)}
+            detail={formatKpiDetail(card.metric, report.kpis[card.metric], report.periodLabel)}
             icon={card.icon}
             tone={card.tone}
           />

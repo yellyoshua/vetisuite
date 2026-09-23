@@ -1,7 +1,8 @@
-import EmptyState from '@/components/EmptyState'
-import Badge from '@/components/legacy-ui/Badge'
-import Card from '@/components/legacy-ui/Card'
-import Icon, { type IconName } from '@/components/legacy-ui/Icon'
+import EmptyState from '@/components/EmptyState/EmptyState'
+import type { LucideIcon } from 'lucide-react'
+import { CustomPageContainer } from '@/components/CustomPage/CustomPage'
+import { Badge } from '@/components/ui/badge'
+import { BADGE_TONE_CLASS_NAMES } from '@/constants/badge-tones'
 import type { ListPanelData } from '../dashboard.schema'
 
 type PanelIconTone = 'green' | 'amber' | 'blue' | 'red' | 'sub'
@@ -17,7 +18,7 @@ const ICON_TONE_CLASS_NAMES: Record<PanelIconTone, string> = {
 export type ListPanelDefinition<TKey extends string> = {
   key: TKey
   title: string
-  icon: IconName
+  icon: LucideIcon
   tone: PanelIconTone
 }
 
@@ -32,11 +33,13 @@ type SummaryListPanelsProps<TKey extends string> = {
 }
 
 function ListPanel({ definition, panel }: ListPanelProps) {
+  const Icon = definition.icon
+
   return (
-    <Card className="p-5">
+    <CustomPageContainer className="p-5">
       <div className="mb-3 flex items-center gap-2">
         <span className={ICON_TONE_CLASS_NAMES[definition.tone]}>
-          <Icon name={definition.icon} size={15} />
+          <Icon className="size-[15px]" aria-hidden="true" />
         </span>
         <h2 className="min-w-0 flex-1 font-head text-[15px] font-semibold text-ink">{definition.title}</h2>
         <span className="text-[11.5px] text-sub">{panel.meta}</span>
@@ -51,12 +54,12 @@ function ListPanel({ definition, panel }: ListPanelProps) {
                 <p className="text-[13.5px] font-semibold text-ink">{item.name}</p>
                 <p className="text-[12px] text-sub">{item.detail}</p>
               </div>
-              <Badge tone={item.tone}>{item.badge}</Badge>
+              <Badge variant="outline" className={BADGE_TONE_CLASS_NAMES[item.tone]}>{item.badge}</Badge>
             </li>
           ))}
         </ul>
       )}
-    </Card>
+    </CustomPageContainer>
   )
 }
 

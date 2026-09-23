@@ -75,7 +75,11 @@ export default defineConfig([
   },
   {
     files: ['client/src/**/*.{ts,tsx}'],
-    rules: { 'no-restricted-imports': clientForbiddenImports, 'no-console': 'error' },
+    rules: {
+      'no-restricted-imports': clientForbiddenImports,
+      'no-console': 'error',
+      'react-refresh/only-export-components': ['error', { allowConstantExport: true, extraHOCs: ['withModalFromQuery'] }],
+    },
   },
   {
     files: ['client/src/components/ui/**/*.tsx'],

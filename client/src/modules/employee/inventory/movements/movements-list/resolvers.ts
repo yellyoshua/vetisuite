@@ -1,7 +1,8 @@
-import type { ListPage } from '@/hooks/use-list-query'
+import type { Params } from 'react-router'
+import type { ResolverSearch, SearchValue } from '@/hooks/use-resolver'
 import { matchesSearch } from '@/lib/matches-search'
-import { paginateRows } from '@/lib/paginate-rows'
-import type { Movement, MovementListQuery } from '../movements.schema'
+import { pageRows } from '@/lib/page-rows'
+import type { Movement } from '@/modules/employee/inventory/movements/movements.schema'
 
 const MOVEMENTS: Movement[] = [
   { id: 'mov-1', productName: 'Vacuna Antirrábica', batchCode: 'L-2607-A', type: 'out', quantity: 1, destination: 'Visita de Max · Atención', date: '2026-09-06', time: '09:05', responsibleName: 'Dra. María Torres' },
@@ -18,15 +19,25 @@ const MOVEMENTS: Movement[] = [
   { id: 'mov-12', productName: 'Jeringas 5 ml', batchCode: 'L-2705-D', type: 'out', quantity: 2, destination: 'Toma de muestras · Laboratorio', date: '2026-08-29', time: '09:45', responsibleName: 'Lab. interno' },
 ]
 
-export function resolveMovementsList(query: MovementListQuery): Promise<ListPage<Movement>> {
+function resolveMovements(search: ResolverSearch): Promise<Movement[]> {
+  const type = asText(search.type)
+
   return Promise.resolve().then(() =>
-    paginateRows(
+    pageRows(
       MOVEMENTS.filter(
         (movement) =>
-          matchesSearch(query.search, [movement.productName, movement.destination]) &&
-          (!query.filters.type || movement.type === query.filters.type),
+          matchesSearch(asText(search.search), [movement.productName, movement.destination]) &&
+          (!type || movement.type === type),
       ),
-      query,
+      search.page,
     ),
   )
+}
+
+function asText(value: SearchValue | undefined): string {
+  return value === undefined || value === null ? '' : String(value)
+}
+
+export default {
+  movements: (_params: Readonly<Params>, search: ResolverSearch) => resolveMovements(search),
 }

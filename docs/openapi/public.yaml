@@ -1,0 +1,161 @@
+openapi: 3.1.0
+info:
+  title: public
+  version: "1.0.0"
+paths:
+  /api/oauth/vetisuite/authorize:
+    get:
+      operationId: oauth-vetisuite-authorize.get
+      tags: [public]
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 255
+  /api/oauth/vetisuite/token:
+    post:
+      operationId: oauth-vetisuite-token.post
+      tags: [public]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                  const: authorization_code
+                code:
+                  type: string
+                  minLength: 1
+                redirect_uri:
+                  type: string
+              required:
+                - grant_type
+                - code
+  /api/public/auth/email-verification:
+    post:
+      operationId: public-auth-email-verification.post
+      tags: [public]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  minLength: 1
+              required:
+                - token
+  /api/public/auth/forgot-password:
+    post:
+      operationId: public-auth-forgot-password.post
+      tags: [public]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+  /api/public/auth/recovery-password:
+    post:
+      operationId: public-auth-recovery-password.post
+      tags: [public]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 6
+                confirmPassword:
+                  type: string
+                  minLength: 1
+              required:
+                - token
+                - password
+                - confirmPassword
+  /api/public/auth/signin:
+    post:
+      operationId: public-auth-signin.post
+      tags: [public]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                redirect_uri:
+                  type: string
+                state:
+                  type: string
+                  maxLength: 255
+              required:
+                - email
+                - password
+  /api/public/auth/signup:
+    post:
+      operationId: public-auth-signup.post
+      tags: [public]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                organizationName:
+                  type: string
+                  minLength: 2
+                firstName:
+                  type: string
+                  minLength: 2
+                lastName:
+                  type: string
+                  minLength: 2
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                redirect_uri:
+                  type: string
+                state:
+                  type: string
+                  maxLength: 255
+              required:
+                - organizationName
+                - firstName
+                - lastName
+                - email
+                - password

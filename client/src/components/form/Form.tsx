@@ -176,3 +176,4 @@ export function FormInputDatePicker<TValues extends FieldValues>({ control, name
 
 export { FormUploadAvatar } from './FormUploadAvatar'
 export { FormUploadFiles } from './FormUploadFiles'
+export { FormSwitch } from './FormSwitch'

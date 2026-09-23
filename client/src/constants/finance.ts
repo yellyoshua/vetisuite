@@ -1,4 +1,4 @@
-import type { DonutTone } from '@/components/DonutChart'
+import type { DonutTone } from '@/components/DonutChart/DonutChart'
 
 export const FINANCE_PERIOD_VALUES = ['month', 'quarter', 'year', 'custom'] as const
 
@@ -37,3 +37,7 @@ export const FINANCE_TREND_CLASS_NAMES: Record<(typeof FINANCE_TREND_VALUES)[num
   up: 'text-green',
   down: 'text-red',
 }
+
+export const DEFAULT_FINANCE_PERIOD: (typeof FINANCE_PERIOD_VALUES)[number] = 'month'
+
+export const DEFAULT_FINANCE_COMPARISON: (typeof FINANCE_COMPARISON_VALUES)[number] = 'previous-month'

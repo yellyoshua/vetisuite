@@ -17,7 +17,9 @@
     "dev:server": "bun --cwd server dev",
     "build": "bun run --filter '*' build",
     "build:server": "bun --cwd server build",
+    "test:client": "bun --cwd client test",
     "test:server": "bun --cwd server test",
+    "test": "bun --cwd client test && bun --cwd server test",
     "lint": "eslint .",
     "typecheck": "bun run --filter '*' typecheck",
     "db:generate": "bun run --filter @vetisuite/database db:generate",
@@ -25,7 +27,9 @@
     "drizzle:migrate:generate": "bun --cwd packages/database drizzle:migrate:generate",
     "drizzle:migrate:apply": "bun --cwd packages/database drizzle:migrate:apply",
     "drizzle:migrate:check": "bun --cwd packages/database drizzle:migrate:check",
-    "deltas:launch": "bun --cwd server deltas:launch"
+    "deltas:launch": "bun --cwd server deltas:launch",
+    "seeds:restore": "sh seeds/restore.sh",
+    "seeds:export": "sh seeds/export.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

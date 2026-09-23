@@ -1,88 +1,61 @@
-import type { Dispatch } from 'react'
-import EmptyState from '@/components/EmptyState'
-import Button from '@/components/legacy-ui/Button'
-import Card from '@/components/legacy-ui/Card'
-import Icon from '@/components/legacy-ui/Icon'
-import Select from '@/components/legacy-ui/Select'
-import Toggle from '@/components/legacy-ui/Toggle'
-import { SERVICE_DURATION_VALUES } from '@/constants/appointments-clinics'
+import { LockIcon, PlusIcon } from 'lucide-react'
+import { CustomPageContainer } from '@/components/CustomPage/CustomPage'
+import EmptyState from '@/components/EmptyState/EmptyState'
+import { FormSwitch } from '@/components/form/Form'
+import { Button } from '@/components/ui/button'
+import type useForm from '@/hooks/use-form'
 import { formatCurrency } from '@/lib/format-currency'
-import type { BookableService } from '../../appointments-clinics.schema'
-import type { AvailabilityDraftAction } from '../use-availability-draft'
+import type { BookableService, ClinicAvailabilityInput } from '@/modules/employee/appointments-clinics/appointments-clinics.schema'
 import SectionHeading from './SectionHeading'
 
-type DraftDispatch = Dispatch<AvailabilityDraftAction>
+type AvailabilityForm = ReturnType<typeof useForm<ClinicAvailabilityInput>>
 
 type ServiceRowProps = {
   service: BookableService
-  dispatch: DraftDispatch
+  serviceIndex: number
+  form: AvailabilityForm
 }
 
 type BookableServicesCardProps = {
   services: BookableService[]
-  dispatch: DraftDispatch
+  form: AvailabilityForm
 }
 
-function ServiceRow({ service, dispatch }: ServiceRowProps) {
+function ServiceRow({ service, serviceIndex, form }: ServiceRowProps) {
   return (
     <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-line-soft py-3">
       <div className="min-w-0 flex-[1_1_200px]">
         <p className="font-head text-[13.5px] font-semibold text-ink">{service.name}</p>
         <p className="mt-px text-[11.5px] text-sub">{service.area}</p>
       </div>
-      <div className="min-w-[130px] flex-[0_1_150px]">
-        <Select
-          aria-label={`Duración, ${service.name}`}
-          value={service.durationMinutes}
-          onChange={(event) =>
-            dispatch({
-              type: 'change-service',
-              serviceId: service.id,
-              changes: { durationMinutes: Number(event.target.value) },
-            })
-          }
-        >
-          {SERVICE_DURATION_VALUES.map((minutes) => (
-            <option key={minutes} value={minutes}>
-              {minutes} min
-            </option>
-          ))}
-        </Select>
-      </div>
       <div className="flex min-w-[100px] flex-[0_1_120px] flex-col gap-0.5">
         <span className="font-head text-[13.5px] font-semibold text-ink tabular-nums">{formatCurrency(service.price)}</span>
         <span className="flex items-center gap-1 text-[10.5px] text-sub">
-          <Icon name="lock" size={11} />
+          <LockIcon className="size-[11px]" aria-hidden="true" />
           desde Catálogo
         </span>
       </div>
       <div className="min-w-[170px] flex-[0_1_190px]">
-        <Toggle
+        <FormSwitch
+          control={form.control}
+          name={`services.${serviceIndex}.isPortalVisible`}
           label="Visible en el portal"
-          aria-label={`Visible en el portal, ${service.name}`}
-          checked={service.isPortalVisible}
-          onChange={(event) =>
-            dispatch({
-              type: 'change-service',
-              serviceId: service.id,
-              changes: { isPortalVisible: event.target.checked },
-            })
-          }
+          ariaLabel={`Visible en el portal, ${service.name}`}
         />
       </div>
     </div>
   )
 }
 
-export default function BookableServicesCard({ services, dispatch }: BookableServicesCardProps) {
+export default function BookableServicesCard({ services, form }: BookableServicesCardProps) {
   return (
-    <Card className="p-5">
+    <CustomPageContainer className="p-5">
       <SectionHeading
         title="Servicios que se pueden reservar"
         description="Decide qué ofrece el portal y cuánto ocupa cada servicio en la agenda. El precio lo publica el Catálogo de Inventario."
         actions={
-          <Button variant="ghost" size="sm" isDisabled>
-            <Icon name="plus" size={13} /> Añadir servicio
+          <Button type="button" variant="ghost" size="sm" disabled>
+            <PlusIcon /> Añadir servicio
           </Button>
         }
       />
@@ -92,9 +65,9 @@ export default function BookableServicesCard({ services, dispatch }: BookableSer
           hint="Los servicios aparecen aquí cuando el Catálogo de Inventario los publica."
         />
       )}
-      {services.map((service) => (
-        <ServiceRow key={service.id} service={service} dispatch={dispatch} />
+      {services.map((service, serviceIndex) => (
+        <ServiceRow key={service.id} service={service} serviceIndex={serviceIndex} form={form} />
       ))}
-    </Card>
+    </CustomPageContainer>
   )
 }

@@ -1,6 +1,7 @@
-import type { BadgeTone } from '@/components/legacy-ui/Badge'
-import type { ButtonVariant } from '@/components/legacy-ui/button-class-name'
-import type { IconName } from '@/components/legacy-ui/Icon'
+import type { ComponentProps } from 'react'
+import { FlaskConicalIcon, ScissorsIcon, StethoscopeIcon, type LucideIcon } from 'lucide-react'
+import type { Button } from '@/components/ui/button'
+import type { BadgeTone } from '@/constants/badge-tones'
 
 export const VISIT_STATUS_VALUES = ['pending', 'in-progress', 'done'] as const
 
@@ -13,9 +14,9 @@ export const VISIT_NEXT_STATUS: Record<AdvanceableVisitStatus, VisitStatusValue>
   'in-progress': 'done',
 }
 
-export const VISIT_ADVANCE_VARIANTS: Record<AdvanceableVisitStatus, ButtonVariant> = {
-  pending: 'primary',
-  'in-progress': 'dark',
+export const VISIT_ADVANCE_VARIANTS: Record<AdvanceableVisitStatus, ComponentProps<typeof Button>['variant']> = {
+  pending: 'default',
+  'in-progress': 'secondary',
 }
 
 export const VISIT_STATUS_DOT_CLASS_NAMES: Record<VisitStatusValue, string> = {
@@ -40,10 +41,10 @@ export const VISIT_TYPE_TONES: Record<VisitTypeValue, BadgeTone> = {
   laboratory: 'green',
 }
 
-export const VISIT_TYPE_ICONS: Record<VisitTypeValue, IconName> = {
-  ambulatory: 'stethoscope',
-  grooming: 'scissors',
-  laboratory: 'flask-conical',
+export const VISIT_TYPE_ICONS: Record<VisitTypeValue, LucideIcon> = {
+  ambulatory: StethoscopeIcon,
+  grooming: ScissorsIcon,
+  laboratory: FlaskConicalIcon,
 }
 
 type VisitBoardScope = {

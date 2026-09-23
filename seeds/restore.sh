@@ -1,20 +1,16 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
 
-SEEDS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMPOSE_FILE="$(dirname "$SEEDS_DIR")/docker-compose.yaml"
+set -e
 
-restore() {
-  local file="$SEEDS_DIR/db/$1.sql"
-  if [ ! -s "$file" ]; then
-    echo "Omitido $1.sql (vacío o inexistente)"
-    return
-  fi
-  docker compose -f "$COMPOSE_FILE" exec -T -e PGPASSWORD=vetisuite postgres \
-    psql -U vetisuite -d vetisuite -v ON_ERROR_STOP=1 <"$file"
-}
+cd "$(dirname "$0")/.."
 
-restore migrations
-restore fixtures
+DB_URI="${DATABASE_URL:-postgresql://postgres@localhost:5432/vetisuite}"
 
-echo "Restaurado desde $SEEDS_DIR/db"
+echo "🔄 Restaurando base de datos desde seeds/db/..."
+
+psql "$DB_URI" -q -v ON_ERROR_STOP=1 --single-transaction \
+  -c 'DROP SCHEMA IF EXISTS public CASCADE; DROP SCHEMA IF EXISTS drizzle CASCADE; CREATE SCHEMA public;' \
+  -f "seeds/db/fixtures.sql" \
+  -f "seeds/db/migrations.sql" > /dev/null
+
+echo "✅ ¡Base de datos restaurada con éxito desde seeds/db/!"

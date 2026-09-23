@@ -41,7 +41,7 @@ export type SettingsUpdate = {
   values: SettingsValues
 }
 
-function fieldSchema(field: SettingsField): z.ZodType<string> {
+function fieldSchema(field: SettingsField): z.ZodType<string, string> {
   if (field.type === 'select') {
     return z.enum(field.options, { error: `${field.label}: elige una opción de la lista` })
   }

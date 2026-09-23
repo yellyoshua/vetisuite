@@ -1,29 +1,19 @@
-import { z } from 'zod'
-import { CLIENT_STATUS_VALUES } from '@/constants/clients'
-import type { ListQuery } from '@/hooks/use-list-query'
+import zod from 'zod'
 
-export const clientSchema = z.object({
-  name: z.string().trim().min(1, 'El nombre es obligatorio'),
-  nationalId: z.string().trim().min(1, 'La cédula es obligatoria'),
-  phone: z.string().trim().min(1, 'El teléfono es obligatorio'),
-  email: z.email('El correo electrónico no es válido').or(z.literal('')),
+export const clientSchema = zod.object({
+  name: zod.string().trim().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  phone: zod.string().trim().min(6, 'El teléfono debe tener al menos 6 dígitos'),
+  email: zod.union([zod.email('Email inválido'), zod.literal('')]).nullish(),
 })
 
-export type ClientInput = z.infer<typeof clientSchema>
+export type ClientValues = zod.infer<typeof clientSchema>
 
-export type ClientStatus = (typeof CLIENT_STATUS_VALUES)[number]
-
-export type Client = ClientInput & {
+export type Client = {
   id: string
-  status: ClientStatus
-  hasOpenAccount: boolean
+  name: string
+  phone: string
+  email: string | null
+  debt: string
   createdAt: string
-  lastVisitAt: string | null
-  petNames: string[]
+  updatedAt: string
 }
-
-export type ClientPreset = 'open-account' | 'new-this-month' | 'no-recent-visit'
-
-export type ClientFilterKey = 'status' | 'preset'
-
-export type ClientListQuery = ListQuery<ClientFilterKey>

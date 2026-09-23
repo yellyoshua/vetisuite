@@ -1,10 +1,9 @@
+import type { Params } from 'react-router'
+import { DEFAULT_SETTINGS_SECTION } from '@/constants/settings'
+import type { ResolverSearch } from '@/hooks/use-resolver'
 import { NotFoundError } from '@/lib/not-found-error'
 import { parseInput } from '@/lib/parse-input'
-import { settingsValuesSchema, type SettingsSection, type SettingsUpdate, type SettingsValues } from '../settings.schema'
-
-type SettingsSectionParams = {
-  section: string
-}
+import { settingsValuesSchema, type SettingsSection, type SettingsUpdate, type SettingsValues } from '@/modules/employee/settings/settings.schema'
 
 const SETTINGS_SECTIONS: SettingsSection[] = [
   {
@@ -224,9 +223,6 @@ function applyValues(section: SettingsSection, values: SettingsValues): Settings
   }
 }
 
-export function resolveClinicSettings({ section }: SettingsSectionParams): Promise<SettingsSection> {
-  return Promise.resolve().then(() => findSection(section))
-}
 
 export function saveClinicSettings({ section, values }: SettingsUpdate): Promise<SettingsSection> {
   return Promise.resolve().then(() => {
@@ -236,4 +232,9 @@ export function saveClinicSettings({ section, values }: SettingsUpdate): Promise
 
     return savedSection
   })
+}
+
+export default {
+  section: (_params: Readonly<Params>, search: ResolverSearch) =>
+    Promise.resolve().then(() => findSection(search.section ? String(search.section) : DEFAULT_SETTINGS_SECTION)),
 }

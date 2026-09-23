@@ -1,4 +1,3 @@
-import type { ListQuery } from '@/hooks/use-list-query'
 import type { ExpiryStatus, ProductCategory } from '../inventory.schema'
 
 export type Batch = {
@@ -11,7 +10,3 @@ export type Batch = {
   expiresAt: string
   status: ExpiryStatus
 }
-
-export type BatchFilterKey = 'status'
-
-export type BatchListQuery = ListQuery<BatchFilterKey>

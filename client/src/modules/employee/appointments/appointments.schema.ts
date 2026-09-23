@@ -1,18 +1,29 @@
 import { APPOINTMENT_STATUS_VALUES } from '@/constants/appointments'
-import type { ListQuery } from '@/hooks/use-list-query'
 
 export type AppointmentStatus = (typeof APPOINTMENT_STATUS_VALUES)[number]
 
+export type AppointmentPatient = {
+  id: string
+  name: string
+}
+
+export type AppointmentVet = {
+  id: string
+  firstName: string
+  lastName: string
+}
+
 export type Appointment = {
   id: string
-  patientName: string
-  ownerName: string
-  date: string
-  time: string
+  startsAt: string
+  durationMinutes: number
   reason: string
-  doctorId: string
-  doctorName: string
   status: AppointmentStatus
+  source: string
+  createdAt: string
+  updatedAt: string
+  patient: AppointmentPatient
+  vet: AppointmentVet | null
 }
 
 export type AppointmentDoctor = {
@@ -26,11 +37,3 @@ export type AppointmentsAgenda = {
   nextDate: string
   doctors: AppointmentDoctor[]
 }
-
-export type AppointmentsAgendaQuery = {
-  date: string
-}
-
-export type AppointmentFilterKey = 'status' | 'doctor' | 'date'
-
-export type AppointmentListQuery = ListQuery<AppointmentFilterKey>

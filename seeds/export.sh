@@ -1,15 +1,15 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
 
-SEEDS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMPOSE_FILE="$(dirname "$SEEDS_DIR")/docker-compose.yaml"
+set -e
 
-dump() {
-  docker compose -f "$COMPOSE_FILE" exec -T -e PGPASSWORD=vetisuite postgres \
-    pg_dump -U vetisuite -d vetisuite --no-owner --no-privileges "$@"
-}
+cd "$(dirname "$0")/.."
 
-dump --schema-only >"$SEEDS_DIR/db/migrations.sql"
-dump --data-only --column-inserts >"$SEEDS_DIR/db/fixtures.sql"
+DB_URI="${DATABASE_URL:-postgresql://postgres@localhost:5432/vetisuite}"
 
-echo "Exportado a $SEEDS_DIR/db"
+echo "📦 Exportando datos a seeds/db/fixtures.sql..."
+pg_dump --clean --if-exists -O -x -n public --file="seeds/db/fixtures.sql" "$DB_URI"
+
+echo "📦 Exportando migraciones a seeds/db/migrations.sql..."
+pg_dump --clean --if-exists -O -x -n drizzle --file="seeds/db/migrations.sql" "$DB_URI"
+
+echo "✅ ¡Base de datos exportada con éxito en seeds/db/!"

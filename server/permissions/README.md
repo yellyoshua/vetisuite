@@ -45,3 +45,30 @@ cuenta y no está en pkit.
 | 34 | `clients-patients.post.js` | `clients-patients` | `create` | owner, employee | `client`, `name`, `species`, `breed`, `sex`, `birthDate` | **owner, employee**: `assertOrganizationClient` (404) | organización = la de la sesión |
 | 35 | `clients-patients.put.js` | `clients-patients` | `update` | owner, employee | `id`, `name`, `species`, `breed`, `sex`, `birthDate` | **owner, employee**: `assertOrganizationPatient` (404) | `updatePatientSchema` |
 | 36 | `clients-patients.delete.js` | `clients-patients` | `remove` | owner | `id` | **owner**: `assertOrganizationPatient` (404) | archiva (`archivedAt`), no borra |
+| 37 | `organizations.get.js` | `organizations` | `find` | superadmin | `id`, `name`, `slug`, `createdAt`, `search` | — | `listParams`; solo organizaciones sin `archivedAt`; alimenta el selector del alta de dueños |
+| 38 | `appointments.get.js` | `appointments` | `find` | owner, employee | `id`, `page`, `limit`, `search`, `order`, `date`, `vet`, `status` | — | pin `{organization: profile.organization, archivedAt: null}` |
+| 39 | `appointments-count.get.js` | `appointments-count` | `find` | owner, employee | `search`, `date`, `vet`, `patient`, `status` | — | pin `{organization: profile.organization, archivedAt: null}` |
+| 40 | `appointments-availability.get.js` | `appointments-availability` | `find` | owner, employee | `id`, `timezone`, `week`, `overrides`, `slotMinutes`, `bufferBefore`, `bufferAfter`, `minNoticeHours`, `maxAdvanceDays`, `maxPerDay`, `onlineBooking`, `autoConfirm`, `createdAt`, `updatedAt` | — | disponibilidad y configuración de reservas de la organización |
+| 41 | `appointments-availability.put.js` | `appointments-availability` | `update` | owner, employee | `id`, `timezone`, `week`, `overrides`, `slotMinutes`, `bufferBefore`, `bufferAfter`, `minNoticeHours`, `maxAdvanceDays`, `maxPerDay`, `onlineBooking`, `autoConfirm` | **owner, employee**: `assertOrganizationAvailability` | actualización de disponibilidad |
+| 42 | `visits.get.js` | `visits` | `find` | owner, employee | `id`, `page`, `limit`, `search`, `order`, `status` | — | pin `{organization: profile.organization, archivedAt: null}` |
+| 43 | `visits-count.get.js` | `visits-count` | `find` | owner, employee | `search`, `type`, `status`, `staff` | — | pin `{organization: profile.organization, archivedAt: null}` |
+| 44 | `visits-status.put.js` | `visits-status` | `update` | owner, employee | `id`, `status` | **owner, employee**: `assertOrganizationVisit` | avance de estado con predicado de concurrencia |
+| 45 | `inventory.get.js` | `inventory` | `find` | owner, employee | `id`, `page`, `limit`, `search`, `order`, `category` | — | pin `{organization: profile.organization, archivedAt: null}` |
+| 46 | `inventory-count.get.js` | `inventory-count` | `find` | owner, employee | `search`, `category` | — | pin `{organization: profile.organization, archivedAt: null}` |
+| 47 | `visits-grooming.get.js` | `visits-grooming` | `find` | owner, employee | `id`, `page`, `limit`, `search`, `order`, `status`, `preset` | — | pin `{organization: profile.organization, archivedAt: null}` |
+| 48 | `visits-grooming-count.get.js` | `visits-grooming-count` | `find` | owner, employee | `search`, `status`, `preset` | — | pin `{organization: profile.organization, archivedAt: null}` |
+| 49 | `clinic.get.js` | `clinic` | `find` | owner, employee | `id`, `page`, `limit`, `search`, `order`, `kind`, `status`, `preset` | — | registros clínicos de la organización |
+| 50 | `clinic-count.get.js` | `clinic-count` | `find` | owner, employee | `id`, `search`, `kind`, `status`, `preset` | — | conteo de registros clínicos |
+| 51 | `billing.get.js` | `billing` | `find` | owner, employee | `id`, `page`, `limit`, `search`, `order`, `status`, `preset` | — | pin `{organization: profile.organization}` |
+| 52 | `billing-count.get.js` | `billing-count` | `find` | owner, employee | `id`, `search`, `status`, `preset` | — | pin `{organization: profile.organization}` |
+| 53 | `finance.get.js` | `finance` | `find` | owner, employee | `period`, `from`, `to`, `comparison` | — | reporte financiero de la organización |
+| 54 | `portals.get.js` | `portals` | `find` | owner, employee | `id`, `page`, `limit`, `search`, `order`, `preset`, `purpose`, `status` | — | pin `{organization: profile.organization, archivedAt: null}` |
+| 55 | `portals-count.get.js` | `portals-count` | `find` | owner, employee | `id`, `search`, `preset`, `purpose`, `status` | — | pin `{organization: profile.organization, archivedAt: null}` |
+| 56 | `dashboard-reception.get.js` | `dashboard-reception` | `find` | owner, employee | `[]` | — | resumen operativo de recepción |
+| 57 | `dashboard-care.get.js` | `dashboard-care` | `find` | owner, employee | `[]` | — | resumen operativo de atención médica |
+| 58 | `dashboard-grooming.get.js` | `dashboard-grooming` | `find` | owner, employee | `[]` | — | resumen operativo de estética |
+| 59 | `dashboard-laboratory.get.js` | `dashboard-laboratory` | `find` | owner, employee | `[]` | — | resumen operativo de laboratorio |
+| 60 | `dashboard-inventory.get.js` | `dashboard-inventory` | `find` | owner, employee | `[]` | — | resumen operativo de inventario |
+| 61 | `dashboard-billing.get.js` | `dashboard-billing` | `find` | owner, employee | `[]` | — | resumen operativo de facturación |
+| 62 | `dashboard-marketing.get.js` | `dashboard-marketing` | `find` | owner, employee | `[]` | — | resumen de marketing y reservas |
+| 63 | `dashboard-administration.get.js` | `dashboard-administration` | `find` | owner | `[]` | — | gobierno y administración (solo owner) |

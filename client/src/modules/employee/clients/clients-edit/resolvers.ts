@@ -1,35 +1,15 @@
-import { NotFoundError } from '@/lib/not-found-error'
-import { parseInput } from '@/lib/parse-input'
-import { clientSchema, type Client, type ClientInput } from '../clients.schema'
-import { CLIENTS } from '../clients-list/resolvers'
+import type { Params } from 'react-router'
+import clientsService from '@/modules/employee/clients/clients.service'
+import type { Client } from '@/modules/employee/clients/clients.schema'
 
-type ClientParams = {
-  clientId: string
-}
+export default {
+  client: async (params: Readonly<Params>) => {
+    const client = await clientsService.getOne<Client>({ id: params.clientId })
 
-type ClientUpdate = ClientParams & {
-  input: ClientInput
-}
+    if (!client) {
+      throw new Error('No se encontró el cliente')
+    }
 
-function findClient(clientId: string): Client {
-  const client = CLIENTS.find((candidate) => candidate.id === clientId)
-  if (!client) {
-    throw new NotFoundError('No encontramos el cliente que buscas.')
-  }
-
-  return client
-}
-
-export function resolveClientEdit({ clientId }: ClientParams): Promise<Client> {
-  return Promise.resolve().then(() => findClient(clientId))
-}
-
-export function updateClient({ clientId, input }: ClientUpdate): Promise<Client> {
-  return Promise.resolve().then(() => {
-    const client = findClient(clientId)
-    const updatedClient: Client = { ...client, ...parseInput(clientSchema, input) }
-    CLIENTS.splice(CLIENTS.indexOf(client), 1, updatedClient)
-
-    return updatedClient
-  })
+    return client
+  },
 }

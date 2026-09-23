@@ -1,12 +1,12 @@
-import KpiCard, { type KpiTone } from '@/components/KpiCard'
-import KpiGrid from '@/components/KpiGrid'
-import type { IconName } from '@/components/legacy-ui/Icon'
+import KpiCard, { type KpiTone } from '@/components/KpiCard/KpiCard'
+import KpiGrid from '@/components/KpiGrid/KpiGrid'
+import type { LucideIcon } from 'lucide-react'
 import type { KpiValue } from '../dashboard.schema'
 
 export type KpiDefinition<TKey extends string> = {
   key: TKey
   label: string
-  icon: IconName
+  icon: LucideIcon
   tone: KpiTone
 }
 

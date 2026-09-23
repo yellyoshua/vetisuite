@@ -1,29 +1,15 @@
-import { parseInput } from '@/lib/parse-input'
-import { patientSchema, type Patient, type PatientDraft, type PatientOwner } from '../patients.schema'
-import { findPatientOwner, PATIENTS, syncOwnerPetNames } from '../patients-list/resolvers'
+import type { Params } from 'react-router'
+import clientsService from '@/modules/employee/clients/clients.service'
+import type { Client } from '@/modules/employee/clients/clients.schema'
 
-type PatientOwnerParams = {
-  clientId: string
-}
+export default {
+  client: async (params: Readonly<Params>) => {
+    const client = await clientsService.getOne<Client>({ id: params.clientId })
 
-type PatientCreation = PatientOwnerParams & {
-  draft: PatientDraft
-}
-
-export function resolvePatientOwner({ clientId }: PatientOwnerParams): Promise<PatientOwner> {
-  return Promise.resolve().then(() => findPatientOwner(clientId))
-}
-
-export function createPatient({ clientId, draft }: PatientCreation): Promise<Patient> {
-  return Promise.resolve().then(() => {
-    const patient: Patient = {
-      ...parseInput(patientSchema, draft),
-      id: crypto.randomUUID(),
-      clientId: findPatientOwner(clientId).id,
+    if (!client) {
+      throw new Error('No se encontró el cliente')
     }
-    PATIENTS.push(patient)
-    syncOwnerPetNames(patient.clientId)
 
-    return patient
-  })
+    return client
+  },
 }

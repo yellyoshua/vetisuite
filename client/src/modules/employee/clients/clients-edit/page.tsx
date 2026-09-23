@@ -1,34 +1,22 @@
-import { useNavigate, useParams } from 'react-router'
-import ErrorState from '@/components/ErrorState'
-import LoadingState from '@/components/LoadingState'
-import PageHeader from '@/components/PageHeader'
-import useMutation from '@/hooks/legacy/use-mutation'
-import useResolver from '@/hooks/legacy/use-resolver'
-import ClientForm from '../components/ClientForm'
-import { resolveClientEdit, updateClient } from './resolvers'
+import useResolver from '@/hooks/use-resolver'
+import { PageError, PageLoading } from '@/components/PageState/PageState'
+import resolvers from './resolvers'
+import EditClientForm from './components/EditClientForm'
 
-export default function ClientsEditPage() {
-  const { clientId = '' } = useParams()
-  const navigate = useNavigate()
-  const { data, error, isLoading } = useResolver(resolveClientEdit, { clientId })
-  const [isSaving, saveClient, saveError] = useMutation(updateClient, {
-    onSuccess: () => navigate('/clients'),
-  })
+export default function Page() {
+  const { data, error, isLoading } = useResolver(resolvers)
 
-  return (
-    <>
-      <PageHeader title="Editar cliente" description="Actualiza los datos de contacto del dueño." />
-      {isLoading && <LoadingState />}
-      {error && <ErrorState error={error} />}
-      {data && (
-        <ClientForm
-          key={data.id}
-          client={data}
-          isSubmitting={isSaving}
-          submitError={saveError}
-          onSubmit={(input) => saveClient({ clientId, input })}
-        />
-      )}
-    </>
-  )
+  if (isLoading) {
+    return <PageLoading />
+  }
+
+  if (error) {
+    return <PageError message={error} />
+  }
+
+  if (!data.client) {
+    return <PageLoading />
+  }
+
+  return <EditClientForm client={data.client} />
 }

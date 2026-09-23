@@ -1,4 +1,4 @@
-import type { BadgeTone } from '@/components/legacy-ui/Badge'
+import type { BadgeTone } from '@/constants/badge-tones'
 
 export const GROOMING_STATUS_VALUES = ['pending', 'in-progress', 'finished', 'delivered'] as const
 

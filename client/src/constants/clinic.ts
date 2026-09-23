@@ -1,4 +1,4 @@
-import type { BadgeTone } from '@/components/legacy-ui/Badge'
+import type { BadgeTone } from '@/constants/badge-tones'
 
 export const CLINIC_RECORD_STATUS_VALUES = ['in-progress', 'requested', 'result'] as const
 

@@ -1,13 +1,13 @@
-import type { BadgeTone } from '@/components/legacy-ui/Badge'
+import type { BadgeTone } from '@/constants/badge-tones'
 
-export const PRODUCT_CATEGORY_VALUES = ['vaccines', 'medicines', 'supplies', 'food', 'grooming'] as const
+export const PRODUCT_CATEGORY_VALUES = ['vaccines', 'medications', 'grooming', 'food', 'supplies'] as const
 
 export const PRODUCT_CATEGORY_LABELS: Record<(typeof PRODUCT_CATEGORY_VALUES)[number], string> = {
   vaccines: 'Vacunas',
-  medicines: 'Medicamentos',
-  supplies: 'Insumos',
-  food: 'Alimentos',
+  medications: 'Medicamentos',
   grooming: 'Estética',
+  food: 'Alimentos',
+  supplies: 'Insumos',
 }
 
 export const PRODUCT_STATUS_VALUES = ['available', 'expiring', 'low-stock', 'expired'] as const

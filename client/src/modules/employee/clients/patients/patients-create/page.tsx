@@ -1,33 +1,22 @@
-import { useNavigate, useParams } from 'react-router'
-import ErrorState from '@/components/ErrorState'
-import LoadingState from '@/components/LoadingState'
-import PageHeader from '@/components/PageHeader'
-import useMutation from '@/hooks/legacy/use-mutation'
-import useResolver from '@/hooks/legacy/use-resolver'
-import PatientForm from '../components/PatientForm'
-import { createPatient, resolvePatientOwner } from './resolvers'
+import useResolver from '@/hooks/use-resolver'
+import { PageError, PageLoading } from '@/components/PageState/PageState'
+import resolvers from './resolvers'
+import CreatePatientForm from './components/CreatePatientForm'
 
-export default function PatientsCreatePage() {
-  const { clientId = '' } = useParams()
-  const navigate = useNavigate()
-  const { data, error, isLoading } = useResolver(resolvePatientOwner, { clientId })
-  const [isSaving, savePatient, saveError] = useMutation(createPatient, {
-    onSuccess: () => navigate(`/clients/${clientId}/patients`),
-  })
+export default function Page() {
+  const { data, error, isLoading } = useResolver(resolvers)
 
-  return (
-    <>
-      <PageHeader title="Nueva mascota" description="Registra una mascota y sus alertas clínicas para este dueño." />
-      {isLoading && <LoadingState />}
-      {error && <ErrorState error={error} />}
-      {data && (
-        <PatientForm
-          owner={data}
-          isSubmitting={isSaving}
-          submitError={saveError}
-          onSubmit={(draft) => savePatient({ clientId, draft })}
-        />
-      )}
-    </>
-  )
+  if (isLoading) {
+    return <PageLoading />
+  }
+
+  if (error) {
+    return <PageError message={error} />
+  }
+
+  if (!data.client) {
+    return <PageLoading />
+  }
+
+  return <CreatePatientForm client={data.client} />
 }

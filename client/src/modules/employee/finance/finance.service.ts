@@ -1,9 +1,3 @@
-import type { FinanceQuery, FinanceReport } from './finance.schema'
+import service from '@/core/service'
 
-const financeService = {
-  report(_query: FinanceQuery): Promise<FinanceReport> {
-    throw new Error('Not implemented: financeService.report')
-  },
-}
-
-export default financeService
+export default service('finance')

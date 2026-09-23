@@ -14,16 +14,8 @@ export type Visit = {
   ownerName: string
   service: string
   staffName: string
-  time: string
+  createdAt: string
   status: VisitStatus
-}
-
-export type VisitFilterKey = 'staff'
-
-export type VisitBoardQuery = {
-  scope: VisitScope
-  search: string
-  staff: string
 }
 
 export type VisitBoardColumn = {
@@ -34,12 +26,6 @@ export type VisitBoardColumn = {
 export type VisitBoardSummary = {
   openCount: number
   billableCount: number
-}
-
-export type VisitBoard = {
-  columns: VisitBoardColumn[]
-  staffNames: string[]
-  summary: VisitBoardSummary
 }
 
 export const visitAdvanceSchema = z.object({

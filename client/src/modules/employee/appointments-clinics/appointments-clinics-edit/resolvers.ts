@@ -1,21 +1,22 @@
-import { NotFoundError } from '@/lib/not-found-error'
-import { resolveScheduleExceptionIds } from '@/modals/ConfirmDialog/resolvers'
 import { parseInput } from '@/lib/parse-input'
 import {
+  WEEKDAY_VALUES,
+} from '@/constants/appointments-clinics'
+import {
   clinicAvailabilitySchema,
-  type BookableService,
+  type ApiAppointmentsAvailability,
   type ClinicAvailability,
   type ClinicAvailabilityInput,
   type ScheduleException,
   type ScheduleDay,
   type Weekday,
-} from '../appointments-clinics.schema'
+} from '@/modules/employee/appointments-clinics/appointments-clinics.schema'
+import appointmentsAvailabilityService from '@/modules/employee/appointments-clinics/appointments-availability.service'
 
-function createWorkday(weekday: Weekday): ScheduleDay {
+function createDefaultWorkday(weekday: Weekday): ScheduleDay {
   return {
     weekday,
-    isOpen: true,
-    parallelCapacity: 2,
+    isOpen: weekday !== 'sunday',
     blocks: [
       { from: '08:00', to: '13:00' },
       { from: '14:00', to: '18:00' },
@@ -23,88 +24,168 @@ function createWorkday(weekday: Weekday): ScheduleDay {
   }
 }
 
-let clinicAvailability: ClinicAvailability = {
-  days: [
-    createWorkday('monday'),
-    createWorkday('tuesday'),
-    createWorkday('wednesday'),
-    createWorkday('thursday'),
-    createWorkday('friday'),
-    { weekday: 'saturday', isOpen: true, parallelCapacity: 1, blocks: [{ from: '09:00', to: '14:00' }] },
-    { weekday: 'sunday', isOpen: false, parallelCapacity: 1, blocks: [{ from: '09:00', to: '13:00' }] },
-  ],
-  bookingRules: {
-    appointmentDuration: '30 minutos',
-    bufferTime: '10 minutos',
-    minimumNotice: '2 horas',
-    bookingWindow: '30 días',
-    freeCancellation: '12 horas antes',
-    timeZone: 'America/Guayaquil',
-  },
-  bookingToggles: {
-    portalBooking: true,
-    autoConfirm: false,
-    waitlist: true,
-    requirePetData: true,
-  },
-  services: [
-    { id: 'svc-1', name: 'Consulta general', area: 'Atención · ambulatorio', durationMinutes: 30, price: 25, isPortalVisible: true },
-    { id: 'svc-2', name: 'Vacunación', area: 'Atención · ambulatorio', durationMinutes: 20, price: 30, isPortalVisible: true },
-    { id: 'svc-3', name: 'Baño y corte', area: 'Estética', durationMinutes: 60, price: 22, isPortalVisible: true },
-    { id: 'svc-4', name: 'Toma de muestras', area: 'Laboratorio', durationMinutes: 20, price: 17, isPortalVisible: false },
-  ],
-  exceptions: [
-    { id: 'exc-1', date: '2026-10-12', reason: 'Feriado nacional', kind: 'closed' },
-    {
-      id: 'exc-2',
-      date: '2026-11-02',
-      reason: 'Feriado · guardia de urgencias',
-      kind: 'reduced-hours',
-      hours: { from: '10:00', to: '14:00' },
-    },
-    {
-      id: 'exc-3',
-      date: '2026-12-24',
-      reason: 'Jornada corta',
-      kind: 'reduced-hours',
-      hours: { from: '08:00', to: '13:00' },
-    },
-  ],
-}
-
-function applyServiceChanges(
-  services: BookableService[],
-  changes: ClinicAvailabilityInput['services'],
-): BookableService[] {
-  return changes.map((change) => {
-    const service = services.find((candidate) => candidate.id === change.id)
-    if (!service) {
-      throw new NotFoundError('No encontramos uno de los servicios que intentas guardar.')
+function mapRecordToAvailability(record: ApiAppointmentsAvailability): ClinicAvailability {
+  const days: ScheduleDay[] = WEEKDAY_VALUES.map((weekday, index) => {
+    const found = record.week?.find((item) => item.weekday === weekday) || record.week?.[index]
+    if (!found) {
+      return { weekday, isOpen: false, blocks: [{ from: '09:00', to: '17:00' }] }
     }
 
-    return { ...service, ...change }
+    return {
+      weekday,
+      isOpen: found.enabled,
+      blocks: found.ranges.length > 0
+        ? found.ranges.map((range) => ({ from: range.start, to: range.end }))
+        : [{ from: '09:00', to: '17:00' }],
+    }
   })
+
+  const exceptions: ScheduleException[] = (record.overrides || []).map((override) => {
+    const isClosed = override.ranges.length === 0
+
+    if (isClosed) {
+      return {
+        id: override.id || override.date,
+        date: override.date,
+        reason: override.label,
+        kind: 'closed',
+      }
+    }
+
+    return {
+      id: override.id || override.date,
+      date: override.date,
+      reason: override.label,
+      kind: 'reduced-hours',
+      hours: { from: override.ranges[0].start, to: override.ranges[0].end },
+    }
+  })
+
+  const bufferLabel = record.bufferAfter === 0 ? 'Sin margen' : `${record.bufferAfter} minutos`
+  const noticeLabel = record.minNoticeHours === 0 ? 'Sin mínimo' : `${record.minNoticeHours} horas`
+
+  return {
+    id: record.id,
+    days,
+    bookingRules: {
+      appointmentDuration: `${record.slotMinutes} minutos`,
+      bufferTime: bufferLabel,
+      minimumNotice: noticeLabel,
+      bookingWindow: `${record.maxAdvanceDays} días`,
+      timeZone: record.timezone,
+    },
+    bookingToggles: {
+      portalBooking: record.onlineBooking,
+      autoConfirm: record.autoConfirm,
+    },
+    services: [],
+    exceptions,
+  }
 }
 
-export function resolveClinicAvailability(): Promise<ClinicAvailability> {
-  return Promise.resolve().then(() => clinicAvailability)
+function createDefaultAvailability(): ClinicAvailability {
+  return {
+    days: WEEKDAY_VALUES.map(createDefaultWorkday),
+    bookingRules: {
+      appointmentDuration: '30 minutos',
+      bufferTime: '10 minutos',
+      minimumNotice: '2 horas',
+      bookingWindow: '30 días',
+      timeZone: 'America/Guayaquil',
+    },
+    bookingToggles: {
+      portalBooking: true,
+      autoConfirm: false,
+    },
+    services: [],
+    exceptions: [],
+  }
 }
 
-export function resolveScheduleExceptions(): Promise<ScheduleException[]> {
-  return resolveScheduleExceptionIds().then((existingIds) =>
-    clinicAvailability.exceptions.filter((exception) => existingIds.includes(exception.id)),
+export async function resolveAvailability(): Promise<ClinicAvailability> {
+  const record = await appointmentsAvailabilityService.getOne<ApiAppointmentsAvailability>()
+
+  if (!record) {
+    return createDefaultAvailability()
+  }
+
+  return mapRecordToAvailability(record)
+}
+
+export async function resolveExceptions(): Promise<ScheduleException[]> {
+  const availability = await resolveAvailability()
+
+  return availability.exceptions
+}
+
+export async function deleteScheduleException(exceptionId: string): Promise<void> {
+  const record = await appointmentsAvailabilityService.getOne<ApiAppointmentsAvailability>()
+  if (!record) {
+    return
+  }
+
+  const remainingOverrides = (record.overrides || []).filter(
+    (override) => (override.id || override.date) !== exceptionId,
   )
+
+  await appointmentsAvailabilityService.put({
+    id: record.id,
+    timezone: record.timezone,
+    week: record.week,
+    overrides: remainingOverrides,
+    slotMinutes: record.slotMinutes,
+    bufferBefore: record.bufferBefore,
+    bufferAfter: record.bufferAfter,
+    minNoticeHours: record.minNoticeHours,
+    maxAdvanceDays: record.maxAdvanceDays,
+    maxPerDay: record.maxPerDay,
+    onlineBooking: record.onlineBooking,
+    autoConfirm: record.autoConfirm,
+  })
 }
 
-export function saveClinicAvailability(draft: ClinicAvailability): Promise<ClinicAvailability> {
-  return Promise.resolve().then(() => {
-    const input = parseInput(clinicAvailabilitySchema, draft)
-    clinicAvailability = {
-      ...clinicAvailability,
-      ...input,
-      services: applyServiceChanges(clinicAvailability.services, input.services),
-    }
+export async function saveClinicAvailability(draft: ClinicAvailabilityInput): Promise<ClinicAvailability> {
+  const input = parseInput(clinicAvailabilitySchema, draft)
+  const existing = await appointmentsAvailabilityService.getOne<ApiAppointmentsAvailability>()
 
-    return clinicAvailability
-  })
+  const slotMinutes = Number.parseInt(input.bookingRules.appointmentDuration, 10) || 30
+  const bufferAfter = input.bookingRules.bufferTime === 'Sin margen' ? 0 : Number.parseInt(input.bookingRules.bufferTime, 10) || 0
+  const minNoticeHours = input.bookingRules.minimumNotice === 'Sin mínimo' ? 0 : Number.parseInt(input.bookingRules.minimumNotice, 10) || 0
+  const maxAdvanceDays = Number.parseInt(input.bookingRules.bookingWindow, 10) || 30
+
+  const week = input.days.map((day) => ({
+    weekday: day.weekday,
+    enabled: day.isOpen,
+    ranges: day.isOpen ? day.blocks.map((block) => ({ start: block.from, end: block.to })) : [],
+  }))
+
+  const overrides = existing?.overrides || []
+
+  const payload = {
+    id: input.id || existing?.id,
+    timezone: input.bookingRules.timeZone,
+    week,
+    overrides,
+    slotMinutes,
+    bufferBefore: 0,
+    bufferAfter,
+    minNoticeHours,
+    maxAdvanceDays,
+    maxPerDay: existing?.maxPerDay ?? 20,
+    onlineBooking: input.bookingToggles.portalBooking,
+    autoConfirm: input.bookingToggles.autoConfirm,
+  }
+
+  const response = await appointmentsAvailabilityService.put<{ availability: ApiAppointmentsAvailability }>(payload)
+
+  if (response?.availability) {
+    return mapRecordToAvailability(response.availability)
+  }
+
+  return resolveAvailability()
+}
+
+export default {
+  availability: resolveAvailability,
+  exceptions: resolveExceptions,
 }

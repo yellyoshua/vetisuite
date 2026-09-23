@@ -1,12 +1,3 @@
-import type { Visit, VisitAdvanceInput, VisitBoard, VisitBoardQuery } from './visits.schema'
+import service from '@/core/service'
 
-const visitsService = {
-  board(_query: VisitBoardQuery): Promise<VisitBoard> {
-    throw new Error('Not implemented: visitsService.board')
-  },
-  advance(_input: VisitAdvanceInput): Promise<Visit> {
-    throw new Error('Not implemented: visitsService.advance')
-  },
-}
-
-export default visitsService
+export default service('visits')

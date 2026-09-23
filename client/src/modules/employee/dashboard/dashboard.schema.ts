@@ -1,5 +1,5 @@
-import type { DonutSegment } from '@/components/DonutChart'
-import type { BadgeTone } from '@/components/legacy-ui/Badge'
+import type { DonutSegment } from '@/components/DonutChart/DonutChart'
+import type { BadgeTone } from '@/constants/badge-tones'
 
 export type KpiValue = {
   value: string
@@ -60,9 +60,9 @@ export type ReceptionSummary = {
   agenda: AgendaEntry[]
 }
 
-export type MarketingKpiKey = 'portalVisits' | 'onlineBookings' | 'portalConversion' | 'newClients'
+export type MarketingKpiKey = 'onlineBookings' | 'newClients'
 
-export type FunnelStepKey = 'visits' | 'formOpened' | 'booked' | 'attended'
+export type FunnelStepKey = 'booked' | 'attended'
 
 export type FunnelStep = {
   value: string
@@ -80,14 +80,12 @@ export type PortalPerformance = {
 
 export type MarketingSummary = {
   kpis: Record<MarketingKpiKey, KpiValue>
-  portalVisits: DailyBar[]
-  appointmentsPerHundredVisits: number
   bookingOrigins: DonutSummary
   portalPerformance: PortalPerformance[]
   funnel: Record<FunnelStepKey, FunnelStep>
 }
 
-export type CareKpiKey = 'waiting' | 'inConsultation' | 'dischargedToday' | 'averageTime'
+export type CareKpiKey = 'waiting' | 'inConsultation' | 'dischargedToday'
 
 export type CarePanelKey = 'ongoingConsultations' | 'referrals'
 
@@ -99,13 +97,13 @@ export type GroomingPanelKey = 'groomingRoom' | 'topServices'
 
 export type GroomingSummary = ListSummary<GroomingKpiKey, GroomingPanelKey>
 
-export type LaboratoryKpiKey = 'openOrders' | 'inAnalysis' | 'todayResults' | 'averageTurnaround'
+export type LaboratoryKpiKey = 'openOrders' | 'inAnalysis' | 'todayResults'
 
 export type LaboratoryPanelKey = 'pendingOrders' | 'topExams'
 
 export type LaboratorySummary = ListSummary<LaboratoryKpiKey, LaboratoryPanelKey>
 
-export type InventoryKpiKey = 'stockAlerts' | 'inventoryValue' | 'monthlyOutflows' | 'expiringBatches'
+export type InventoryKpiKey = 'stockAlerts' | 'inventoryValue'
 
 export type InventoryPanelKey = 'stockAlerts' | 'consumptionByArea'
 

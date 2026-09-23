@@ -1,0 +1,372 @@
+openapi: 3.1.0
+info:
+  title: superadmin
+  version: "1.0.0"
+security:
+  - vetisuiteSession: []
+paths:
+  /api/auth-logout:
+    post:
+      operationId: auth-logout.create
+      tags: [superadmin]
+  /api/files/{path}:
+    get:
+      operationId: files.find
+      tags: [superadmin]
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/owners:
+    get:
+      operationId: owners.find
+      tags: [superadmin]
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+    post:
+      operationId: owners.create
+      tags: [superadmin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                organization:
+                  type: string
+                  format: uuid
+                firstName:
+                  type: string
+                  minLength: 2
+                lastName:
+                  type: string
+                  minLength: 2
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                phone:
+                  type: [string, "null"]
+              required:
+                - organization
+                - firstName
+                - lastName
+                - email
+                - password
+    put:
+      operationId: owners.update
+      tags: [superadmin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                firstName:
+                  type: string
+                  minLength: 2
+                lastName:
+                  type: string
+                  minLength: 2
+                phone:
+                  type: [string, "null"]
+                description:
+                  type: [string, "null"]
+                  maxLength: 500
+                position:
+                  type: [string, "null"]
+                occupation:
+                  type: [string, "null"]
+              required:
+                - id
+  /api/owners-disable:
+    put:
+      operationId: owners-disable.update
+      tags: [superadmin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                disabled:
+                  type: boolean
+              required:
+                - id
+                - disabled
+  /api/owners-permissions:
+    get:
+      operationId: owners-permissions.find
+      tags: [superadmin]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+    put:
+      operationId: owners-permissions.update
+      tags: [superadmin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                permissions:
+                  type: array
+                  items:
+                    type: string
+                    pattern: '^(superadmin|owner|employee)::[a-z0-9-]+::general$'
+              required:
+                - id
+                - permissions
+  /api/profile:
+    get:
+      operationId: profile.find
+      tags: [superadmin]
+    put:
+      operationId: profile.update
+      tags: [superadmin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: [string, "null"]
+                firstName:
+                  type: string
+                  minLength: 2
+                lastName:
+                  type: string
+                  minLength: 2
+                email:
+                  type: string
+                  format: email
+              required:
+                - firstName
+                - lastName
+                - email
+  /api/profile-email-verification:
+    post:
+      operationId: profile-email-verification.create
+      tags: [superadmin]
+  /api/profile-password:
+    put:
+      operationId: profile-password.update
+      tags: [superadmin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentPassword:
+                  type: string
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 6
+                confirmPassword:
+                  type: string
+                  minLength: 1
+              required:
+                - currentPassword
+                - password
+                - confirmPassword
+  /api/profile-sessions:
+    get:
+      operationId: profile-sessions.find
+      tags: [superadmin]
+    delete:
+      operationId: profile-sessions.remove
+      tags: [superadmin]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+  /api/superadmins:
+    get:
+      operationId: superadmins.find
+      tags: [superadmin]
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+    post:
+      operationId: superadmins.create
+      tags: [superadmin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  minLength: 2
+                lastName:
+                  type: string
+                  minLength: 2
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                avatar:
+                  type: [string, "null"]
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+    put:
+      operationId: superadmins.update
+      tags: [superadmin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                firstName:
+                  type: string
+                  minLength: 2
+                lastName:
+                  type: string
+                  minLength: 2
+                avatar:
+                  type: [string, "null"]
+              required:
+                - id
+  /api/superadmins-disable:
+    put:
+      operationId: superadmins-disable.update
+      tags: [superadmin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                disabled:
+                  type: boolean
+              required:
+                - id
+                - disabled
+  /api/superadmins-permissions:
+    get:
+      operationId: superadmins-permissions.find
+      tags: [superadmin]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+    put:
+      operationId: superadmins-permissions.update
+      tags: [superadmin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                permissions:
+                  type: array
+                  items:
+                    type: string
+                    pattern: '^(superadmin|owner|employee)::[a-z0-9-]+::general$'
+              required:
+                - id
+                - permissions
+  /api/uploads:
+    post:
+      operationId: uploads.create
+      tags: [superadmin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                size:
+                  type: integer
+                  minimum: 1
+                  maximum: 10485760
+                type:
+                  type: string
+                  maxLength: 255
+              required:
+                - name
+                - size
+components:
+  securitySchemes:
+    vetisuiteSession:
+      type: apiKey
+      in: cookie
+      name: vetisuite_session
+      x-httpOnly: true
+      x-sameSite: lax

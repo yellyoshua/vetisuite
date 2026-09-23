@@ -1,9 +1,10 @@
-import type { ListPage } from '@/hooks/use-list-query'
-import { formatDate } from '@/lib/format-date'
+import type { Params } from 'react-router'
+import type { ResolverSearch, SearchValue } from '@/hooks/use-resolver'
+import { formatDate } from '@/lib/date'
 import { matchesSearch } from '@/lib/matches-search'
-import { paginateRows } from '@/lib/paginate-rows'
+import { pageRows } from '@/lib/page-rows'
 import { toIsoDate } from '@/lib/to-iso-date'
-import type { User, UserListQuery, UserListRow } from '../users.schema'
+import type { User, UserListRow } from '@/modules/employee/users/users.schema'
 
 function shiftDays(date: Date, days: number): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days)
@@ -87,29 +88,36 @@ function formatLastAccess(lastAccessAt: string, today: Date): string {
   }
   const relativeDayLabel = relativeDayLabels[date]
   if (!relativeDayLabel) {
-    return formatDate(date)
+    return formatDate(`${date}T00:00:00`, { day: '2-digit', month: 'short', year: 'numeric' })
   }
 
   return `${relativeDayLabel} · ${time}`
 }
 
-function filterUsers({ search, filters }: UserListQuery): User[] {
+function filterUsers(search: ResolverSearch): User[] {
+  const role = asText(search.role)
+  const status = asText(search.status)
+
   return USERS.filter(
     (user) =>
-      matchesSearch(search, [user.name, user.email]) &&
-      (!filters.role || user.role === filters.role) &&
-      (!filters.status || user.status === filters.status),
+      matchesSearch(asText(search.search), [user.name, user.email]) &&
+      (!role || user.role === role) &&
+      (!status || user.status === status),
   )
 }
 
-export function resolveUsersList(query: UserListQuery): Promise<ListPage<UserListRow>> {
+function resolveUsers(search: ResolverSearch): Promise<UserListRow[]> {
   return Promise.resolve().then(() => {
     const today = new Date()
-    const usersPage = paginateRows(filterUsers(query), query)
 
-    return {
-      ...usersPage,
-      rows: usersPage.rows.map((user) => ({ ...user, lastAccessLabel: formatLastAccess(user.lastAccessAt, today) })),
-    }
+    return pageRows(filterUsers(search), search.page).map((user) => ({ ...user, lastAccessLabel: formatLastAccess(user.lastAccessAt, today) }))
   })
+}
+
+function asText(value: SearchValue | undefined): string {
+  return value === undefined || value === null ? '' : String(value)
+}
+
+export default {
+  users: (_params: Readonly<Params>, search: ResolverSearch) => resolveUsers(search),
 }

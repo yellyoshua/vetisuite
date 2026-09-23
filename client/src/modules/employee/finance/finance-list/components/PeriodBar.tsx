@@ -1,12 +1,12 @@
-import Input from '@/components/legacy-ui/Input'
-import Select from '@/components/legacy-ui/Select'
+import OptionSelect from '@/components/OptionSelect/OptionSelect'
+import { Input } from '@/components/ui/input'
 import {
   FINANCE_COMPARISON_LABELS,
   FINANCE_COMPARISON_VALUES,
   FINANCE_PERIOD_LABELS,
   FINANCE_PERIOD_VALUES,
 } from '@/constants/finance'
-import type { FinanceQuery, FinanceQueryKey } from '../../finance.schema'
+import type { FinanceQuery, FinanceQueryKey } from '@/modules/employee/finance/finance.schema'
 
 type PeriodBarProps = {
   query: FinanceQuery
@@ -19,7 +19,7 @@ const INACTIVE_PERIOD_CLASS_NAME = 'bg-transparent font-medium text-sub'
 
 export default function PeriodBar({ query, onChange }: PeriodBarProps) {
   return (
-    <div className="mb-3.5 flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <div role="group" aria-label="Periodo" className="flex max-w-full flex-wrap items-center gap-0.5 rounded-control border border-line bg-card p-[3px]">
         {FINANCE_PERIOD_VALUES.map((period) => (
           <button
@@ -41,13 +41,13 @@ export default function PeriodBar({ query, onChange }: PeriodBarProps) {
         <Input type="date" aria-label="Hasta" value={query.to} onChange={(event) => onChange('to', event.target.value)} />
       </div>
       <div className="w-[230px] max-w-full">
-        <Select aria-label="Comparación" value={query.comparison} onChange={(event) => onChange('comparison', event.target.value)}>
-          {FINANCE_COMPARISON_VALUES.map((comparison) => (
-            <option key={comparison} value={comparison}>
-              {FINANCE_COMPARISON_LABELS[comparison]}
-            </option>
-          ))}
-        </Select>
+        <OptionSelect
+          label="Comparación"
+          value={query.comparison}
+          options={FINANCE_COMPARISON_VALUES.map((comparison) => ({ value: comparison, label: FINANCE_COMPARISON_LABELS[comparison] }))}
+          onChange={(comparison) => onChange('comparison', comparison)}
+          className="sm:w-full"
+        />
       </div>
     </div>
   )

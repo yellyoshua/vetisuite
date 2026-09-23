@@ -1,19 +1,18 @@
-import { useNavigate } from 'react-router'
-import PageHeader from '@/components/PageHeader'
-import useMutation from '@/hooks/legacy/use-mutation'
-import ClientForm from '../components/ClientForm'
-import { createClient } from './resolvers'
+import useResolver from '@/hooks/use-resolver'
+import { PageError, PageLoading } from '@/components/PageState/PageState'
+import resolvers from './resolvers'
+import CreateClientForm from './components/CreateClientForm'
 
-export default function ClientsCreatePage() {
-  const navigate = useNavigate()
-  const [isSaving, saveClient, saveError] = useMutation(createClient, {
-    onSuccess: () => navigate('/clients'),
-  })
+export default function Page() {
+  const { error, isLoading } = useResolver(resolvers)
 
-  return (
-    <>
-      <PageHeader title="Nuevo cliente" description="Registra al dueño; después podrás añadir sus mascotas desde su ficha." />
-      <ClientForm isSubmitting={isSaving} submitError={saveError} onSubmit={saveClient} />
-    </>
-  )
+  if (isLoading) {
+    return <PageLoading />
+  }
+
+  if (error) {
+    return <PageError message={error} />
+  }
+
+  return <CreateClientForm />
 }

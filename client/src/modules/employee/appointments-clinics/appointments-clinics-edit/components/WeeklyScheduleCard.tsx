@@ -1,54 +1,52 @@
-import type { Dispatch } from 'react'
-import Button from '@/components/legacy-ui/Button'
-import Card from '@/components/legacy-ui/Card'
-import Icon from '@/components/legacy-ui/Icon'
-import IconButton from '@/components/legacy-ui/IconButton'
-import Input from '@/components/legacy-ui/Input'
-import Select from '@/components/legacy-ui/Select'
-import Toggle from '@/components/legacy-ui/Toggle'
+import { ClockIcon, CopyIcon, PlusIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
+import { CustomPageContainer } from '@/components/CustomPage/CustomPage'
+import CustomTooltip from '@/components/CustomTooltip/CustomTooltip'
+import SwitchField from '@/components/SwitchField/SwitchField'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import type useForm from '@/hooks/use-form'
 import {
+  COPY_MONDAY_TARGETS,
   ESTIMATE_SLOT_MINUTES,
-  PARALLEL_CAPACITY_LABELS,
-  PARALLEL_CAPACITY_VALUES,
   TIME_BLOCK_TAGS,
   WEEKDAY_LABELS,
 } from '@/constants/appointments-clinics'
 import {
   canAddBlock,
   canRemoveBlock,
-  type ScheduleDay,
+  createNextBlock,
+  summarizeWeek,
+  type ClinicAvailabilityInput,
   type TimeBlock,
-  type WeeklySummary,
-} from '../../appointments-clinics.schema'
-import type { AvailabilityDraftAction } from '../use-availability-draft'
+} from '@/modules/employee/appointments-clinics/appointments-clinics.schema'
 import SectionHeading from './SectionHeading'
 
-type DraftDispatch = Dispatch<AvailabilityDraftAction>
+type AvailabilityForm = ReturnType<typeof useForm<ClinicAvailabilityInput>>
 
-type TimeBlockRowProps = {
-  day: ScheduleDay
-  block: TimeBlock
-  blockIndex: number
-  dispatch: DraftDispatch
+type FormDays = ClinicAvailabilityInput['days']
+
+type FormDay = FormDays[number]
+
+type DayProps = {
+  day: FormDay
+  dayIndex: number
+  form: AvailabilityForm
 }
 
-type ScheduleDayProps = {
-  day: ScheduleDay
-  dispatch: DraftDispatch
+type TimeBlockRowProps = DayProps & {
+  block: TimeBlock
+  blockIndex: number
 }
 
 type WeeklyScheduleCardProps = {
-  days: ScheduleDay[]
-  weeklySummary: WeeklySummary
-  dispatch: DraftDispatch
+  form: AvailabilityForm
+  initialDays: FormDays
 }
 
-function TimeBlockRow({ day, block, blockIndex, dispatch }: TimeBlockRowProps) {
-  const blockLabel = `${WEEKDAY_LABELS[day.weekday]}, bloque ${blockIndex + 1}`
+const DIRTY = { shouldDirty: true }
 
-  function changeBlock(changes: Partial<TimeBlock>) {
-    dispatch({ type: 'change-block', weekday: day.weekday, blockIndex, block: { ...block, ...changes } })
-  }
+function TimeBlockRow({ day, dayIndex, form, block, blockIndex }: TimeBlockRowProps) {
+  const blockLabel = `${WEEKDAY_LABELS[day.weekday]}, bloque ${blockIndex + 1}`
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
@@ -58,7 +56,7 @@ function TimeBlockRow({ day, block, blockIndex, dispatch }: TimeBlockRowProps) {
           required
           aria-label={`${blockLabel}, desde`}
           value={block.from}
-          onChange={(event) => changeBlock({ from: event.target.value })}
+          onChange={(event) => form.setValue(`days.${dayIndex}.blocks.${blockIndex}.from`, event.target.value, DIRTY)}
         />
       </div>
       <span className="text-xs text-sub">a</span>
@@ -68,88 +66,102 @@ function TimeBlockRow({ day, block, blockIndex, dispatch }: TimeBlockRowProps) {
           required
           aria-label={`${blockLabel}, hasta`}
           value={block.to}
-          onChange={(event) => changeBlock({ to: event.target.value })}
+          onChange={(event) => form.setValue(`days.${dayIndex}.blocks.${blockIndex}.to`, event.target.value, DIRTY)}
         />
       </div>
       <span className="ml-0.5 text-[11.5px] text-sub">{TIME_BLOCK_TAGS[blockIndex]}</span>
       {canRemoveBlock(day) && (
-        <IconButton
-          icon="trash-2"
-          label="Quitar bloque"
-          onClick={() => dispatch({ type: 'remove-block', weekday: day.weekday, blockIndex })}
-        />
+        <CustomTooltip content="Quitar bloque">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Quitar bloque"
+            onClick={() => form.setValue(`days.${dayIndex}.blocks`, day.blocks.filter((_, index) => index !== blockIndex), DIRTY)}
+          >
+            <Trash2Icon />
+          </Button>
+        </CustomTooltip>
       )}
     </div>
   )
 }
 
-function ScheduleDayBlocks({ day, dispatch }: ScheduleDayProps) {
+function ScheduleDayBlocks({ day, dayIndex, form }: DayProps) {
   return (
-    <>
-      <div className="flex min-w-0 flex-[2_1_300px] flex-col gap-2">
-        {day.blocks.map((block, blockIndex) => (
-          <TimeBlockRow key={blockIndex} day={day} block={block} blockIndex={blockIndex} dispatch={dispatch} />
-        ))}
-        {canAddBlock(day) && (
-          <div>
-            <Button variant="ghost" size="sm" onClick={() => dispatch({ type: 'add-block', weekday: day.weekday })}>
-              <Icon name="plus" size={13} /> Añadir bloque
-            </Button>
-          </div>
+    <div className="flex min-w-0 flex-[2_1_300px] flex-col gap-2">
+      {day.blocks.map((block, blockIndex) => (
+        <TimeBlockRow key={blockIndex} day={day} dayIndex={dayIndex} form={form} block={block} blockIndex={blockIndex} />
+      ))}
+      {canAddBlock(day) && (
+        <div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => form.setValue(`days.${dayIndex}.blocks`, [...day.blocks, createNextBlock(day)], DIRTY)}
+          >
+            <PlusIcon /> Añadir bloque
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ScheduleDayRow({ day, dayIndex, form }: DayProps) {
+  const dayError = form.formState.errors.days?.[dayIndex]
+
+  return (
+    <div className="border-t border-line-soft py-3">
+      <div className="flex flex-wrap items-start gap-3">
+        <div className="min-w-0 flex-[1_1_170px] pt-1.5">
+          <SwitchField
+            label={WEEKDAY_LABELS[day.weekday]}
+            checked={day.isOpen}
+            onCheckedChange={(isOpen) => form.setValue(`days.${dayIndex}.isOpen`, isOpen, DIRTY)}
+          />
+        </div>
+        {day.isOpen && <ScheduleDayBlocks day={day} dayIndex={dayIndex} form={form} />}
+        {!day.isOpen && (
+          <p className="flex-[1_1_300px] pt-2 text-[12.5px] text-sub">
+            Cerrado · el portal no ofrece horas y la agenda bloquea las citas nuevas.
+          </p>
         )}
       </div>
-      <div className="min-w-[140px] flex-[0_1_160px]">
-        <Select
-          aria-label={`Citas en paralelo, ${WEEKDAY_LABELS[day.weekday]}`}
-          value={day.parallelCapacity}
-          onChange={(event) =>
-            dispatch({ type: 'change-capacity', weekday: day.weekday, parallelCapacity: Number(event.target.value) })
-          }
-        >
-          {PARALLEL_CAPACITY_VALUES.map((capacity) => (
-            <option key={capacity} value={capacity}>
-              {PARALLEL_CAPACITY_LABELS[capacity]}
-            </option>
-          ))}
-        </Select>
-      </div>
-    </>
-  )
-}
-
-function ScheduleDayRow({ day, dispatch }: ScheduleDayProps) {
-  return (
-    <div className="flex flex-wrap items-start gap-3 border-t border-line-soft py-3">
-      <div className="min-w-0 flex-[1_1_170px] pt-1.5">
-        <Toggle
-          label={WEEKDAY_LABELS[day.weekday]}
-          checked={day.isOpen}
-          onChange={() => dispatch({ type: 'toggle-day', weekday: day.weekday })}
-        />
-      </div>
-      {day.isOpen && <ScheduleDayBlocks day={day} dispatch={dispatch} />}
-      {!day.isOpen && (
-        <p className="flex-[1_1_300px] pt-2 text-[12.5px] text-sub">
-          Cerrado · el portal no ofrece horas y la agenda bloquea las citas nuevas.
-        </p>
+      {dayError?.message && (
+        <p role="alert" className="mt-2 text-xs text-red">{dayError.message}</p>
       )}
     </div>
   )
 }
 
-export default function WeeklyScheduleCard({ days, weeklySummary, dispatch }: WeeklyScheduleCardProps) {
+function copyMonday(days: FormDays): FormDays {
+  const monday = days.find((day) => day.weekday === 'monday')
+
+  if (!monday) {
+    return days
+  }
+
+  return days.map((day) => (COPY_MONDAY_TARGETS.includes(day.weekday) ? { ...monday, weekday: day.weekday } : day))
+}
+
+export default function WeeklyScheduleCard({ form, initialDays }: WeeklyScheduleCardProps) {
+  const days = form.watch('days')
+  const weeklySummary = summarizeWeek(days)
+
   return (
-    <Card className="p-5">
+    <CustomPageContainer className="p-5">
       <SectionHeading
         title="Horario de atención"
         description="Cada día puede tener varios bloques: mañana y tarde se separan para que el portal no ofrezca la hora del almuerzo."
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => dispatch({ type: 'copy-monday' })}>
-              <Icon name="copy" size={13} /> Copiar lunes a todos
+            <Button type="button" variant="ghost" size="sm" onClick={() => form.setValue('days', copyMonday(days), DIRTY)}>
+              <CopyIcon /> Copiar lunes a todos
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => dispatch({ type: 'reset-schedule' })}>
-              <Icon name="rotate-ccw" size={13} /> Restablecer
+            <Button type="button" variant="ghost" size="sm" onClick={() => form.setValue('days', initialDays, DIRTY)}>
+              <RotateCcwIcon /> Restablecer
             </Button>
           </div>
         }
@@ -157,18 +169,17 @@ export default function WeeklyScheduleCard({ days, weeklySummary, dispatch }: We
       <div className="mt-[18px] flex flex-wrap gap-3 pb-2 text-[11px] font-semibold tracking-[0.4px] text-sub uppercase">
         <span className="min-w-0 flex-[1_1_170px]">Día</span>
         <span className="min-w-0 flex-[2_1_300px]">Bloques de atención</span>
-        <span className="min-w-0 flex-[0_1_160px]">Citas en paralelo</span>
       </div>
-      {days.map((day) => (
-        <ScheduleDayRow key={day.weekday} day={day} dispatch={dispatch} />
+      {days.map((day, dayIndex) => (
+        <ScheduleDayRow key={day.weekday} day={day} dayIndex={dayIndex} form={form} />
       ))}
       <p className="mt-3.5 flex flex-wrap items-center gap-2 border-t border-line-soft pt-3.5 text-xs text-sub">
-        <Icon name="clock" size={14} />
+        <ClockIcon className="size-3.5" aria-hidden="true" />
         <span>
           {weeklySummary.hours} h de atención a la semana · {weeklySummary.openDays} días abiertos · capacidad estimada
           de {weeklySummary.estimatedAppointments} citas de {ESTIMATE_SLOT_MINUTES} min
         </span>
       </p>
-    </Card>
+    </CustomPageContainer>
   )
 }

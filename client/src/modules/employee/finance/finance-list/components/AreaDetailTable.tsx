@@ -1,5 +1,6 @@
 import { FINANCE_TREND_CLASS_NAMES } from '@/constants/finance'
-import type { FinanceArea, FinanceAreaTotals } from '../../finance.schema'
+import { formatCurrency } from '@/lib/format-currency'
+import type { FinanceArea, FinanceAreaTotals } from '@/modules/employee/finance/finance.schema'
 
 type AreaDetailTableProps = {
   areas: FinanceArea[]
@@ -17,6 +18,10 @@ const COLUMNS = [
 const BODY_CELL_CLASS_NAME = 'border-b border-line-soft px-5 py-3 text-right text-[13px] tabular-nums'
 
 const TOTAL_CELL_CLASS_NAME = 'px-5 py-[13px] text-right text-[13px] tabular-nums'
+
+function formatDelta(delta: number): string {
+  return delta >= 0 ? `+${delta}%` : `${delta}%`
+}
 
 export default function AreaDetailTable({ areas, totals }: AreaDetailTableProps) {
   return (
@@ -41,9 +46,9 @@ export default function AreaDetailTable({ areas, totals }: AreaDetailTableProps)
               {area.name}
             </th>
             <td className={BODY_CELL_CLASS_NAME}>{area.invoiceCount}</td>
-            <td className={BODY_CELL_CLASS_NAME}>{area.amount}</td>
-            <td className={`${BODY_CELL_CLASS_NAME} text-sub`}>{area.share}</td>
-            <td className={`${BODY_CELL_CLASS_NAME} font-semibold ${FINANCE_TREND_CLASS_NAMES[area.trend]}`}>{area.delta}</td>
+            <td className={BODY_CELL_CLASS_NAME}>{formatCurrency(area.amount)}</td>
+            <td className={`${BODY_CELL_CLASS_NAME} text-sub`}>{area.share}%</td>
+            <td className={`${BODY_CELL_CLASS_NAME} font-semibold ${FINANCE_TREND_CLASS_NAMES[area.trend]}`}>{formatDelta(area.delta)}</td>
           </tr>
         ))}
       </tbody>
@@ -53,9 +58,9 @@ export default function AreaDetailTable({ areas, totals }: AreaDetailTableProps)
             Total
           </th>
           <td className={`${TOTAL_CELL_CLASS_NAME} font-bold`}>{totals.invoiceCount}</td>
-          <td className={`${TOTAL_CELL_CLASS_NAME} font-bold`}>{totals.amount}</td>
-          <td className={`${TOTAL_CELL_CLASS_NAME} text-sub`}>{totals.share}</td>
-          <td className={`${TOTAL_CELL_CLASS_NAME} font-bold ${FINANCE_TREND_CLASS_NAMES[totals.trend]}`}>{totals.delta}</td>
+          <td className={`${TOTAL_CELL_CLASS_NAME} font-bold`}>{formatCurrency(totals.amount)}</td>
+          <td className={`${TOTAL_CELL_CLASS_NAME} text-sub`}>{totals.share}%</td>
+          <td className={`${TOTAL_CELL_CLASS_NAME} font-bold ${FINANCE_TREND_CLASS_NAMES[totals.trend]}`}>{formatDelta(totals.delta)}</td>
         </tr>
       </tfoot>
     </table>

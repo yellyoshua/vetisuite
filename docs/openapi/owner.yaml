@@ -1,0 +1,438 @@
+openapi: 3.1.0
+info:
+  title: owner
+  version: "1.0.0"
+security:
+  - vetisuiteSession: []
+paths:
+  /api/auth-logout:
+    post:
+      tags: [owner]
+      operationId: auth-logout.create
+  /api/clients:
+    get:
+      tags: [owner]
+      operationId: clients.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+    post:
+      tags: [owner]
+      operationId: clients.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                phone:
+                  type: string
+                  minLength: 6
+                email:
+                  type: [string, "null"]
+                  format: email
+              required:
+                - name
+                - phone
+    put:
+      tags: [owner]
+      operationId: clients.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                  minLength: 2
+                phone:
+                  type: string
+                  minLength: 6
+                email:
+                  type: [string, "null"]
+                  format: email
+              required:
+                - id
+    delete:
+      tags: [owner]
+      operationId: clients.remove
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+  /api/clients-count:
+    get:
+      tags: [owner]
+      operationId: clients-count.find
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+  /api/clients-patients:
+    get:
+      tags: [owner]
+      operationId: clients-patients.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: client
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+    post:
+      tags: [owner]
+      operationId: clients-patients.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                  minLength: 2
+                species:
+                  type: string
+                  enum: [dog, cat, bird, other]
+                breed:
+                  type: [string, "null"]
+                  maxLength: 100
+                sex:
+                  type: [string, "null"]
+                  enum: [male, female]
+                birthDate:
+                  type: [string, "null"]
+                  format: date
+              required:
+                - client
+                - name
+                - species
+    put:
+      tags: [owner]
+      operationId: clients-patients.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                  minLength: 2
+                species:
+                  type: string
+                  enum: [dog, cat, bird, other]
+                breed:
+                  type: [string, "null"]
+                  maxLength: 100
+                sex:
+                  type: [string, "null"]
+                  enum: [male, female]
+                birthDate:
+                  type: [string, "null"]
+                  format: date
+              required:
+                - id
+    delete:
+      tags: [owner]
+      operationId: clients-patients.remove
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+  /api/employees:
+    get:
+      tags: [owner]
+      operationId: employees.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+    post:
+      tags: [owner]
+      operationId: employees.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  minLength: 2
+                lastName:
+                  type: string
+                  minLength: 2
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                phone:
+                  type: [string, "null"]
+                position:
+                  type: string
+                  enum: [veterinarian, groomer, receptionist]
+                color:
+                  type: [string, "null"]
+                  pattern: "^#[0-9a-fA-F]{6}$"
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+                - position
+    put:
+      tags: [owner]
+      operationId: employees.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                firstName:
+                  type: string
+                  minLength: 2
+                lastName:
+                  type: string
+                  minLength: 2
+                phone:
+                  type: [string, "null"]
+                position:
+                  type: string
+                  enum: [veterinarian, groomer, receptionist]
+                color:
+                  type: [string, "null"]
+                  pattern: "^#[0-9a-fA-F]{6}$"
+              required:
+                - id
+  /api/employees-disable:
+    put:
+      tags: [owner]
+      operationId: employees-disable.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                disabled:
+                  type: boolean
+              required:
+                - id
+                - disabled
+  /api/employees-permissions:
+    get:
+      tags: [owner]
+      operationId: employees-permissions.find
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+    put:
+      tags: [owner]
+      operationId: employees-permissions.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                permissions:
+                  type: array
+                  items:
+                    type: string
+                    pattern: "^(superadmin|owner|employee)::[a-z0-9-]+::general$"
+              required:
+                - id
+                - permissions
+  /api/files/{path}:
+    get:
+      tags: [owner]
+      operationId: files.find
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/profile:
+    get:
+      tags: [owner]
+      operationId: profile.find
+    put:
+      tags: [owner]
+      operationId: profile.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: [string, "null"]
+                firstName:
+                  type: string
+                  minLength: 2
+                lastName:
+                  type: string
+                  minLength: 2
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: [string, "null"]
+                description:
+                  type: [string, "null"]
+                  maxLength: 500
+                position:
+                  type: [string, "null"]
+                occupation:
+                  type: [string, "null"]
+              required:
+                - firstName
+                - lastName
+                - email
+  /api/profile-email-verification:
+    post:
+      tags: [owner]
+      operationId: profile-email-verification.create
+  /api/profile-password:
+    put:
+      tags: [owner]
+      operationId: profile-password.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentPassword:
+                  type: string
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 6
+                confirmPassword:
+                  type: string
+                  minLength: 1
+              required:
+                - currentPassword
+                - password
+                - confirmPassword
+  /api/profile-sessions:
+    get:
+      tags: [owner]
+      operationId: profile-sessions.find
+    delete:
+      tags: [owner]
+      operationId: profile-sessions.remove
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+  /api/uploads:
+    post:
+      tags: [owner]
+      operationId: uploads.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                size:
+                  type: integer
+                  minimum: 1
+                  maximum: 10485760
+                type:
+                  type: string
+                  maxLength: 255
+              required:
+                - name
+                - size
+components:
+  securitySchemes:
+    vetisuiteSession:
+      type: apiKey
+      in: cookie
+      name: vetisuite_session
+      x-httpOnly: true
+      x-sameSite: lax

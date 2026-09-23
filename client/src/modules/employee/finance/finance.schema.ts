@@ -25,15 +25,17 @@ export type FinanceQueryKey = keyof FinanceQuery
 export type FinanceKpiKey = 'income' | 'profit' | 'vat' | 'receivable'
 
 export type FinanceKpi = {
-  value: string
-  detail: string
+  value: number
+  count?: number
+  margin?: number
+  rate?: number
 }
 
 export type FinanceAreaTotals = {
   invoiceCount: number
-  amount: string
-  share: string
-  delta: string
+  amount: number
+  share: number
+  delta: number
   trend: FinanceTrend
 }
 
@@ -52,6 +54,6 @@ export type FinanceReport = {
   kpis: Record<FinanceKpiKey, FinanceKpi>
   areas: FinanceArea[]
   areaTotals: FinanceAreaTotals
-  collectedTotal: string
+  collectedTotal: number
   paymentShares: FinancePaymentShare[]
 }

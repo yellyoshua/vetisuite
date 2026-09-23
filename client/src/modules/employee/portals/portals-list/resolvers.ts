@@ -1,52 +1,25 @@
-import type { ListPage } from '@/hooks/use-list-query'
-import { matchesSearch } from '@/lib/matches-search'
-import { paginateRows } from '@/lib/paginate-rows'
-import type { Portal, PortalListQuery, PortalPreset, PortalStatus } from '../portals.schema'
+import type { Params } from 'react-router'
+import type { ResolverSearch } from '@/hooks/use-resolver'
+import portalsService from '@/modules/employee/portals/portals.service'
+import portalsCountService from '@/modules/employee/portals/portals-count.service'
+import type { Portal } from '../portals.schema'
 
-const PRESET_STATUS: Record<PortalPreset, PortalStatus> = {
-  published: 'active',
-  drafts: 'draft',
-}
+export default {
+  portals: async (_params: Readonly<Params>, search: ResolverSearch) => {
+    const [portals] = await Promise.all([
+      portalsService.get<Portal[]>({
+        search: search.search ? String(search.search) : undefined,
+        purpose: search.purpose ? String(search.purpose) : (search.type ? String(search.type) : undefined),
+        preset: search.preset ? String(search.preset) : undefined,
+        page: search.page,
+      }),
+      portalsCountService.get<{ value: number }>({
+        search: search.search ? String(search.search) : undefined,
+        purpose: search.purpose ? String(search.purpose) : (search.type ? String(search.type) : undefined),
+        preset: search.preset ? String(search.preset) : undefined,
+      }),
+    ])
 
-const PORTALS: Portal[] = [
-  {
-    id: 'por-1',
-    name: 'Portal de la clínica',
-    url: 'clinica-a.vetisuite.com/p/clinica',
-    type: 'institutional',
-    visitsLast30Days: 1248,
-    bookedAppointments: 37,
-    status: 'active',
+    return portals || []
   },
-  {
-    id: 'por-2',
-    name: 'Reserva en línea',
-    url: 'clinica-a.vetisuite.com/p/reservas',
-    type: 'booking',
-    visitsLast30Days: 612,
-    bookedAppointments: 54,
-    status: 'active',
-  },
-  {
-    id: 'por-3',
-    name: 'Campaña de vacunación',
-    url: 'clinica-a.vetisuite.com/p/vacunacion-2026',
-    type: 'campaign',
-    visitsLast30Days: 0,
-    bookedAppointments: 0,
-    status: 'draft',
-  },
-]
-
-function filterPortals({ search, filters }: PortalListQuery): Portal[] {
-  return PORTALS.filter(
-    (portal) =>
-      matchesSearch(search, [portal.name, portal.url]) &&
-      (!filters.type || portal.type === filters.type) &&
-      (!filters.preset || portal.status === PRESET_STATUS[filters.preset as PortalPreset]),
-  )
-}
-
-export function resolvePortalsList(query: PortalListQuery): Promise<ListPage<Portal>> {
-  return Promise.resolve().then(() => paginateRows(filterPortals(query), query))
 }

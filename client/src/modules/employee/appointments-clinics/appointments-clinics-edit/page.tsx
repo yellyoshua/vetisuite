@@ -1,36 +1,29 @@
-import { useId } from 'react'
-import ErrorState from '@/components/ErrorState'
-import LoadingState from '@/components/LoadingState'
-import PageHeader from '@/components/PageHeader'
-import Button from '@/components/legacy-ui/Button'
-import Icon from '@/components/legacy-ui/Icon'
-import useResolver from '@/hooks/legacy/use-resolver'
+import useResolver from '@/hooks/use-resolver'
+import { PageError, PageLoading } from '@/components/PageState/PageState'
+import resolvers from './resolvers'
 import AvailabilityForm from './components/AvailabilityForm'
-import { resolveClinicAvailability } from './resolvers'
 
-export default function AppointmentsClinicsEditPage() {
-  const formId = useId()
-  const { data, error, isLoading } = useResolver(resolveClinicAvailability, {})
+export default function Page() {
+  const { data, error, isLoading, refetch } = useResolver(resolvers)
+
+  if (isLoading) {
+    return <PageLoading />
+  }
+
+  if (error) {
+    return <PageError message={error} />
+  }
+
+  if (!data.availability || !data.exceptions) {
+    return <PageLoading />
+  }
 
   return (
-    <>
-      <PageHeader
-        title="Disponibilidad de la clínica"
-        description="Horario semanal, duración y márgenes, reglas de reserva y excepciones por fecha. Define lo que el portal ofrece como horas libres."
-        actions={
-          <>
-            <Button type="reset" form={formId} variant="ghost" isDisabled={!data}>
-              <Icon name="rotate-ccw" size={14} /> Descartar
-            </Button>
-            <Button type="submit" form={formId} isDisabled={!data}>
-              <Icon name="check" size={14} /> Guardar cambios
-            </Button>
-          </>
-        }
-      />
-      {isLoading && <LoadingState />}
-      {error && <ErrorState error={error} />}
-      {data && <AvailabilityForm formId={formId} availability={data} />}
-    </>
+    <AvailabilityForm
+      availability={data.availability}
+      exceptions={data.exceptions}
+      refetchAvailability={() => refetch('availability')}
+      refetchExceptions={() => refetch('exceptions')}
+    />
   )
 }

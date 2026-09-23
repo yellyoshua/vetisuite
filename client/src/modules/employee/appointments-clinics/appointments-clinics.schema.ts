@@ -7,8 +7,6 @@ import {
   LATEST_BLOCK_END,
   MAX_BLOCKS_PER_DAY,
   NEW_BLOCK_MINUTES,
-  PARALLEL_CAPACITY_VALUES,
-  SERVICE_DURATION_VALUES,
   WEEKDAY_LABELS,
   WEEKDAY_VALUES,
 } from '@/constants/appointments-clinics'
@@ -33,7 +31,6 @@ export type TimeBlock = {
 export type ScheduleDay = {
   weekday: Weekday
   isOpen: boolean
-  parallelCapacity: number
   blocks: TimeBlock[]
 }
 
@@ -41,7 +38,6 @@ export type BookableService = {
   id: string
   name: string
   area: string
-  durationMinutes: number
   price: number
   isPortalVisible: boolean
 }
@@ -56,7 +52,38 @@ export type ScheduleException =
   | (ScheduleExceptionBase & { kind: 'closed' })
   | (ScheduleExceptionBase & { kind: 'reduced-hours'; hours: TimeBlock })
 
+export type DayAvailability = {
+  weekday?: string
+  enabled: boolean
+  ranges: { start: string; end: string }[]
+}
+
+export type DateOverride = {
+  id?: string
+  date: string
+  label: string
+  ranges: { start: string; end: string }[]
+}
+
+export type ApiAppointmentsAvailability = {
+  id: string
+  timezone: string
+  slotMinutes: number
+  bufferBefore: number
+  bufferAfter: number
+  minNoticeHours: number
+  maxAdvanceDays: number
+  maxPerDay: number
+  onlineBooking: boolean
+  autoConfirm: boolean
+  week: DayAvailability[]
+  overrides: DateOverride[]
+  createdAt?: string
+  updatedAt?: string
+}
+
 export type ClinicAvailability = {
+  id?: string
   days: ScheduleDay[]
   bookingRules: Record<BookingRule, string>
   bookingToggles: Record<BookingToggle, boolean>
@@ -149,7 +176,6 @@ const scheduleDaySchema = z
   .object({
     weekday: z.enum(WEEKDAY_VALUES, 'El día de la semana no es válido.'),
     isOpen: z.boolean(),
-    parallelCapacity: z.literal(PARALLEL_CAPACITY_VALUES, 'Elige una cantidad válida de citas en paralelo.'),
     blocks: z
       .array(z.object({ from: timeSchema, to: timeSchema }))
       .min(1, 'Cada día necesita al menos un bloque de atención.')
@@ -165,20 +191,19 @@ const scheduleDaySchema = z
   })
 
 export const clinicAvailabilitySchema = z.object({
+  id: z.string().optional(),
   days: z.array(scheduleDaySchema).length(WEEKDAY_VALUES.length, 'El horario debe tener los siete días.'),
   bookingRules: z.object({
     appointmentDuration: z.enum(BOOKING_RULE_OPTIONS.appointmentDuration, BOOKING_RULE_ERROR),
     bufferTime: z.enum(BOOKING_RULE_OPTIONS.bufferTime, BOOKING_RULE_ERROR),
     minimumNotice: z.enum(BOOKING_RULE_OPTIONS.minimumNotice, BOOKING_RULE_ERROR),
     bookingWindow: z.enum(BOOKING_RULE_OPTIONS.bookingWindow, BOOKING_RULE_ERROR),
-    freeCancellation: z.enum(BOOKING_RULE_OPTIONS.freeCancellation, BOOKING_RULE_ERROR),
     timeZone: z.enum(BOOKING_RULE_OPTIONS.timeZone, BOOKING_RULE_ERROR),
   }),
   bookingToggles: z.record(z.enum(BOOKING_TOGGLE_VALUES), z.boolean()),
   services: z.array(
     z.object({
       id: z.string().min(1, 'Falta el identificador de un servicio.'),
-      durationMinutes: z.literal(SERVICE_DURATION_VALUES, 'Elige una duración válida para cada servicio.'),
       isPortalVisible: z.boolean(),
     }),
   ),
