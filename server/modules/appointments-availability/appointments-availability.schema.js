@@ -25,7 +25,6 @@ export const listAppointmentsAvailabilitySchema = listParams;
 
 export const updateAppointmentsAvailabilitySchema = zod.object({
   id: zod.uuid().optional(),
-  timezone: zod.string().trim().min(1, 'La zona horaria es obligatoria'),
   week: zod.array(dayAvailabilitySchema),
   overrides: zod.array(dateOverrideSchema).default([]),
   slotMinutes: zod.number().int().positive('La duración debe ser mayor a 0'),

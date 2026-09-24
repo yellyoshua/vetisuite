@@ -1,5 +1,6 @@
 import {db} from '@vetisuite/database/db.js';
 import {eq} from '@vetisuite/database/orm.js';
+import {todayInTimeZone} from '@/utils/timezone.js';
 import {
   appointmentsAvailabilityTable,
   appointmentsTable,
@@ -9,6 +10,7 @@ import {
   expensesTable,
   invoicesItemTable,
   invoicesTable,
+  organizationsTable,
   patientsTable,
   portalsTable,
   productsTable,
@@ -18,6 +20,8 @@ import {
   visitsServiceTable,
   visitsTable
 } from '@vetisuite/database/schemas/schemas.js';
+
+const DEMO_TIMEZONE = 'America/Guayaquil';
 
 export default {
   description: 'Insert wave 2 demo data (appointments, visits, clinic, inventory, billing, finance, portals)',
@@ -58,6 +62,7 @@ export default {
     const employeeId = employee?.id || null;
 
     await db.transaction(async (tx) => {
+      await tx.update(organizationsTable).set({timezone: DEMO_TIMEZONE}).where(eq(organizationsTable.id, organization)).returning({id: organizationsTable.id});
       await insertAvailability(tx, organization);
       await insertAppointments(tx, organization, patients, employeeId);
       await insertVisitsAndClinic(tx, organization, patients, employeeId);
@@ -90,7 +95,6 @@ async function insertAvailability (tx, organization) {
 
   await tx.insert(appointmentsAvailabilityTable).values({
     organization,
-    timezone: 'America/Guayaquil',
     week,
     overrides: [],
     slotMinutes: 30,
@@ -105,12 +109,8 @@ async function insertAvailability (tx, organization) {
 }
 
 async function insertAppointments (tx, organization, patients, employeeId) {
-  const at = (hour) => {
-    const date = new Date();
-    date.setUTCHours(hour + 5, 0, 0, 0);
-    
-return date;
-  };
+  const today = todayInTimeZone(DEMO_TIMEZONE);
+  const at = (hour) => `${today}T${hour}:00:00`;
 
   const demoAppointments = [
     {patient: patients[0].id, vet: employeeId, startsAt: at(10), reason: 'Consulta general y vacunación', status: 'confirmed', source: 'staff'},
@@ -118,13 +118,12 @@ return date;
     {patient: (patients[2] || patients[0]).id, vet: employeeId, startsAt: at(12), reason: 'Corte y baño higiénico', status: 'completed', source: 'staff'}
   ];
 
-  await tx.insert(appointmentsTable).values(demoAppointments.map((item) => ({organization, durationMinutes: 30, ...item})));
+  await tx.insert(appointmentsTable).values(demoAppointments.map((item) => ({organization, timezone: DEMO_TIMEZONE, durationMinutes: 30, ...item})));
 }
 
 async function insertVisitsAndClinic (tx, organization, patients, employeeId) {
   const second = patients[1] || patients[0];
   const [visit1] = await tx.insert(visitsTable).values({organization, client: patients[0].client, started: true}).returning({id: visitsTable.id});
-  // visits_open_client_unique: una visita abierta por cliente
   const [visit2] = second.client === patients[0].client
     ? [visit1]
     : await tx.insert(visitsTable).values({organization, client: second.client, started: true}).returning({id: visitsTable.id});

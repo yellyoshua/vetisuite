@@ -35,6 +35,13 @@ describe('GET /api/appointments y /api/appointments-count', () => {
     expect(response[0].vet.firstName).toBe('Marta');
   });
 
+  it('startsAt sale en hora de pared, sin zona ni offset, junto con su zona horaria', async () => {
+    const {response} = await appointmentsGet(buildAuthedEvent({url: `/?id=${OWN_APPOINTMENT_1}`, profile: OWNER}));
+
+    expect(response[0].startsAt).toBe('2026-09-22T09:00:00');
+    expect(response[0].timezone).toBe('America/Guayaquil');
+  });
+
   it('el empleado lista las de su organización y el dueño de otra organización las suyas', async () => {
     const employeeList = await appointmentsGet(buildAuthedEvent({profile: EMPLOYEE}));
     const otherOwnerList = await appointmentsGet(buildAuthedEvent({profile: OTHER_OWNER}));

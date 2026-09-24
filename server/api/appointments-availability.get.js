@@ -6,7 +6,6 @@ export default baseRoute(async (params, context) => {
   return appointmentsAvailabilityRepository.find({organization: context.profile.organization, archivedAt: null, ...pickFilters(params)}, {
     select: {
       id: true,
-      timezone: true,
       week: true,
       overrides: true,
       slotMinutes: true,

@@ -5,7 +5,6 @@ import {pkit} from '../pkit.config.js';
 
 const availabilityColumns = [
   'id',
-  'timezone',
   'week',
   'overrides',
   'slotMinutes',
@@ -21,7 +20,6 @@ const availabilityColumns = [
 ];
 
 const writableFields = [
-  'timezone',
   'week',
   'week.*',
   'week.*.*',

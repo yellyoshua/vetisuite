@@ -1,7 +1,7 @@
 import {beforeEach, describe, expect, it} from 'vitest';
 import {eq} from '@vetisuite/database/orm.js';
 import {db} from '@vetisuite/database/db.js';
-import {appointmentsAvailabilityTable} from '@vetisuite/database/schemas/schemas.js';
+import {appointmentsAvailabilityTable, organizationsTable} from '@vetisuite/database/schemas/schemas.js';
 import {resetAndLoad} from '@/tests/fixtures.js';
 import responseBody from '@/tests/response-body.js';
 import buildAuthedEvent from './helpers/build-authed-event.js';
@@ -35,7 +35,7 @@ describe('GET /api/appointments-availability', () => {
     expect(errors).toBeNull();
     expect(response).toHaveLength(1);
     expect(response[0].id).toBe(OWN_AVAILABILITY);
-    expect(response[0].timezone).toBe('America/Guayaquil');
+    expect(response[0].timezone).toBeUndefined();
     expect(response[0].slotMinutes).toBe(30);
     expect(response[0].organization).toBeUndefined();
   });
@@ -48,7 +48,7 @@ describe('GET /api/appointments-availability', () => {
     expect(employeeResult.response[0].id).toBe(OWN_AVAILABILITY);
     expect(otherOwnerResult.response).toHaveLength(1);
     expect(otherOwnerResult.response[0].id).toBe(FOREIGN_AVAILABILITY);
-    expect(otherOwnerResult.response[0].timezone).toBe('America/Bogota');
+    expect(otherOwnerResult.response[0].slotMinutes).toBe(45);
   });
 
   it('el superadmin no tiene el módulo: 400', async () => {
@@ -90,7 +90,6 @@ describe('PUT /api/appointments-availability', () => {
       method: 'PUT',
       body: {
         id: OWN_AVAILABILITY,
-        timezone: 'America/Guayaquil',
         week,
         overrides: [],
         slotMinutes: 45,
@@ -120,7 +119,6 @@ describe('PUT /api/appointments-availability', () => {
       body: {
         id: OWN_AVAILABILITY,
         organization: OTHER_OWNER.organization,
-        timezone: 'America/Guayaquil',
         week: [],
         overrides: [],
         slotMinutes: 30,
@@ -145,7 +143,6 @@ describe('PUT /api/appointments-availability', () => {
       method: 'PUT',
       body: {
         id: FOREIGN_AVAILABILITY,
-        timezone: 'America/Bogota',
         week: [],
         overrides: [],
         slotMinutes: 60,
@@ -174,7 +171,6 @@ describe('PUT /api/appointments-availability', () => {
       method: 'PUT',
       body: {
         id: ARCHIVED_AVAILABILITY,
-        timezone: 'America/Guayaquil',
         week: [],
         overrides: [],
         slotMinutes: 60,
@@ -194,13 +190,42 @@ describe('PUT /api/appointments-availability', () => {
     expect(event.node.res.statusCode).toBe(404);
   });
 
+  it('la zona horaria ya no se acepta en la disponibilidad ni toca la organización', async () => {
+    const event = buildAuthedEvent({
+      method: 'PUT',
+      body: {
+        id: OWN_AVAILABILITY,
+        timezone: 'Europe/Madrid',
+        week: [],
+        overrides: [],
+        slotMinutes: 30,
+        bufferBefore: 0,
+        bufferAfter: 10,
+        minNoticeHours: 2,
+        maxAdvanceDays: 30,
+        maxPerDay: 20,
+        onlineBooking: true,
+        autoConfirm: false
+      },
+      profile: OWNER
+    });
+
+    await appointmentsAvailabilityPut(event);
+
+    const [organization] = await db.select({timezone: organizationsTable.timezone})
+    .from(organizationsTable)
+    .where(eq(organizationsTable.id, OWNER.organization));
+
+    expect(event.node.res.statusCode).toBe(400);
+    expect(organization.timezone).toBe('America/Guayaquil');
+  });
+
   it('un campo no declarado en el body responde 400', async () => {
     const event = buildAuthedEvent({
       method: 'PUT',
       body: {
         id: OWN_AVAILABILITY,
         campoInvalido: 'valor',
-        timezone: 'America/Guayaquil',
         week: [],
         overrides: [],
         slotMinutes: 30,

@@ -1,6 +1,6 @@
 import {pkit} from '../pkit.config.js';
 
-const appointmentColumns = ['id', 'patient', 'vet', 'startsAt', 'durationMinutes', 'reason', 'status', 'source', 'createdAt', 'updatedAt'];
+const appointmentColumns = ['id', 'patient', 'vet', 'startsAt', 'timezone', 'durationMinutes', 'reason', 'status', 'source', 'createdAt', 'updatedAt'];
 
 const appointments = pkit.module('appointments').name('general');
 
