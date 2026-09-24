@@ -1,12 +1,13 @@
 import {desc, eq} from '@vetisuite/database/orm.js';
 import {db} from '@vetisuite/database/db.js';
 import {clientsTable, invoicesTable} from '@vetisuite/database/schemas/schemas.js';
+import {dateInTimeZone, todayInTimeZone} from '@/utils/timezone.js';
 
-export async function getDashboardBilling (organization) {
+export async function getDashboardBilling (organization, timezone) {
   const invoicesRows = await fetchInvoices(organization);
 
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const todayInvoices = invoicesRows.filter((row) => row.createdAt.toISOString().slice(0, 10) === todayStr);
+  const todayStr = todayInTimeZone(timezone);
+  const todayInvoices = invoicesRows.filter((row) => dateInTimeZone(row.createdAt, timezone) === todayStr);
   const todayRevenue = todayInvoices.reduce((acc, row) => acc + Number(row.total || 0), 0);
 
   const openInvoices = invoicesRows.filter((row) => Number(row.total || 0) === 0);

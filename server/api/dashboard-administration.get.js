@@ -3,5 +3,5 @@ import {dashboardAdministrationSchema} from '@/modules/dashboard-administration/
 import {getDashboardAdministration} from '@/modules/dashboard-administration/dashboard-administration.service.js';
 
 export default baseRoute(async (_params, context) => {
-  return getDashboardAdministration(context.profile.organization);
+  return getDashboardAdministration(context.profile.organization, context.timezone);
 }, dashboardAdministrationSchema, {module: 'dashboard-administration'});

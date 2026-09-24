@@ -20,7 +20,8 @@ export default function baseRoute (route, schema, options = {}) {
       event,
       requestId: event.context.requestId,
       session: current?.session || null,
-      profile: current?.profile || null
+      profile: current?.profile || null,
+      timezone: current?.organization?.timezone || null
     };
 
     try {

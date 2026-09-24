@@ -1,11 +1,9 @@
 import {and, desc, eq, inArray, isNull} from '@vetisuite/database/orm.js';
 import {db} from '@vetisuite/database/db.js';
 import {patientsTable, visitsServiceTable} from '@vetisuite/database/schemas/schemas.js';
+import {dateInTimeZone, todayInTimeZone} from '@/utils/timezone.js';
 
-export async function getDashboardCare (organization) {
-  const now = new Date();
-  const todayStr = now.toISOString().slice(0, 10);
-
+export async function getDashboardCare (organization, timezone) {
   const [
     waitingRows,
     consultationRows,
@@ -14,7 +12,7 @@ export async function getDashboardCare (organization) {
   ] = await Promise.all([
     fetchWaitingServices(organization),
     fetchOngoingConsultations(organization),
-    fetchDischargedServices(organization, todayStr),
+    fetchDischargedServices(organization, timezone),
     fetchReferralServices(organization)
   ]);
 
@@ -76,7 +74,7 @@ async function fetchOngoingConsultations (organization) {
   .limit(10);
 }
 
-async function fetchDischargedServices (organization, todayStr) {
+async function fetchDischargedServices (organization, timezone) {
   const rows = await db.select({
     id: visitsServiceTable.id,
     updatedAt: visitsServiceTable.updatedAt
@@ -88,7 +86,9 @@ async function fetchDischargedServices (organization, todayStr) {
     isNull(visitsServiceTable.archivedAt)
   ));
 
-  return rows.filter((row) => row.updatedAt && row.updatedAt.toISOString().slice(0, 10) === todayStr);
+  const todayStr = todayInTimeZone(timezone);
+
+  return rows.filter((row) => row.updatedAt && dateInTimeZone(row.updatedAt, timezone) === todayStr);
 }
 
 async function fetchReferralServices (organization) {

@@ -9,13 +9,15 @@ import {
   visitsServiceLabTable,
   visitsServiceTable
 } from '@vetisuite/database/schemas/schemas.js';
+import {dateInTimeZone, todayInTimeZone} from '@/utils/timezone.js';
 
-export async function listClinic (organization, params = {}) {
+export async function listClinic (organization, timezone, params = {}) {
   const employees = await findOrganizationEmployees(organization);
+  const scoped = {...params, timezone};
   const [consultations, prescriptions, labOrders] = await Promise.all([
-    fetchConsultations(organization, params),
-    fetchPrescriptions(organization, params),
-    fetchLabOrders(organization, params, employees)
+    fetchConsultations(organization, scoped),
+    fetchPrescriptions(organization, scoped),
+    fetchLabOrders(organization, scoped, employees)
   ]);
 
   const allRecords = [...consultations, ...prescriptions, ...labOrders];
@@ -27,12 +29,13 @@ export async function listClinic (organization, params = {}) {
   return sorted.slice(offset, offset + limit);
 }
 
-export async function countClinic (organization, params = {}) {
+export async function countClinic (organization, timezone, params = {}) {
   const employees = await findOrganizationEmployees(organization);
+  const scoped = {...params, timezone};
   const [consultations, prescriptions, labOrders] = await Promise.all([
-    fetchConsultations(organization, params),
-    fetchPrescriptions(organization, params),
-    fetchLabOrders(organization, params, employees)
+    fetchConsultations(organization, scoped),
+    fetchPrescriptions(organization, scoped),
+    fetchLabOrders(organization, scoped, employees)
   ]);
 
   return consultations.length + prescriptions.length + labOrders.length;
@@ -84,7 +87,7 @@ async function fetchConsultations (organization, params) {
   }));
 
   if (params.preset === 'resolved-today') {
-    return mapped.filter((item) => isResolvedToday(item.resolvedAt));
+    return mapped.filter((item) => isResolvedToday(item.resolvedAt, params.timezone));
   }
 
   return mapped;
@@ -137,7 +140,7 @@ async function fetchPrescriptions (organization, params) {
   }));
 
   if (params.preset === 'resolved-today') {
-    return mapped.filter((item) => isResolvedToday(item.resolvedAt));
+    return mapped.filter((item) => isResolvedToday(item.resolvedAt, params.timezone));
   }
 
   return mapped;
@@ -280,19 +283,19 @@ function matchesStatusAndPreset (item, params) {
     return false;
   }
 
-  if (params.preset === 'resolved-today' && (item.status !== 'result' || !isResolvedToday(item.resolvedAt))) {
+  if (params.preset === 'resolved-today' && (item.status !== 'result' || !isResolvedToday(item.resolvedAt, params.timezone))) {
     return false;
   }
 
   return true;
 }
 
-function isResolvedToday (dateString) {
+function isResolvedToday (dateString, timezone) {
   if (!dateString) {
     return false;
   }
 
-  return dateString.slice(0, 10) === new Date().toISOString().slice(0, 10);
+  return dateInTimeZone(new Date(dateString), timezone) === todayInTimeZone(timezone);
 }
 
 function sortRecords (records, order) {

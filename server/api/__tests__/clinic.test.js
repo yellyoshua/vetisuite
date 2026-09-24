@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {db} from '@vetisuite/database/db.js';
 import {
   consultationsPrescriptionTable,
@@ -24,6 +24,10 @@ const FIXTURES = [
 ];
 
 describe('GET /api/clinic y /api/clinic-count', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   beforeEach(async () => {
     await resetAndLoad(FIXTURES);
 
@@ -104,6 +108,9 @@ describe('GET /api/clinic y /api/clinic-count', () => {
   });
 
   it('filtra por status y preset', async () => {
+    vi.useFakeTimers({toFake: ['Date']});
+    vi.setSystemTime(new Date('2026-09-22T15:00:00.000Z'));
+
     const requested = await clinicGet(buildAuthedEvent({url: '/?status=requested', profile: OWNER}));
     const pendingPreset = await clinicGet(buildAuthedEvent({url: '/?preset=pending-result', profile: OWNER}));
     const resolvedPreset = await clinicGet(buildAuthedEvent({url: '/?preset=resolved-today', profile: OWNER}));

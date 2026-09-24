@@ -3,7 +3,7 @@ import {listClinicSchema} from '@/modules/clinic/clinic.schema.js';
 import {listClinic} from '@/modules/clinic/clinic.service.js';
 
 export default baseRoute(async (params, context) => {
-  return listClinic(context.profile.organization, {
+  return listClinic(context.profile.organization, context.timezone, {
     ...pickFilters(params),
     search: params.search,
     page: params.page,

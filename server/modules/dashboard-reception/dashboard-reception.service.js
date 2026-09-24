@@ -1,6 +1,7 @@
 import {and, asc, eq, isNull} from '@vetisuite/database/orm.js';
 import {db} from '@vetisuite/database/db.js';
 import {appointmentsTable, clientsTable, employeesTable, patientsTable} from '@vetisuite/database/schemas/schemas.js';
+import {todayInTimeZone} from '@/utils/timezone.js';
 
 const STATUS_TONES = {
   confirmed: 'green',
@@ -18,7 +19,7 @@ const STATUS_LABELS = {
 
 const DAY_LABELS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 
-export async function getDashboardReception (organization, params = {}) {
+export async function getDashboardReception (organization, timezone, params = {}) {
   const allRows = await db.select({
     id: appointmentsTable.id,
     startsAt: appointmentsTable.startsAt,
@@ -40,8 +41,8 @@ export async function getDashboardReception (organization, params = {}) {
   .orderBy(asc(appointmentsTable.startsAt))
   .limit(500);
 
-  const targetDate = params.date || resolveTargetDate(allRows);
-  const todayRows = allRows.filter((row) => row.startsAt.toISOString().slice(0, 10) === targetDate);
+  const targetDate = params.date || resolveTargetDate(allRows, todayInTimeZone(timezone));
+  const todayRows = allRows.filter((row) => row.startsAt.slice(0, 10) === targetDate);
 
   const kpis = buildKpis(todayRows, allRows);
   const dailyAppointments = buildDailyAppointments(allRows, targetDate);
@@ -58,15 +59,14 @@ export async function getDashboardReception (organization, params = {}) {
   };
 }
 
-function resolveTargetDate (rows) {
+function resolveTargetDate (rows, today) {
   if (rows.length === 0) {
-    return new Date().toISOString().slice(0, 10);
+    return today;
   }
 
-  const nowStr = new Date().toISOString().slice(0, 10);
-  const hasNow = rows.some((row) => row.startsAt.toISOString().slice(0, 10) === nowStr);
+  const hasToday = rows.some((row) => row.startsAt.slice(0, 10) === today);
 
-  return hasNow ? nowStr : rows[0].startsAt.toISOString().slice(0, 10);
+  return hasToday ? today : rows[0].startsAt.slice(0, 10);
 }
 
 function buildKpis (todayRows, allRows) {
@@ -95,7 +95,7 @@ function buildDailyAppointments (rows, targetDateStr) {
     const dateStr = dayDate.toISOString().slice(0, 10);
     const isToday = index === 6;
     const label = isToday ? 'hoy' : DAY_LABELS[dayDate.getUTCDay()];
-    const value = rows.filter((row) => row.startsAt.toISOString().slice(0, 10) === dateStr).length;
+    const value = rows.filter((row) => row.startsAt.slice(0, 10) === dateStr).length;
 
     return {label, value, isToday};
   });
@@ -132,7 +132,7 @@ function buildDemandHours (rows) {
 
   const counts = slots.map((slot) => {
     const value = rows.filter((row) => {
-      const hour = row.startsAt.getUTCHours();
+      const hour = Number(row.startsAt.slice(11, 13));
 
       return hour >= slot.min && hour < slot.max;
     }).length;
@@ -155,7 +155,7 @@ function formatAgendaEntry (row) {
 
   return {
     id: row.id,
-    time: row.startsAt.toISOString().slice(11, 16),
+    time: row.startsAt.slice(11, 16),
     patientName: row.patientName,
     ownerName: row.clientName,
     detail,

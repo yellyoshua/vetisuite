@@ -90,11 +90,11 @@ describe('core/base-route', () => {
   });
 
   it('pasa al handler el contexto de la sesión', async () => {
-    const handler = baseRoute(async (_data, context) => ({profile: context.profile.id, session: context.session.id}), zod.object({}), {module: 'profile-sessions'});
+    const handler = baseRoute(async (_data, context) => ({profile: context.profile.id, session: context.session.id, timezone: context.timezone}), zod.object({}), {module: 'profile-sessions'});
 
     const {response} = await handler(buildAuthedEvent({profile: OWNER, session: {id: 'session-9'}}));
 
-    expect(response).toEqual({profile: OWNER.id, session: 'session-9'});
+    expect(response).toEqual({profile: OWNER.id, session: 'session-9', timezone: 'America/Guayaquil'});
   });
 
   it('usa el schemaBuilder cuando existe', async () => {

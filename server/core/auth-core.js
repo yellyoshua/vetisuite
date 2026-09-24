@@ -4,8 +4,8 @@ import {createHmac, timingSafeEqual} from 'node:crypto';
 import {db} from '@vetisuite/database/db.js';
 import logger from '@/utils/logger.js';
 import {isPasswordValid} from '@/utils/hashing.js';
-import {and, eq, getTableColumns, gt} from '@vetisuite/database/orm.js';
-import {employeesTable, ownersTable, permissionsTable, sessionsTable, superadminsTable, usersTable} from '@vetisuite/database/schemas/schemas.js';
+import {and, eq, getTableColumns, gt, sql} from '@vetisuite/database/orm.js';
+import {employeesTable, organizationsTable, ownersTable, permissionsTable, sessionsTable, superadminsTable, usersTable} from '@vetisuite/database/schemas/schemas.js';
 
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 2;
 
@@ -48,7 +48,8 @@ const authCore = {
           superadmin: getTableColumns(superadminsTable),
           owner: getTableColumns(ownersTable),
           employee: getTableColumns(employeesTable),
-          permission: getTableColumns(permissionsTable)
+          permission: getTableColumns(permissionsTable),
+          organization: {id: organizationsTable.id, name: organizationsTable.name, timezone: organizationsTable.timezone}
         })
         .from(sessionsTable)
         .innerJoin(usersTable, eq(sessionsTable.user, usersTable.id))
@@ -56,6 +57,7 @@ const authCore = {
         .leftJoin(ownersTable, eq(ownersTable.user, usersTable.id))
         .leftJoin(employeesTable, eq(employeesTable.user, usersTable.id))
         .leftJoin(permissionsTable, eq(permissionsTable.user, usersTable.id))
+        .leftJoin(organizationsTable, eq(organizationsTable.id, sql`coalesce(${superadminsTable.organization}, ${ownersTable.organization}, ${employeesTable.organization})`))
         .where(and(
           eq(sessionsTable.id, sessionId),
           gt(sessionsTable.expiresAt, new Date()),
@@ -72,7 +74,8 @@ const authCore = {
         return {
           session: row.session,
           permissions: row.permission.permissions,
-          profile: {...row[role], user: row.user}
+          profile: {...row[role], user: row.user},
+          organization: row.organization
         };
       } catch (error) {
         logger.error('[authCore.session.claim]: Error', error);

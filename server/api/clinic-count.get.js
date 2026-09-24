@@ -3,7 +3,7 @@ import {countClinicSchema} from '@/modules/clinic/clinic.schema.js';
 import {countClinic} from '@/modules/clinic/clinic.service.js';
 
 export default baseRoute(async (params, context) => {
-  const value = await countClinic(context.profile.organization, {
+  const value = await countClinic(context.profile.organization, context.timezone, {
     ...pickFilters(params),
     search: params.search
   });

@@ -3,5 +3,5 @@ import {dashboardReceptionSchema} from '@/modules/dashboard-reception/dashboard-
 import {getDashboardReception} from '@/modules/dashboard-reception/dashboard-reception.service.js';
 
 export default baseRoute(async (_params, context) => {
-  return getDashboardReception(context.profile.organization);
+  return getDashboardReception(context.profile.organization, context.timezone);
 }, dashboardReceptionSchema, {module: 'dashboard-reception'});

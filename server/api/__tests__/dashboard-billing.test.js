@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {resetAndLoad} from '@/tests/fixtures.js';
 import buildAuthedEvent from './helpers/build-authed-event.js';
 import {ACCOUNT_FIXTURES, EMPLOYEE, OTHER_OWNER, OWNER, SUPERADMIN} from './helpers/profiles.js';
@@ -48,6 +48,38 @@ describe('GET /api/dashboard-billing', () => {
     expect(ownerRes.errors).toBeNull();
     expect(otherOwnerRes.errors).toBeNull();
     expect(otherOwnerRes.response.panels.accountsToClose.items).toHaveLength(0);
+  });
+
+  describe('el día de hoy sigue la zona horaria de la organización', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({toFake: ['Date']});
+      vi.setSystemTime(new Date('2026-01-06T03:00:00.000Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('a las 22:00 de Guayaquil todavía cuenta lo cobrado ese día', async () => {
+      const {response} = await dashboardBillingGet(buildAuthedEvent({profile: OWNER}));
+
+      expect(response.kpis.todayRevenue.value).toBe('$35');
+    });
+
+    it('con la organización en UTC ya es el día siguiente', async () => {
+
+      const {response} = await dashboardBillingGet(buildAuthedEvent({profile: OWNER, organization: {id: OWNER.organization, name: 'Clínica Norte', timezone: 'UTC'}}));
+
+      expect(response.kpis.todayRevenue.value).toBe('$0');
+    });
+
+    it('una zona horaria inválida en la organización es un error, no UTC', async () => {
+      const event = buildAuthedEvent({profile: OWNER, organization: {id: OWNER.organization, name: 'Clínica Norte', timezone: 'Mars/Olympus'}});
+
+      await dashboardBillingGet(event);
+
+      expect(event.node.res.statusCode).toBe(500);
+    });
   });
 
   it('el superadmin no tiene el módulo: 400', async () => {

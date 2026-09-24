@@ -35,6 +35,7 @@ describe('core/auth-core', () => {
     expect(claimed.profile.user.role).toBe('employee');
     expect(claimed.profile.user.password).toBeUndefined();
     expect(claimed.permissions).toContain('employee::clients::general');
+    expect(claimed.organization).toEqual({id: '552e8400-e29b-41d4-a716-446655440001', name: 'Clínica Norte', timezone: 'America/Guayaquil'});
     expect(otherAgent).toBeNull();
   });
 

@@ -6,8 +6,9 @@ import {
   sessionsTable,
   usersTable
 } from '@vetisuite/database/schemas/schemas.js';
+import {dateInTimeZone, todayInTimeZone} from '@/utils/timezone.js';
 
-export async function getDashboardAdministration (organization) {
+export async function getDashboardAdministration (organization, timezone) {
   const [users, employees, owners, sessions] = await Promise.all([
     fetchUsers(organization),
     fetchEmployees(organization),
@@ -15,16 +16,16 @@ export async function getDashboardAdministration (organization) {
     fetchSessions(organization)
   ]);
 
-  const kpis = buildKpis(users, employees, sessions);
+  const kpis = buildKpis({users, employees, sessions, timezone});
   const panels = buildPanels(users, employees, owners, sessions);
 
   return {kpis, panels};
 }
 
-function buildKpis (users, employees, sessions) {
+function buildKpis ({users, employees, sessions, timezone}) {
   const activeUsers = users.filter((row) => !row.disabled);
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const todaySessions = sessions.filter((row) => row.createdAt.toISOString().slice(0, 10) === todayStr);
+  const todayStr = todayInTimeZone(timezone);
+  const todaySessions = sessions.filter((row) => dateInTimeZone(row.createdAt, timezone) === todayStr);
 
   const distinctRoles = new Set(['owner', ...employees.map((row) => row.position)]);
 

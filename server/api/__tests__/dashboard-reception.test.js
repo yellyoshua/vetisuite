@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {resetAndLoad} from '@/tests/fixtures.js';
 import buildAuthedEvent from './helpers/build-authed-event.js';
 import {ACCOUNT_FIXTURES, EMPLOYEE, OTHER_OWNER, OWNER, SUPERADMIN} from './helpers/profiles.js';
@@ -15,6 +15,12 @@ const FIXTURES = [
 describe('GET /api/dashboard-reception', () => {
   beforeEach(async () => {
     await resetAndLoad(FIXTURES);
+    vi.useFakeTimers({toFake: ['Date']});
+    vi.setSystemTime(new Date('2026-09-22T15:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('el dueño obtiene el resumen de recepción de su organización', async () => {
@@ -49,6 +55,21 @@ describe('GET /api/dashboard-reception', () => {
     expect(ownerRes.response.agenda).toHaveLength(2);
     expect(otherOwnerRes.response.agenda).toHaveLength(1);
     expect(otherOwnerRes.response.agenda[0].detail).toContain('Chequeo general');
+  });
+
+  it('la agenda muestra la hora de pared sin convertir', async () => {
+    const {response} = await dashboardReceptionGet(buildAuthedEvent({profile: OWNER}));
+
+    expect(response.agenda.map((entry) => entry.time)).toEqual(['09:00', '10:00']);
+  });
+
+  it('a las 22:00 de Guayaquil la agenda de hoy sigue siendo la del día en la clínica', async () => {
+    vi.setSystemTime(new Date('2026-09-23T03:00:00.000Z'));
+
+    const {response} = await dashboardReceptionGet(buildAuthedEvent({profile: OWNER}));
+
+    expect(response.agenda).toHaveLength(2);
+    expect(response.kpis.todayAppointments.value).toBe('2');
   });
 
   it('el superadmin no tiene el módulo: 400', async () => {

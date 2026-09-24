@@ -3,5 +3,5 @@ import {dashboardBillingSchema} from '@/modules/dashboard-billing/dashboard-bill
 import {getDashboardBilling} from '@/modules/dashboard-billing/dashboard-billing.service.js';
 
 export default baseRoute(async (_params, context) => {
-  return getDashboardBilling(context.profile.organization);
+  return getDashboardBilling(context.profile.organization, context.timezone);
 }, dashboardBillingSchema, {module: 'dashboard-billing'});
