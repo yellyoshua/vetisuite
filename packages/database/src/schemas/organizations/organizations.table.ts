@@ -7,6 +7,7 @@ export const organizationsTable = pgTable(
     id: uuid().primaryKey().defaultRandom(),
     name: text().notNull(),
     slug: text().notNull().unique(),
+    timezone: text().notNull().default('UTC'),
     createdAt: timestamp({ mode: 'date', withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ mode: 'date', withTimezone: true })
       .notNull()

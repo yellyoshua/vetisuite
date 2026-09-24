@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict PR8fp6MSQ5fWK6HgHOaG0oLEpVcNK1fC2EOQ6hfjsV1tANodAqO91PTtH7ENlqU
+\restrict GuSMcoDYWLc2ZoyEcZxKNHAS12F1Jv0MRzhr5ZgEVK0ffS7I2vQQaalsmHo2IjG
 
 -- Dumped from database version 17.0 (DBngin.app)
 -- Dumped by pg_dump version 18.2
@@ -510,7 +510,7 @@ CREATE TABLE public.appointments (
     organization uuid NOT NULL,
     patient uuid NOT NULL,
     vet uuid,
-    starts_at timestamp with time zone NOT NULL,
+    starts_at timestamp without time zone NOT NULL,
     duration_minutes integer NOT NULL,
     reason text NOT NULL,
     status public.appointment_status DEFAULT 'pending'::public.appointment_status NOT NULL,
@@ -518,6 +518,7 @@ CREATE TABLE public.appointments (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     archived_at timestamp with time zone,
+    timezone text NOT NULL,
     CONSTRAINT appointments_duration_minutes_check CHECK ((duration_minutes > 0))
 );
 
@@ -529,7 +530,6 @@ CREATE TABLE public.appointments (
 CREATE TABLE public.appointments_availability (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     organization uuid NOT NULL,
-    timezone text NOT NULL,
     week jsonb NOT NULL,
     overrides jsonb NOT NULL,
     slot_minutes integer NOT NULL,
@@ -718,6 +718,7 @@ CREATE TABLE public.organizations (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     archived_at timestamp with time zone,
+    timezone text DEFAULT 'UTC'::text NOT NULL,
     CONSTRAINT organizations_slug_check CHECK ((slug ~ '^[a-z0-9-]+$'::text))
 );
 
@@ -1153,10 +1154,10 @@ COPY public.account_tokens (id, "user", type, token, data, expires_at, created_a
 -- Data for Name: appointments; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.appointments (id, organization, patient, vet, starts_at, duration_minutes, reason, status, source, created_at, updated_at, archived_at) FROM stdin;
-339ef014-c599-4d59-ac20-1020a5ea2b26	1e1a2572-62cc-438d-87c0-3707f8bb59b9	a652e44d-84f8-48a5-bd38-70794dae84e9	cbadb3d3-c4ee-413c-a3c6-cec639044044	2026-09-23 10:00:00-05	30	Consulta general y vacunación	confirmed	staff	2026-09-23 00:04:04.890183-05	2026-09-23 00:04:04.890183-05	\N
-8ec42174-0756-403c-b5c9-f3df56b4a045	1e1a2572-62cc-438d-87c0-3707f8bb59b9	5aa7b211-4764-45f2-a1cd-b6185d05aa26	cbadb3d3-c4ee-413c-a3c6-cec639044044	2026-09-23 11:00:00-05	30	Chequeo de rutina	pending	portal	2026-09-23 00:04:04.890183-05	2026-09-23 00:04:04.890183-05	\N
-c1c0aa9b-8f9e-4b3e-8eb6-e1be16196084	1e1a2572-62cc-438d-87c0-3707f8bb59b9	3c475ac3-8764-45a2-87ca-8c533f48d8ef	cbadb3d3-c4ee-413c-a3c6-cec639044044	2026-09-23 12:00:00-05	30	Corte y baño higiénico	completed	staff	2026-09-23 00:04:04.890183-05	2026-09-23 00:04:04.890183-05	\N
+COPY public.appointments (id, organization, patient, vet, starts_at, duration_minutes, reason, status, source, created_at, updated_at, archived_at, timezone) FROM stdin;
+339ef014-c599-4d59-ac20-1020a5ea2b26	1e1a2572-62cc-438d-87c0-3707f8bb59b9	a652e44d-84f8-48a5-bd38-70794dae84e9	cbadb3d3-c4ee-413c-a3c6-cec639044044	2026-09-23 10:00:00	30	Consulta general y vacunación	confirmed	staff	2026-09-23 00:04:04.890183-05	2026-09-23 00:04:04.890183-05	\N	America/Guayaquil
+8ec42174-0756-403c-b5c9-f3df56b4a045	1e1a2572-62cc-438d-87c0-3707f8bb59b9	5aa7b211-4764-45f2-a1cd-b6185d05aa26	cbadb3d3-c4ee-413c-a3c6-cec639044044	2026-09-23 11:00:00	30	Chequeo de rutina	pending	portal	2026-09-23 00:04:04.890183-05	2026-09-23 00:04:04.890183-05	\N	America/Guayaquil
+c1c0aa9b-8f9e-4b3e-8eb6-e1be16196084	1e1a2572-62cc-438d-87c0-3707f8bb59b9	3c475ac3-8764-45a2-87ca-8c533f48d8ef	cbadb3d3-c4ee-413c-a3c6-cec639044044	2026-09-23 12:00:00	30	Corte y baño higiénico	completed	staff	2026-09-23 00:04:04.890183-05	2026-09-23 00:04:04.890183-05	\N	America/Guayaquil
 \.
 
 
@@ -1164,8 +1165,8 @@ c1c0aa9b-8f9e-4b3e-8eb6-e1be16196084	1e1a2572-62cc-438d-87c0-3707f8bb59b9	3c475a
 -- Data for Name: appointments_availability; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.appointments_availability (id, organization, timezone, week, overrides, slot_minutes, buffer_before, buffer_after, min_notice_hours, max_advance_days, max_per_day, online_booking, auto_confirm, created_at, updated_at, archived_at) FROM stdin;
-6fe4ddad-6e8a-4f40-ae50-208a43f5a0ca	1e1a2572-62cc-438d-87c0-3707f8bb59b9	America/Guayaquil	[{"ranges": [{"end": "18:00", "start": "09:00"}], "enabled": true, "weekday": "monday"}, {"ranges": [{"end": "18:00", "start": "09:00"}], "enabled": true, "weekday": "tuesday"}, {"ranges": [{"end": "18:00", "start": "09:00"}], "enabled": true, "weekday": "wednesday"}, {"ranges": [{"end": "18:00", "start": "09:00"}], "enabled": true, "weekday": "thursday"}, {"ranges": [{"end": "18:00", "start": "09:00"}], "enabled": true, "weekday": "friday"}, {"ranges": [{"end": "14:00", "start": "09:00"}], "enabled": true, "weekday": "saturday"}, {"ranges": [], "enabled": false, "weekday": "sunday"}]	[]	30	0	0	2	60	0	t	f	2026-09-23 00:04:04.890183-05	2026-09-23 00:04:04.890183-05	\N
+COPY public.appointments_availability (id, organization, week, overrides, slot_minutes, buffer_before, buffer_after, min_notice_hours, max_advance_days, max_per_day, online_booking, auto_confirm, created_at, updated_at, archived_at) FROM stdin;
+6fe4ddad-6e8a-4f40-ae50-208a43f5a0ca	1e1a2572-62cc-438d-87c0-3707f8bb59b9	[{"ranges": [{"end": "18:00", "start": "09:00"}], "enabled": true, "weekday": "monday"}, {"ranges": [{"end": "18:00", "start": "09:00"}], "enabled": true, "weekday": "tuesday"}, {"ranges": [{"end": "18:00", "start": "09:00"}], "enabled": true, "weekday": "wednesday"}, {"ranges": [{"end": "18:00", "start": "09:00"}], "enabled": true, "weekday": "thursday"}, {"ranges": [{"end": "18:00", "start": "09:00"}], "enabled": true, "weekday": "friday"}, {"ranges": [{"end": "14:00", "start": "09:00"}], "enabled": true, "weekday": "saturday"}, {"ranges": [], "enabled": false, "weekday": "sunday"}]	[]	30	0	0	2	60	0	t	f	2026-09-23 00:04:04.890183-05	2026-09-23 00:04:04.890183-05	\N
 \.
 
 
@@ -1252,6 +1253,7 @@ a3be2250-5b02-4ae1-a765-afb73fe47314	002-insert-demo-accounts	2	Insert demo acco
 9aff658b-d2c7-4069-84cb-b31ad31475d8	006-attach-wave2-permissions	6	Attach wave 2 permissions to owner and employee users	2026-09-23 00:01:38.740289-05
 f8055fc8-8cf9-4057-8c43-75094aa45bd9	007-insert-wave2-demo-data	7	Insert wave 2 demo data (appointments, visits, clinic, inventory, billing, finance, portals)	2026-09-23 00:04:04.928462-05
 bf36bd7e-44a3-466c-95a9-ccd8e3bbb1cb	008-attach-wave3-permissions	8	Attach wave 3 dashboard permissions to owner and employee users	2026-09-23 00:04:04.934321-05
+539e62a7-bb8c-489a-8320-1acf5cc17d8a	009-attach-organization-permissions	9	Attach organization permissions to owner and employee users	2026-09-23 17:28:18.670263-05
 \.
 
 
@@ -1267,9 +1269,9 @@ COPY public.oauth_codes (id, code, "user", ip, user_agent, redirect_uri, expires
 -- Data for Name: organizations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.organizations (id, name, slug, created_at, updated_at, archived_at) FROM stdin;
-1b0e214d-3c39-4fa4-ace5-5b404d8aebe7	VetiSuite	vetisuite	2026-09-23 00:01:38.365474-05	2026-09-23 00:01:38.365474-05	\N
-1e1a2572-62cc-438d-87c0-3707f8bb59b9	Clínica Demo	clinica-demo	2026-09-23 00:01:38.575538-05	2026-09-23 00:01:38.575538-05	\N
+COPY public.organizations (id, name, slug, created_at, updated_at, archived_at, timezone) FROM stdin;
+1b0e214d-3c39-4fa4-ace5-5b404d8aebe7	VetiSuite	vetisuite	2026-09-23 00:01:38.365474-05	2026-09-23 00:01:38.365474-05	\N	UTC
+1e1a2572-62cc-438d-87c0-3707f8bb59b9	Clínica Demo	clinica-demo	2026-09-23 00:01:38.575538-05	2026-09-23 17:29:01.155-05	\N	America/Guayaquil
 \.
 
 
@@ -1318,8 +1320,8 @@ COPY public.patients_vaccination (id, organization, patient, vaccine, applied_at
 
 COPY public.permissions (id, "user", name, permissions, created_at, updated_at) FROM stdin;
 f57b9834-93eb-4236-8c60-973275f0de42	679e8243-58af-44c2-83dc-449eec76b967	general	{superadmin::auth-logout::general,superadmin::files::general,superadmin::organizations::general,superadmin::owners::general,superadmin::owners-disable::general,superadmin::owners-permissions::general,superadmin::profile::general,superadmin::profile-email-verification::general,superadmin::profile-password::general,superadmin::profile-sessions::general,superadmin::superadmins::general,superadmin::superadmins-disable::general,superadmin::superadmins-permissions::general,superadmin::uploads::general}	2026-09-23 00:01:38.430853-05	2026-09-23 00:01:38.721-05
-348c1a7e-ddc8-4b32-a6f0-a9dc81551f7f	65518c76-7dd2-42fe-9c74-d961e1d233fe	general	{employee::appointments::general,employee::appointments-availability::general,employee::appointments-count::general,employee::auth-logout::general,employee::billing::general,employee::billing-count::general,employee::clients::general,employee::clients-count::general,employee::clients-patients::general,employee::clinic::general,employee::clinic-count::general,employee::dashboard-billing::general,employee::dashboard-care::general,employee::dashboard-grooming::general,employee::dashboard-inventory::general,employee::dashboard-laboratory::general,employee::dashboard-marketing::general,employee::dashboard-reception::general,employee::files::general,employee::finance::general,employee::inventory::general,employee::inventory-count::general,employee::portals::general,employee::portals-count::general,employee::profile::general,employee::profile-email-verification::general,employee::profile-password::general,employee::profile-sessions::general,employee::uploads::general,employee::visits::general,employee::visits-count::general,employee::visits-grooming::general,employee::visits-grooming-count::general,employee::visits-status::general}	2026-09-23 00:01:38.710515-05	2026-09-23 00:04:04.933-05
-d8a9f1e3-dd3a-4676-a892-8dc57c18e8fc	1812cb09-72b3-4ade-9db9-2bda70b5e9d4	general	{owner::appointments::general,owner::appointments-availability::general,owner::appointments-count::general,owner::auth-logout::general,owner::billing::general,owner::billing-count::general,owner::clients::general,owner::clients-count::general,owner::clients-patients::general,owner::clinic::general,owner::clinic-count::general,owner::dashboard-administration::general,owner::dashboard-billing::general,owner::dashboard-care::general,owner::dashboard-grooming::general,owner::dashboard-inventory::general,owner::dashboard-laboratory::general,owner::dashboard-marketing::general,owner::dashboard-reception::general,owner::employees::general,owner::employees-disable::general,owner::employees-permissions::general,owner::files::general,owner::finance::general,owner::inventory::general,owner::inventory-count::general,owner::portals::general,owner::portals-count::general,owner::profile::general,owner::profile-email-verification::general,owner::profile-password::general,owner::profile-sessions::general,owner::uploads::general,owner::visits::general,owner::visits-count::general,owner::visits-grooming::general,owner::visits-grooming-count::general,owner::visits-status::general}	2026-09-23 00:01:38.64701-05	2026-09-23 00:04:04.932-05
+348c1a7e-ddc8-4b32-a6f0-a9dc81551f7f	65518c76-7dd2-42fe-9c74-d961e1d233fe	general	{employee::appointments::general,employee::appointments-availability::general,employee::appointments-count::general,employee::auth-logout::general,employee::billing::general,employee::billing-count::general,employee::clients::general,employee::clients-count::general,employee::clients-patients::general,employee::clinic::general,employee::clinic-count::general,employee::dashboard-billing::general,employee::dashboard-care::general,employee::dashboard-grooming::general,employee::dashboard-inventory::general,employee::dashboard-laboratory::general,employee::dashboard-marketing::general,employee::dashboard-reception::general,employee::files::general,employee::finance::general,employee::inventory::general,employee::inventory-count::general,employee::portals::general,employee::portals-count::general,employee::profile::general,employee::profile-email-verification::general,employee::profile-password::general,employee::profile-sessions::general,employee::uploads::general,employee::visits::general,employee::visits-count::general,employee::visits-grooming::general,employee::visits-grooming-count::general,employee::visits-status::general,employee::organization::general}	2026-09-23 00:01:38.710515-05	2026-09-23 17:28:18.668-05
+d8a9f1e3-dd3a-4676-a892-8dc57c18e8fc	1812cb09-72b3-4ade-9db9-2bda70b5e9d4	general	{owner::appointments::general,owner::appointments-availability::general,owner::appointments-count::general,owner::auth-logout::general,owner::billing::general,owner::billing-count::general,owner::clients::general,owner::clients-count::general,owner::clients-patients::general,owner::clinic::general,owner::clinic-count::general,owner::dashboard-administration::general,owner::dashboard-billing::general,owner::dashboard-care::general,owner::dashboard-grooming::general,owner::dashboard-inventory::general,owner::dashboard-laboratory::general,owner::dashboard-marketing::general,owner::dashboard-reception::general,owner::employees::general,owner::employees-disable::general,owner::employees-permissions::general,owner::files::general,owner::finance::general,owner::inventory::general,owner::inventory-count::general,owner::portals::general,owner::portals-count::general,owner::profile::general,owner::profile-email-verification::general,owner::profile-password::general,owner::profile-sessions::general,owner::uploads::general,owner::visits::general,owner::visits-count::general,owner::visits-grooming::general,owner::visits-grooming-count::general,owner::visits-status::general,owner::organization::general}	2026-09-23 00:01:38.64701-05	2026-09-23 17:28:18.663-05
 \.
 
 
@@ -1400,6 +1402,7 @@ COPY public.services (id, organization, type, name, price, created_at, updated_a
 
 COPY public.sessions (id, "user", ip, user_agent, expires_at, created_at) FROM stdin;
 9e55aa7e-9b06-4d23-af7a-259236de6359	679e8243-58af-44c2-83dc-449eec76b967	::1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36	2026-09-25 00:05:17.412-05	2026-09-23 00:05:17.412825-05
+aa917739-ef84-40b0-b64b-446a45453cc8	65518c76-7dd2-42fe-9c74-d961e1d233fe	::1	curl-verify	2026-09-25 17:28:54.209-05	2026-09-23 17:28:54.209768-05
 \.
 
 
@@ -1418,8 +1421,8 @@ e2d92ab4-a804-42fc-9655-e56a7202230c	1b0e214d-3c39-4fa4-ace5-5b404d8aebe7	679e82
 
 COPY public.users (id, organization, email, password, role, email_confirmed, email_confirmed_at, last_sign_in_at, banned_until, disabled, created_at, updated_at, archived_at) FROM stdin;
 1812cb09-72b3-4ade-9db9-2bda70b5e9d4	1e1a2572-62cc-438d-87c0-3707f8bb59b9	demo+owner@vetisuite.com	$2b$10$aGqbfF0z7dYMIuHpUZBbTOSObIoadgzBdh0sB8sa1D/NK0gFttZO.	owner	f	\N	\N	\N	f	2026-09-23 00:01:38.642259-05	2026-09-23 00:01:38.642259-05	\N
-65518c76-7dd2-42fe-9c74-d961e1d233fe	1e1a2572-62cc-438d-87c0-3707f8bb59b9	demo+employee@vetisuite.com	$2b$10$SagUl5wTGUHWAuZ675lMmeZg0FHUZT.UIAMQsJVHgt9nH0L7gQifO	employee	f	\N	\N	\N	f	2026-09-23 00:01:38.705424-05	2026-09-23 00:01:38.705424-05	\N
 679e8243-58af-44c2-83dc-449eec76b967	1b0e214d-3c39-4fa4-ace5-5b404d8aebe7	demo+superadmin@vetisuite.com	$2b$10$.8VjbTOgtaxBTQEms7xqE.RGB55EjbuxsX/nEZFffxkT9jXydbR3C	superadmin	f	\N	2026-09-23 00:05:17.415-05	\N	f	2026-09-23 00:01:38.425676-05	2026-09-23 00:05:17.415-05	\N
+65518c76-7dd2-42fe-9c74-d961e1d233fe	1e1a2572-62cc-438d-87c0-3707f8bb59b9	demo+employee@vetisuite.com	$2b$10$SagUl5wTGUHWAuZ675lMmeZg0FHUZT.UIAMQsJVHgt9nH0L7gQifO	employee	f	\N	2026-09-23 17:28:54.21-05	\N	f	2026-09-23 00:01:38.705424-05	2026-09-23 17:28:54.211-05	\N
 \.
 
 
@@ -2662,5 +2665,5 @@ ALTER TABLE ONLY public.visits_service
 -- PostgreSQL database dump complete
 --
 
-\unrestrict PR8fp6MSQ5fWK6HgHOaG0oLEpVcNK1fC2EOQ6hfjsV1tANodAqO91PTtH7ENlqU
+\unrestrict GuSMcoDYWLc2ZoyEcZxKNHAS12F1Jv0MRzhr5ZgEVK0ffS7I2vQQaalsmHo2IjG
 

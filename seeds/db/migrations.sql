@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict xb4UXrUvwe9cMUHc1c3tBxmOPotHIONf9ldwFUL07Ya0O73mwbT4ger9E1wpqAr
+\restrict CCizmr0oeIRnkiUlW0HTRe3Tld99AgaciP1Jn28C8jGB7266opuHnl0cGxSQSE3
 
 -- Dumped from database version 17.0 (DBngin.app)
 -- Dumped by pg_dump version 18.2
@@ -79,6 +79,7 @@ ALTER TABLE ONLY drizzle.__drizzle_migrations ALTER COLUMN id SET DEFAULT nextva
 
 COPY drizzle.__drizzle_migrations (id, hash, created_at) FROM stdin;
 1	b8a1f9dd0e7bfdb032c1ebc9f7c20042b7e4665184cf140c81f4c73d47f1a248	1790139612782
+2	8b42c6a835272bd705296705e1d6e2cf821d8926fa13c327f33e850e83882770	1790201673966
 \.
 
 
@@ -86,7 +87,7 @@ COPY drizzle.__drizzle_migrations (id, hash, created_at) FROM stdin;
 -- Name: __drizzle_migrations_id_seq; Type: SEQUENCE SET; Schema: drizzle; Owner: -
 --
 
-SELECT pg_catalog.setval('drizzle.__drizzle_migrations_id_seq', 1, true);
+SELECT pg_catalog.setval('drizzle.__drizzle_migrations_id_seq', 2, true);
 
 
 --
@@ -101,5 +102,5 @@ ALTER TABLE ONLY drizzle.__drizzle_migrations
 -- PostgreSQL database dump complete
 --
 
-\unrestrict xb4UXrUvwe9cMUHc1c3tBxmOPotHIONf9ldwFUL07Ya0O73mwbT4ger9E1wpqAr
+\unrestrict CCizmr0oeIRnkiUlW0HTRe3Tld99AgaciP1Jn28C8jGB7266opuHnl0cGxSQSE3
 

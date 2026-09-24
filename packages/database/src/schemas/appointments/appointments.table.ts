@@ -16,7 +16,8 @@ export const appointmentsTable = pgTable(
       .notNull()
       .references(() => patientsTable.id, { onDelete: 'no action', onUpdate: 'cascade' }),
     vet: uuid().references(() => employeesTable.id, { onDelete: 'set null', onUpdate: 'cascade' }),
-    startsAt: timestamp({ mode: 'date', withTimezone: true }).notNull(),
+    startsAt: timestamp({ mode: 'string' }).notNull(),
+    timezone: text().notNull(),
     durationMinutes: integer().notNull(),
     reason: text().notNull(),
     status: appointmentStatus().notNull().default('pending'),

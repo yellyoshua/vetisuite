@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm'
-import { boolean, check, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { boolean, check, integer, jsonb, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { organizationsTable } from '../organizations/organizations.table'
 
 type TimeRange = { start: string; end: string }
@@ -16,7 +16,6 @@ export const appointmentsAvailabilityTable = pgTable(
       .notNull()
       .unique()
       .references(() => organizationsTable.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    timezone: text().notNull(),
     week: jsonb().$type<DayAvailability[]>().notNull(),
     overrides: jsonb().$type<DateOverride[]>().notNull(),
     slotMinutes: integer().notNull(),
