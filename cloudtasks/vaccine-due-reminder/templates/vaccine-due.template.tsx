@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react'
 
+const DUE_DATE_FORMAT = new Intl.DateTimeFormat('es-EC', { dateStyle: 'long', timeZone: 'UTC' })
+
+function formatDueDate(dueDate: string): string {
+  return DUE_DATE_FORMAT.format(new Date(`${dueDate}T00:00:00Z`))
+}
+
 export type VaccineDueTemplateProps = {
   ownerName: string
   petName: string
@@ -66,7 +72,7 @@ function VaccineDueTemplate({
                         <p style={{ margin: '0 0 16px 0' }}>Hola {ownerName},</p>
                         <p style={{ margin: '0 0 16px 0' }}>
                           Te recordamos que la vacuna <strong>{vaccineName}</strong> de{' '}
-                          <strong>{petName}</strong> vence el <strong>{dueDate}</strong>.
+                          <strong>{petName}</strong> vence el <strong>{formatDueDate(dueDate)}</strong>.
                         </p>
                         <p style={{ margin: '0 0 16px 0' }}>
                           Agenda su próxima cita para mantener la protección de tu mascota al día.
