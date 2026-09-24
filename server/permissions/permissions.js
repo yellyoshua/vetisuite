@@ -26,6 +26,7 @@ import './files/files.permissions.js';
 import './finance/finance.permissions.js';
 import './inventory/inventory.permissions.js';
 import './inventory-count/inventory-count.permissions.js';
+import './organization/organization.permissions.js';
 import './organizations/organizations.permissions.js';
 import './owners/owners.permissions.js';
 import './owners-disable/owners-disable.permissions.js';
