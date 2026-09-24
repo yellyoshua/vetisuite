@@ -65,9 +65,14 @@ export type DateOverride = {
   ranges: { start: string; end: string }[]
 }
 
+export type ApiOrganization = {
+  id: string
+  name: string
+  timezone: string
+}
+
 export type ApiAppointmentsAvailability = {
   id: string
-  timezone: string
   slotMinutes: number
   bufferBefore: number
   bufferAfter: number

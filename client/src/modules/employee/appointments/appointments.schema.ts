@@ -16,6 +16,7 @@ export type AppointmentVet = {
 export type Appointment = {
   id: string
   startsAt: string
+  timezone: string
   durationMinutes: number
   reason: string
   status: AppointmentStatus

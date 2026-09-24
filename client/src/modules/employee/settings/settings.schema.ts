@@ -31,6 +31,12 @@ export type SettingsSection = {
   toggles: SettingsToggle[]
 }
 
+export type ApiOrganization = {
+  id: string
+  name: string
+  timezone: string
+}
+
 export type SettingsValues = {
   fields: Record<string, string>
   toggles: Record<string, boolean>

@@ -5,6 +5,7 @@ import {
 import {
   clinicAvailabilitySchema,
   type ApiAppointmentsAvailability,
+  type ApiOrganization,
   type ClinicAvailability,
   type ClinicAvailabilityInput,
   type ScheduleException,
@@ -12,6 +13,7 @@ import {
   type Weekday,
 } from '@/modules/employee/appointments-clinics/appointments-clinics.schema'
 import appointmentsAvailabilityService from '@/modules/employee/appointments-clinics/appointments-availability.service'
+import organizationService from '@/modules/employee/appointments-clinics/organization.service'
 
 function createDefaultWorkday(weekday: Weekday): ScheduleDay {
   return {
@@ -24,7 +26,7 @@ function createDefaultWorkday(weekday: Weekday): ScheduleDay {
   }
 }
 
-function mapRecordToAvailability(record: ApiAppointmentsAvailability): ClinicAvailability {
+function mapRecordToAvailability(record: ApiAppointmentsAvailability, timezone: string): ClinicAvailability {
   const days: ScheduleDay[] = WEEKDAY_VALUES.map((weekday, index) => {
     const found = record.week?.find((item) => item.weekday === weekday) || record.week?.[index]
     if (!found) {
@@ -72,7 +74,7 @@ function mapRecordToAvailability(record: ApiAppointmentsAvailability): ClinicAva
       bufferTime: bufferLabel,
       minimumNotice: noticeLabel,
       bookingWindow: `${record.maxAdvanceDays} días`,
-      timeZone: record.timezone,
+      timeZone: timezone,
     },
     bookingToggles: {
       portalBooking: record.onlineBooking,
@@ -83,7 +85,7 @@ function mapRecordToAvailability(record: ApiAppointmentsAvailability): ClinicAva
   }
 }
 
-function createDefaultAvailability(): ClinicAvailability {
+function createDefaultAvailability(timezone: string): ClinicAvailability {
   return {
     days: WEEKDAY_VALUES.map(createDefaultWorkday),
     bookingRules: {
@@ -91,7 +93,7 @@ function createDefaultAvailability(): ClinicAvailability {
       bufferTime: '10 minutos',
       minimumNotice: '2 horas',
       bookingWindow: '30 días',
-      timeZone: 'America/Guayaquil',
+      timeZone: timezone,
     },
     bookingToggles: {
       portalBooking: true,
@@ -103,13 +105,16 @@ function createDefaultAvailability(): ClinicAvailability {
 }
 
 export async function resolveAvailability(): Promise<ClinicAvailability> {
-  const record = await appointmentsAvailabilityService.getOne<ApiAppointmentsAvailability>()
+  const [record, organization] = await Promise.all([
+    appointmentsAvailabilityService.getOne<ApiAppointmentsAvailability>(),
+    organizationService.get<ApiOrganization>(),
+  ])
 
   if (!record) {
-    return createDefaultAvailability()
+    return createDefaultAvailability(organization.timezone)
   }
 
-  return mapRecordToAvailability(record)
+  return mapRecordToAvailability(record, organization.timezone)
 }
 
 export async function resolveExceptions(): Promise<ScheduleException[]> {
@@ -130,7 +135,6 @@ export async function deleteScheduleException(exceptionId: string): Promise<void
 
   await appointmentsAvailabilityService.put({
     id: record.id,
-    timezone: record.timezone,
     week: record.week,
     overrides: remainingOverrides,
     slotMinutes: record.slotMinutes,
@@ -163,7 +167,6 @@ export async function saveClinicAvailability(draft: ClinicAvailabilityInput): Pr
 
   const payload = {
     id: input.id || existing?.id,
-    timezone: input.bookingRules.timeZone,
     week,
     overrides,
     slotMinutes,
@@ -177,9 +180,10 @@ export async function saveClinicAvailability(draft: ClinicAvailabilityInput): Pr
   }
 
   const response = await appointmentsAvailabilityService.put<{ availability: ApiAppointmentsAvailability }>(payload)
+  const organization = await organizationService.put<ApiOrganization>({ timezone: input.bookingRules.timeZone })
 
   if (response?.availability) {
-    return mapRecordToAvailability(response.availability)
+    return mapRecordToAvailability(response.availability, organization.timezone)
   }
 
   return resolveAvailability()

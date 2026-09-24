@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { APPOINTMENT_STATUS_LABELS, APPOINTMENT_STATUS_TONES } from '@/constants/appointments'
 import { BADGE_TONE_CLASS_NAMES } from '@/constants/badge-tones'
-import { formatDate } from '@/lib/date'
+import { formatWallClock } from '@/lib/date'
 import type { Appointment, AppointmentsAgenda as AgendaType } from '@/modules/employee/appointments/appointments.schema'
 import AppointmentsAgenda from './AppointmentsAgenda'
 
@@ -97,7 +97,7 @@ export default function Appointments({ agenda, appointments }: AppointmentsProps
                 {appointment.patient.name}
               </CustomTable.TBodyItem>
               <CustomTable.TBodyItem className="font-semibold">
-                {formatDate(appointment.startsAt, { hour: '2-digit', minute: '2-digit' })}
+                {formatWallClock(appointment.startsAt, appointment.timezone, { hour: '2-digit', minute: '2-digit' })}
               </CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{appointment.reason}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>

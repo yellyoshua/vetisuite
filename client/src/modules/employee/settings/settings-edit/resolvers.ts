@@ -1,9 +1,19 @@
 import type { Params } from 'react-router'
 import { DEFAULT_SETTINGS_SECTION } from '@/constants/settings'
 import type { ResolverSearch } from '@/hooks/use-resolver'
+import { TIME_ZONE_VALUES, UTC_TIME_ZONE } from '@/lib/date'
 import { NotFoundError } from '@/lib/not-found-error'
 import { parseInput } from '@/lib/parse-input'
-import { settingsValuesSchema, type SettingsSection, type SettingsUpdate, type SettingsValues } from '@/modules/employee/settings/settings.schema'
+import organizationService from '@/modules/employee/settings/organization.service'
+import {
+  settingsValuesSchema,
+  type ApiOrganization,
+  type SettingsSection,
+  type SettingsUpdate,
+  type SettingsValues,
+} from '@/modules/employee/settings/settings.schema'
+
+const TIME_ZONE_FIELD = 'timeZone'
 
 const SETTINGS_SECTIONS: SettingsSection[] = [
   {
@@ -19,11 +29,11 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
       { name: 'city', label: 'Ciudad', type: 'text', value: 'Quito' },
       { name: 'address', label: 'Dirección', type: 'text', value: 'Av. Amazonas N34-120 y Atahualpa', isWide: true },
       {
-        name: 'timeZone',
+        name: TIME_ZONE_FIELD,
         label: 'Zona horaria',
         type: 'select',
-        value: 'America/Guayaquil',
-        options: ['America/Guayaquil', 'America/Bogota'],
+        value: UTC_TIME_ZONE,
+        options: TIME_ZONE_VALUES,
       },
     ],
     toggles: [],
@@ -223,18 +233,38 @@ function applyValues(section: SettingsSection, values: SettingsValues): Settings
   }
 }
 
+function withTimeZone(section: SettingsSection, timezone: string): SettingsSection {
+  return {
+    ...section,
+    fields: section.fields.map((field) => (field.name === TIME_ZONE_FIELD ? { ...field, value: timezone } : field)),
+  }
+}
 
-export function saveClinicSettings({ section, values }: SettingsUpdate): Promise<SettingsSection> {
-  return Promise.resolve().then(() => {
-    const currentSection = findSection(section)
-    const savedSection = applyValues(currentSection, parseInput(settingsValuesSchema(currentSection), values))
-    SETTINGS_SECTIONS.splice(SETTINGS_SECTIONS.indexOf(currentSection), 1, savedSection)
+async function resolveSection(sectionId: string): Promise<SettingsSection> {
+  const section = findSection(sectionId)
+  if (!section.fields.some((field) => field.name === TIME_ZONE_FIELD)) {
+    return section
+  }
+  const organization = await organizationService.get<ApiOrganization>()
 
-    return savedSection
-  })
+  return withTimeZone(section, organization.timezone)
+}
+
+export async function saveClinicSettings({ section, values }: SettingsUpdate): Promise<SettingsSection> {
+  const currentSection = findSection(section)
+  const input = parseInput(settingsValuesSchema(currentSection), values)
+  const timezone = input.fields[TIME_ZONE_FIELD]
+  let savedSection = applyValues(currentSection, input)
+  if (timezone !== undefined) {
+    const organization = await organizationService.put<ApiOrganization>({ timezone })
+    savedSection = withTimeZone(savedSection, organization.timezone)
+  }
+  SETTINGS_SECTIONS.splice(SETTINGS_SECTIONS.indexOf(currentSection), 1, savedSection)
+
+  return savedSection
 }
 
 export default {
   section: (_params: Readonly<Params>, search: ResolverSearch) =>
-    Promise.resolve().then(() => findSection(search.section ? String(search.section) : DEFAULT_SETTINGS_SECTION)),
+    resolveSection(search.section ? String(search.section) : DEFAULT_SETTINGS_SECTION),
 }

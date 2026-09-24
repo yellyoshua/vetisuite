@@ -1,4 +1,5 @@
 import type { BadgeTone } from '@/constants/badge-tones'
+import { TIME_ZONE_VALUES } from '@/lib/date'
 
 export const WEEKDAY_VALUES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const
 
@@ -45,7 +46,7 @@ export const BOOKING_RULE_OPTIONS = {
   bufferTime: ['Sin margen', '10 minutos', '15 minutos'],
   minimumNotice: ['Sin mínimo', '2 horas', '12 horas', '24 horas'],
   bookingWindow: ['15 días', '30 días', '60 días'],
-  timeZone: ['America/Guayaquil', 'America/Bogota'],
+  timeZone: TIME_ZONE_VALUES,
 } as const satisfies Record<(typeof BOOKING_RULE_VALUES)[number], readonly string[]>
 
 export const BOOKING_TOGGLE_VALUES = ['portalBooking', 'autoConfirm'] as const
