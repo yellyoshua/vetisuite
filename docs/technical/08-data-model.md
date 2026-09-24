@@ -214,7 +214,9 @@ products         id · name · category(enum) · stock int · min_stock int
                  · active
 
 appointments     id · patient_id→patients · staff_id→staff
-                 · starts_at timestamptz · duration_min int default 60
+                 · starts_at timestamp (hora de pared, sin zona)
+                 · timezone text (copia de organizations.timezone)
+                 · duration_min int default 60
                  · reason · status(appointment_status) · created_at
 
 visits           id · client_id→clients · appointment_id→appointments (null)
@@ -297,6 +299,24 @@ CREATE INDEX products_low_stock     ON products (stock) WHERE active;
 | productos aplicados en consulta | `service_items WHERE medical_record_id=?` |
 | ingresos por área | `Σ(unit_price*qty) GROUP BY type WHERE invoice_id IS NOT NULL` |
 | stock bajo / por caducar | `products WHERE stock <= min_stock` / `expiry < now()+60d` |
+
+### 3.5 Fechas y zona horaria
+
+La regla completa está en `AGENTS.md` (raíz), § Fechas y zona horaria. Columnas implementadas
+(`packages/database/src/schemas/**`, migración `0001_ordinary_puma.sql`):
+
+| Columna | Tipo | Estado |
+|---|---|---|
+| `organizations.timezone` | `text not null default 'UTC'` | nueva. Zona IANA de la clínica, única fuente de zona |
+| `appointments.startsAt` | `timestamp` sin zona (`mode: 'string'`) | antes `timestamptz`. Hora de pared: `"2026-10-01T09:30:00"` |
+| `appointments.timezone` | `text not null` | nueva. Copia inmutable de `organizations.timezone` al crear y al reprogramar |
+| `appointments_availability.timezone` | — | eliminada. La zona se lee de `organizations` |
+
+- Los demás `timestamptz` (incluidos `sessions.expiresAt`, `account_tokens.expiresAt`,
+  `oauth_codes.expiresAt`, `users.bannedUntil`) siguen en UTC.
+- Las columnas `date` (`patients.birthDate`, `patients_vaccination.nextDueAt`, `products.expiry`,
+  `portals_field.minDate`/`maxDate`) no llevan `timezone`: su "hoy" se calcula en la zona de la organización.
+- Cambiar `organizations.timezone` no toca las citas ya agendadas: conservan su `timezone`.
 
 ---
 

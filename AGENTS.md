@@ -138,6 +138,24 @@ Aplica a todo el monorepo.
 Un archivo por recurso (no por campo), con los mapas derivados de su array de options — nunca
 escritos dos veces. Una constante que usa un solo módulo vive en ese módulo.
 
+## Fechas y zona horaria
+
+Aplica a todo el monorepo. La clínica manda: su zona es `organizations.timezone` (IANA, default `'UTC'`).
+
+- **Instantes** (lo que ya pasó, vencimientos técnicos): `timestamptz`, en UTC.
+- **Citas y fechas futuras**: hora de pared en `timestamp` sin zona
+  (`timestamp({mode: 'string'})`) más una columna `timezone` copiada de la organización al crear y al
+  reprogramar. Nunca se acepta del client. El zod de escritura acepta
+  `/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/` y rechaza `Z` y offsets. Nunca pasa por `new Date()`.
+- **Días**: `date({mode: 'string'})`, sin zona.
+- **"Hoy" y "ahora"** se calculan siempre en la zona de la organización (`Intl.DateTimeFormat` con
+  `timeZone`), nunca con `toISOString().slice(0, 10)`. Zona faltante o inválida es un error, no `'UTC'`.
+- **Server**: la zona viaja en el claim de sesión (`authCore.session.claim` → `organization.timezone`) y
+  `baseRoute` la expone plana en `context.timezone`. Las rutas la pasan a los services; nadie consulta
+  `organizations` para obtenerla.
+- **Mostrar**: instantes en la zona del navegador; registros de hora de pared en la zona del registro,
+  con la etiqueta de la zona si difiere de la del navegador.
+
 ## Entorno
 
 Cada app declara sus variables en su propio módulo y **no lee el de otra**; los dominios se
