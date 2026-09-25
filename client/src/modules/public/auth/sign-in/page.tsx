@@ -4,6 +4,7 @@ import resolvers from './resolvers'
 import AuthLayout from '../components/AuthLayout'
 import AuthSplitCard from '../components/AuthSplitCard'
 import SignInForm from '../components/SignInForm'
+import LoginDev from '../components/LoginDev'
 
 export default function Page() {
   const { error, isLoading } = useResolver(resolvers)
@@ -21,6 +22,7 @@ export default function Page() {
       <AuthSplitCard>
         <SignInForm />
       </AuthSplitCard>
+      <LoginDev />
     </AuthLayout>
   )
 }

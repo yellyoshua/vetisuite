@@ -7,7 +7,7 @@ Comandos y procedimientos para trabajar y desplegar tras montar todo.
 ```sh
 bun install                 # una vez / tras cambiar deps
 
-bun run dev                      # client (SPA) con HMR
+bun run dev:client               # client (SPA) con HMR
 bun run --filter landing dev     # landing
 bun run --filter server dev      # nitro dev (api en :3000)
 ```

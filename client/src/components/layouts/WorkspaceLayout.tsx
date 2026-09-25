@@ -161,7 +161,7 @@ export default function WorkspaceLayout({
 
         <Breadcrumbs pathname={pathname} workspace={workspace} activeEntry={entry} />
 
-        <main className="min-w-0 flex-1 overflow-y-auto">
+        <main className="relative min-w-0 flex-1 overflow-y-auto">
           <div className="px-6 pt-6 pb-10">
             <Suspense fallback={<PageLoading />}>
               <Outlet />

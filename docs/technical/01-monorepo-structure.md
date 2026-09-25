@@ -41,7 +41,7 @@ proyecto mantiene sus propias dependencias en su `package.json`.
 
 ```sh
 bun install                     # instala todos los workspaces
-bun run dev                     # client con HMR
+bun run dev:client              # client con HMR
 bun run --filter server dev     # api en :3000
 bun run --filter landing dev    # landing en :4321
 bun run build                   # build de los tres

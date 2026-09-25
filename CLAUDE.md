@@ -22,10 +22,11 @@ Cada app se sirve en la raíz de su propio subdominio → ningún proyecto neces
 
 ```sh
 bun install                        # instala todos los workspaces (lockfile único)
-bun run dev                        # dev del client
-bun run dev:setup                  # docker compose (postgres + floci) + bucket, tablas y colas locales
+bun run dev:client                 # dev del client
+bun run dev:setup                  # docker compose (floci; postgres va instalado en la máquina) + bucket, tablas y colas locales
 bun run dev:server                 # dev del server (localhost:4000)
-bun run --filter landing dev       # dev de la landing (localhost:4321)
+bun run dev:cloudtasks             # dev de cloudtasks
+bun run dev:landing                # dev de la landing (localhost:4321)
 bun run build                      # build de todos los workspaces
 bun run build:server               # build del server para Lambda
 bun run test:server                # tests del server (Vitest + PGlite, sin Docker)
