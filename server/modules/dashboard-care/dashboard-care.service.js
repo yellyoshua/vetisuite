@@ -29,7 +29,7 @@ export async function getDashboardCare (organization, timezone) {
         name: row.patientName,
         detail: row.label,
         badge: 'En consulta',
-        tone: 'blue'
+        tone: 'info'
       }))
     },
     referrals: {
@@ -38,7 +38,7 @@ export async function getDashboardCare (organization, timezone) {
         name: row.patientName,
         detail: row.label,
         badge: row.type === 'laboratory' ? 'Laboratorio' : 'Peluquería',
-        tone: 'green'
+        tone: 'primary'
       }))
     }
   };

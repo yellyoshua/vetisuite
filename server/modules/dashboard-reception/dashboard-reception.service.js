@@ -4,10 +4,10 @@ import {appointmentsTable, clientsTable, employeesTable, patientsTable} from '@v
 import {todayInTimeZone} from '@/utils/timezone.js';
 
 const STATUS_TONES = {
-  confirmed: 'green',
-  pending: 'amber',
-  completed: 'blue',
-  cancelled: 'red'
+  confirmed: 'primary',
+  pending: 'warning',
+  completed: 'info',
+  cancelled: 'danger'
 };
 
 const STATUS_LABELS = {
@@ -112,9 +112,9 @@ function buildTodayStatuses (todayRows) {
   return {
     total: String(total),
     segments: [
-      {label: 'Confirmadas', value: String(confirmed), percent: Math.round((confirmed / safeTotal) * 100), tone: 'green'},
-      {label: 'Pendientes', value: String(pending), percent: Math.round((pending / safeTotal) * 100), tone: 'amber'},
-      {label: 'Completadas', value: String(completed), percent: Math.round((completed / safeTotal) * 100), tone: 'blue'}
+      {label: 'Confirmadas', value: String(confirmed), percent: Math.round((confirmed / safeTotal) * 100), tone: 'primary'},
+      {label: 'Pendientes', value: String(pending), percent: Math.round((pending / safeTotal) * 100), tone: 'warning'},
+      {label: 'Completadas', value: String(completed), percent: Math.round((completed / safeTotal) * 100), tone: 'info'}
     ],
     cancelledOrNoShow: String(cancelled)
   };
@@ -160,6 +160,6 @@ function formatAgendaEntry (row) {
     ownerName: row.clientName,
     detail,
     status: STATUS_LABELS[row.status] || row.status,
-    tone: STATUS_TONES[row.status] || 'sub'
+    tone: STATUS_TONES[row.status] || 'neutral'
   };
 }

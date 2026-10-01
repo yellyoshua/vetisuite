@@ -32,7 +32,7 @@ export async function getDashboardBilling (organization, timezone) {
         name: `${row.clientName} · #${row.number}`,
         detail: `Abierta el ${row.createdAt.toISOString().slice(0, 10)}`,
         badge: 'abierta',
-        tone: 'blue'
+        tone: 'info'
       }))
     },
     pendingCollections: {
@@ -41,7 +41,7 @@ export async function getDashboardBilling (organization, timezone) {
         name: `${row.clientName} · #${row.number}`,
         detail: `Deuda acumulada: $${row.previousDebt}`,
         badge: `$${row.previousDebt}`,
-        tone: 'red'
+        tone: 'danger'
       }))
     }
   };

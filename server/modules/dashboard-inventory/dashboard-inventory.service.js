@@ -31,7 +31,7 @@ export async function getDashboardInventory (organization) {
         name: item.name,
         detail: `Mínimo: ${item.minStock} uds · Precio: $${item.price}`,
         badge: `${item.stock} uds`,
-        tone: Number(item.stock || 0) === 0 ? 'red' : 'amber'
+        tone: Number(item.stock || 0) === 0 ? 'danger' : 'warning'
       }))
     },
     consumptionByArea: {
@@ -87,6 +87,6 @@ function buildConsumptionByArea (itemRows) {
     name: AREA_LABELS[area] || area,
     detail: `${data.count} cargos generados`,
     badge: `$${Math.round(data.amount)}`,
-    tone: 'blue'
+    tone: 'info'
   }));
 }

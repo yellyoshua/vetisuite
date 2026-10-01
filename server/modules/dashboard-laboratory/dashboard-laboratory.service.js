@@ -27,7 +27,7 @@ export async function getDashboardLaboratory (organization) {
         name: `${row.patientName} · ${row.label}`,
         detail: `Orden creada: ${row.createdAt.toISOString().slice(0, 10)}`,
         badge: row.status === 'requested' ? 'solicitado' : 'en análisis',
-        tone: row.status === 'requested' ? 'amber' : 'blue'
+        tone: row.status === 'requested' ? 'warning' : 'info'
       }))
     },
     topExams: {
@@ -94,7 +94,7 @@ function buildTopExams (rows) {
       name,
       detail: `${examCount} solicitados (${share}%)`,
       badge: `${share}%`,
-      tone: 'green'
+      tone: 'primary'
     };
   });
 }

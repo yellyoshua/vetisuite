@@ -34,7 +34,7 @@ export async function getDashboardGrooming (organization) {
         name: `${row.patientName} · ${row.label}`,
         detail: resolveGroomerDetail(row),
         badge: row.status === 'in_progress' ? 'en proceso' : 'en espera',
-        tone: row.status === 'in_progress' ? 'blue' : 'amber'
+        tone: row.status === 'in_progress' ? 'info' : 'warning'
       }))
     },
     topServices: {
@@ -117,7 +117,7 @@ function buildTopServices (rows) {
       name,
       detail: `${svcCount} pedidos (${share}%)`,
       badge: `${share}%`,
-      tone: 'green'
+      tone: 'primary'
     };
   });
 }

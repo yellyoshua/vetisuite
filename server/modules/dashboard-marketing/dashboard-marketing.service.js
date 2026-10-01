@@ -50,13 +50,13 @@ function buildBookingOrigins (appointments) {
       label: 'Portal de reservas',
       value: String(portalCount),
       percent: total > 0 ? Math.round((portalCount / total) * 100) : 0,
-      tone: 'green'
+      tone: 'primary'
     },
     {
       label: 'Clínica / Recepción',
       value: String(staffCount),
       percent: total > 0 ? Math.round((staffCount / total) * 100) : 0,
-      tone: 'blue'
+      tone: 'info'
     }
   ];
 
@@ -78,7 +78,7 @@ function buildPortalPerformance (portals, submissions) {
   return portals.map((portal) => {
     const count = submissionsByPortal[portal.id] || 0;
     const percent = totalSubmissions > 0 ? Math.round((count / totalSubmissions) * 100) : 0;
-    const tone = portal.status === 'published' ? 'green' : 'gray';
+    const tone = portal.status === 'published' ? 'primary' : 'neutral';
 
     return {
       name: portal.name,

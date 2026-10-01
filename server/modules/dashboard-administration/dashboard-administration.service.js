@@ -61,25 +61,25 @@ function buildPanels (users, employees, owners, sessions) {
       name: 'Administrador',
       detail: `acceso total · ${owners.length} usuario${owners.length === 1 ? '' : 's'}`,
       badge: 'total',
-      tone: 'blue'
+      tone: 'info'
     },
     {
       name: 'Veterinario',
       detail: `Atención, Laboratorio · ${employeesByPosition.veterinarian || 0} usuarios`,
       badge: 'atención',
-      tone: 'green'
+      tone: 'primary'
     },
     {
       name: 'Estilista',
       detail: `Estética · ${employeesByPosition.groomer || 0} usuarios`,
       badge: 'estética',
-      tone: 'green'
+      tone: 'primary'
     },
     {
       name: 'Recepción',
       detail: `Recepción, Facturación · ${employeesByPosition.receptionist || 0} usuarios`,
       badge: 'entrada',
-      tone: 'green'
+      tone: 'primary'
     }
   ];
 
@@ -95,7 +95,7 @@ function buildPanels (users, employees, owners, sessions) {
       name: userName,
       detail: `Acceso registrado el ${dateStr}`,
       badge: 'activo',
-      tone: 'green'
+      tone: 'primary'
     };
   });
 
