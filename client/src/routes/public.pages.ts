@@ -5,3 +5,4 @@ export const RecoveryPasswordPage = lazy(() => import('@/modules/public/recovery
 export const ResetPasswordPage = lazy(() => import('@/modules/public/auth/reset-password/page'))
 export const SignInPage = lazy(() => import('@/modules/public/auth/sign-in/page'))
 export const SignUpPage = lazy(() => import('@/modules/public/auth/sign-up/page'))
+export const UiCatalogPage = lazy(() => import('@/modules/public/ui-catalog/page'))

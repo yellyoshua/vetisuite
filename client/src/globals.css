@@ -24,6 +24,24 @@
   --color-gray-soft: #eeece4;
   --color-scroll-thumb: #d8d3c5;
   --color-shade: #121c18;
+  --color-bg-dark: #101815;
+  --color-card-dark: #17221e;
+  --color-line-dark: #3a4b45;
+  --color-line-soft-dark: #22302b;
+  --color-ink-dark: #e8ece9;
+  --color-sub-dark: #9aa8a1;
+  --color-green-dark: #4fb393;
+  --color-green-soft-dark: #1b3a31;
+  --color-track-dark: #1f2b27;
+  --color-red-dark: #e0735f;
+  --color-blue-dark: #6fb0d0;
+  --color-amber-dark: #d9a650;
+  --color-faint: #6a756f;
+  --color-faint-dark: #8e9b94;
+  --color-frame: var(--color-track);
+  --color-frame-dark: #141e1a;
+  --color-stripe: #ebe7dd;
+  --color-stripe-dark: #18221e;
 
   --font-head: 'Sora', sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
@@ -38,6 +56,11 @@
   --shadow-drawer: 0 20px 50px rgb(18 28 24 / 0.45);
   --shadow-sticky: 10px 0 12px -12px rgb(18 28 24 / 0.28);
   --shadow-tooltip: 0 6px 16px rgb(18 28 24 / 0.22);
+  --shadow-control: 0 1px 2px rgb(18 28 24 / 0.05);
+  --shadow-lift: 0 4px 8px rgb(18 28 24 / 0.04);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.65, 0, 0.35, 1);
+  --shadow-popup: 0 20px 25px -5px rgb(18 28 24 / 0.1), 0 8px 10px -6px rgb(18 28 24 / 0.1);
 }
 
 ::-webkit-scrollbar {
@@ -51,7 +74,7 @@
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-green);
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
@@ -173,6 +196,39 @@
   --brand-border-color: var(--color-line);
   --brand-gradient-primary: linear-gradient(135deg, var(--color-green), var(--color-blue));
   --brand-gradient-secondary: linear-gradient(135deg, var(--color-amber), var(--color-red));
+}
+
+.dark {
+  --color-card: var(--color-card-dark);
+  --color-blue: var(--color-blue-dark);
+  --color-amber: var(--color-amber-dark);
+  --color-scroll-thumb: var(--color-line-dark);
+  --color-faint: var(--color-faint-dark);
+  --color-frame: var(--color-frame-dark);
+  --color-stripe: var(--color-stripe-dark);
+  --background: var(--color-bg-dark);
+  --foreground: var(--color-ink-dark);
+  --card: var(--color-card-dark);
+  --card-foreground: var(--color-ink-dark);
+  --popover: var(--color-card-dark);
+  --popover-foreground: var(--color-ink-dark);
+  --primary: var(--color-green-dark);
+  --primary-foreground: var(--color-bg-dark);
+  --secondary: var(--color-green-soft-dark);
+  --secondary-foreground: var(--color-green-dark);
+  --muted: var(--color-track-dark);
+  --muted-foreground: var(--color-sub-dark);
+  --accent: var(--color-line-soft-dark);
+  --accent-foreground: var(--color-ink-dark);
+  --destructive: var(--color-red-dark);
+  --border: var(--color-line-dark);
+  --input: var(--color-line-dark);
+  --ring: var(--color-green-dark);
+  color-scheme: dark;
+}
+
+@utility bg-stripes {
+  background-image: repeating-linear-gradient(135deg, var(--color-stripe) 0 1px, transparent 1px 7px);
 }
 
 @layer base {
