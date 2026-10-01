@@ -30,9 +30,9 @@ export default function CustomTable({ children, dataSize = 0, currentPage = 1, n
 
   if (dataSize === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
         <div className="p-8 text-center">
-          <p className="text-gray-600 dark:text-gray-400">No se encontraron datos disponibles</p>
+          <p className="text-muted-foreground">No se encontraron datos disponibles</p>
         </div>
       </div>
     )
@@ -40,7 +40,7 @@ export default function CustomTable({ children, dataSize = 0, currentPage = 1, n
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">{children}</table>
         </div>
@@ -51,18 +51,18 @@ export default function CustomTable({ children, dataSize = 0, currentPage = 1, n
           type="button"
           onClick={prevPage}
           disabled={page === 1}
-          className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+          className="px-4 py-2 bg-card border border-border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted"
         >
           Anterior
         </button>
-        <span aria-live="polite" className="text-sm text-gray-600 dark:text-gray-400">
+        <span aria-live="polite" className="text-sm text-muted-foreground">
           Página {page}
         </span>
         <button
           type="button"
           onClick={nextPage}
           disabled={dataSize < 10}
-          className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+          className="px-4 py-2 bg-card border border-border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted"
         >
           Siguiente
         </button>
@@ -73,7 +73,7 @@ export default function CustomTable({ children, dataSize = 0, currentPage = 1, n
 
 CustomTable.Thead = function Thead({ children }: ChildrenProps) {
   return (
-    <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
+    <thead className="bg-muted border-b border-border">
       {children}
     </thead>
   )
@@ -85,7 +85,7 @@ CustomTable.TableRow = function TableRow({ children, header = false }: TableRowP
   }
 
   return (
-    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+    <tr className="hover:bg-muted transition-colors">
       {children}
     </tr>
   )
@@ -93,7 +93,7 @@ CustomTable.TableRow = function TableRow({ children, header = false }: TableRowP
 
 CustomTable.TheadItem = function TheadItem({ children, className }: CellProps) {
   return (
-    <th scope="col" className={twMerge('px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider', className)}>
+    <th scope="col" className={twMerge('px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider', className)}>
       {children}
     </th>
   )
@@ -101,7 +101,7 @@ CustomTable.TheadItem = function TheadItem({ children, className }: CellProps) {
 
 CustomTable.TBody = function TBody({ children }: ChildrenProps) {
   return (
-    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+    <tbody className="divide-y divide-border">
       {children}
     </tbody>
   )
@@ -118,7 +118,7 @@ CustomTable.TBodyItem = function TBodyItem({ children, className, type }: BodyCe
 
   return (
     <td className="px-6 py-4 whitespace-nowrap">
-      <span className={twMerge('text-sm font-normal text-gray-900 dark:text-white', className)}>
+      <span className={twMerge('text-sm font-normal text-foreground', className)}>
         {children}
       </span>
     </td>

@@ -80,7 +80,7 @@ export default function Movements({ movements }: MovementsProps) {
         <CustomTable.TBody>
           {movements.map((movement) => (
             <CustomTable.TableRow key={movement.id}>
-              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{movement.productName}</span><span className="text-sub">{movement.batchCode}</span></span></CustomTable.TBodyItem>
+              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{movement.productName}</span><span className="text-muted-foreground">{movement.batchCode}</span></span></CustomTable.TBodyItem>
               <CustomTable.TBodyItem><Badge variant="outline" className={BADGE_TONE_CLASS_NAMES[MOVEMENT_TYPE_TONES[movement.type]]}>{MOVEMENT_TYPE_LABELS[movement.type]}</Badge></CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{MOVEMENT_TYPE_SIGNS[movement.type]}{movement.quantity}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{movement.destination}</CustomTable.TBodyItem>

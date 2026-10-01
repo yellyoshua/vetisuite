@@ -17,6 +17,6 @@ export const PORTAL_STATUS_LABELS: Record<(typeof PORTAL_STATUS_VALUES)[number],
 }
 
 export const PORTAL_STATUS_TONES: Record<(typeof PORTAL_STATUS_VALUES)[number], BadgeTone> = {
-  published: 'green',
-  draft: 'gray',
+  published: 'primary',
+  draft: 'neutral',
 }

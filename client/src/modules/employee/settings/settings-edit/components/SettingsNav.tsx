@@ -26,9 +26,9 @@ export default function SettingsNav({ activeSection }: SettingsNavProps) {
               key={section}
               to={`?${SETTINGS_SECTION_PARAM}=${section}`}
               aria-current={isActive ? 'page' : undefined}
-              className={`${LINK_CLASS_NAME} ${isActive ? 'bg-green-soft font-semibold text-green' : 'text-ink'}`}
+              className={`${LINK_CLASS_NAME} ${isActive ? 'bg-primary-soft font-semibold text-primary' : 'text-foreground'}`}
             >
-              <span className={isActive ? 'text-green' : 'text-sub'}>
+              <span className={isActive ? 'text-primary' : 'text-muted-foreground'}>
                 <SectionIcon className="size-[15px]" aria-hidden="true" />
               </span>
               <span className="min-w-0 flex-1">{SETTINGS_SECTION_LABELS[section]}</span>

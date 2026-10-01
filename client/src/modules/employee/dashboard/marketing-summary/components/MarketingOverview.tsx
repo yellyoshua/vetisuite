@@ -25,13 +25,13 @@ type FunnelStepDefinition = {
 }
 
 const KPIS: KpiDefinition<MarketingKpiKey>[] = [
-  { key: 'onlineBookings', label: 'Reservas en línea', icon: CalendarCheckIcon, tone: 'green' },
-  { key: 'newClients', label: 'Clientes nuevos', icon: UserPlusIcon, tone: 'amber' },
+  { key: 'onlineBookings', label: 'Reservas en línea', icon: CalendarCheckIcon, tone: 'primary' },
+  { key: 'newClients', label: 'Clientes nuevos', icon: UserPlusIcon, tone: 'warning' },
 ]
 
 const FUNNEL_STEPS: FunnelStepDefinition[] = [
-  { key: 'booked', label: 'Reservan una cita', tone: 'green' },
-  { key: 'attended', label: 'Asisten a la cita', tone: 'dark' },
+  { key: 'booked', label: 'Reservan una cita', tone: 'primary' },
+  { key: 'attended', label: 'Asisten a la cita', tone: 'primary-strong' },
 ]
 
 function PortalPerformanceList({ portals }: { portals: PortalPerformance[] }) {
@@ -42,14 +42,14 @@ function PortalPerformanceList({ portals }: { portals: PortalPerformance[] }) {
   return (
     <ul className="mt-1.5">
       {portals.map((portal) => (
-        <li key={portal.name} className="border-t border-line-soft py-3">
+        <li key={portal.name} className="border-t border-accent py-3">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="min-w-0 flex-1 font-head text-[13.5px] font-semibold text-ink">{portal.name}</span>
+            <span className="min-w-0 flex-1 font-head text-[13.5px] font-semibold text-foreground">{portal.name}</span>
             <Badge variant="outline" className={BADGE_TONE_CLASS_NAMES[portal.tone]}>{portal.status}</Badge>
           </div>
           <div className="mt-2 flex items-center gap-2.5">
             <Meter percent={portal.percent} />
-            <span className="whitespace-nowrap text-[11.5px] text-sub tabular-nums">{portal.detail}</span>
+            <span className="whitespace-nowrap text-[11.5px] text-muted-foreground tabular-nums">{portal.detail}</span>
           </div>
         </li>
       ))}
@@ -63,9 +63,9 @@ function BookingFunnel({ funnel }: { funnel: Record<FunnelStepKey, FunnelStep> }
       {FUNNEL_STEPS.map((step) => (
         <li key={step.key}>
           <div className="mb-[5px] flex items-baseline gap-2">
-            <span className="min-w-0 flex-1 text-[12.5px] text-sub">{step.label}</span>
+            <span className="min-w-0 flex-1 text-[12.5px] text-muted-foreground">{step.label}</span>
             <b className="font-head text-[13px] tabular-nums">{funnel[step.key].value}</b>
-            <span className="w-11 text-right text-[11.5px] text-sub tabular-nums">{funnel[step.key].share}</span>
+            <span className="w-11 text-right text-[11.5px] text-muted-foreground tabular-nums">{funnel[step.key].share}</span>
           </div>
           <Meter percent={funnel[step.key].percent} tone={step.tone} size="lg" />
         </li>
@@ -84,7 +84,7 @@ function MarketingSummaryContent({ summary }: { summary: MarketingSummary }) {
         </SummaryPanel>
         <SummaryPanel title="Del portal a la cita" meta="reservas por portal">
           <BookingFunnel funnel={summary.funnel} />
-          <p className="mt-4 border-t border-line-soft pt-3.5 text-[11.5px] text-sub">
+          <p className="mt-4 border-t border-accent pt-3.5 text-[11.5px] text-muted-foreground">
             Las reservas del portal entran como pendientes mientras la confirmación automática esté apagada.
           </p>
         </SummaryPanel>

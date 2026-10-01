@@ -56,7 +56,7 @@ export default function Patients({ client, patients }: PatientsProps) {
                 <CustomTooltip content="Editar">
                   <Button asChild variant="outline" size="icon">
                     <Link to={`/clients/${client.id}/patients/${patient.id}/edit`} aria-label={`Editar a ${patient.name}`}>
-                      <PencilIcon className="w-4 h-4 text-blue" />
+                      <PencilIcon className="w-4 h-4 text-info" />
                     </Link>
                   </Button>
                 </CustomTooltip>

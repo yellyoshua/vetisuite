@@ -58,11 +58,11 @@ export default function ScheduleExceptionsCard({ exceptions, refetch }: Schedule
         <EmptyState title="Sin excepciones" hint="Todos los días rige el horario semanal." />
       )}
       {exceptions.map((exception) => (
-        <div key={exception.id} className="mt-3 flex flex-wrap items-center gap-3 border-t border-line-soft py-3">
-          <span className="flex-[0_1_110px] font-head text-[13px] font-semibold text-ink tabular-nums">
+        <div key={exception.id} className="mt-3 flex flex-wrap items-center gap-3 border-t border-accent py-3">
+          <span className="flex-[0_1_110px] font-head text-[13px] font-semibold text-foreground tabular-nums">
             {formatExceptionDate(exception.date)}
           </span>
-          <span className="min-w-0 flex-[1_1_180px] text-[12.5px] text-sub">{exception.reason}</span>
+          <span className="min-w-0 flex-[1_1_180px] text-[12.5px] text-muted-foreground">{exception.reason}</span>
           <Badge variant="outline" className={BADGE_TONE_CLASS_NAMES[SCHEDULE_EXCEPTION_KIND_TONES[exception.kind]]}>
             {describeExceptionHours(exception)}
           </Badge>

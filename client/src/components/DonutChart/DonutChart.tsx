@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-export type DonutTone = 'green' | 'amber' | 'blue' | 'track'
+export type DonutTone = 'primary' | 'warning' | 'info' | 'muted'
 
 export type DonutSegment = {
   label: string
@@ -12,17 +12,17 @@ export type DonutSegment = {
 type DonutTotalSize = 'md' | 'sm'
 
 const TONE_COLORS: Record<DonutTone, string> = {
-  green: 'var(--color-green)',
-  amber: 'var(--color-amber)',
-  blue: 'var(--color-blue)',
-  track: 'var(--color-track)',
+  primary: 'var(--color-primary)',
+  warning: 'var(--color-warning)',
+  info: 'var(--color-info)',
+  muted: 'var(--color-muted)',
 }
 
 const TONE_DOT_CLASS_NAMES: Record<DonutTone, string> = {
-  green: 'bg-green',
-  amber: 'bg-amber',
-  blue: 'bg-blue',
-  track: 'bg-track',
+  primary: 'bg-primary',
+  warning: 'bg-warning',
+  info: 'bg-info',
+  muted: 'bg-muted',
 }
 
 const TOTAL_SIZE_CLASS_NAMES: Record<DonutTotalSize, string> = {
@@ -58,7 +58,7 @@ export default function DonutChart({ total, unit, segments, totalSize = 'md', le
       >
         <div className="absolute inset-[15px] flex flex-col items-center justify-center rounded-full bg-card">
           <span className={`font-head font-bold tabular-nums ${TOTAL_SIZE_CLASS_NAMES[totalSize]}`}>{total}</span>
-          <span className="text-[10.5px] text-sub">{unit}</span>
+          <span className="text-[10.5px] text-muted-foreground">{unit}</span>
         </div>
       </div>
       <div className="relative flex min-w-[140px] flex-1 flex-col gap-[9px]">
@@ -69,7 +69,7 @@ export default function DonutChart({ total, unit, segments, totalSize = 'md', le
           {segments.map((segment) => (
             <li key={segment.label} className="flex items-center gap-2 text-[12.5px]">
               <span aria-hidden="true" className={`size-[9px] rounded-full ${TONE_DOT_CLASS_NAMES[segment.tone]}`} />
-              <span className="flex-1 text-sub">{segment.label}</span>
+              <span className="flex-1 text-muted-foreground">{segment.label}</span>
               <b className="tabular-nums">{segment.value}</b>
             </li>
           ))}

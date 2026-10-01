@@ -51,19 +51,19 @@ export default function VisitCard({ visit, advanceLabel, isTypeVisible, isAdvanc
   const TypeIcon = VISIT_TYPE_ICONS[visit.type]
 
   return (
-    <li className="rounded-row border border-line p-3">
+    <li className="rounded-row border border-border p-3">
       <div className="flex items-center gap-2.5">
         <Avatar>
-          <AvatarFallback className="bg-green-soft text-green text-xs font-semibold">{getInitials(visit.patientName)}</AvatarFallback>
+          <AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold">{getInitials(visit.patientName)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-head text-[13.5px] font-semibold text-ink">{visit.patientName}</p>
-          <p className="truncate text-[11.5px] text-sub">{visit.ownerName}</p>
+          <p className="truncate font-head text-[13.5px] font-semibold text-foreground">{visit.patientName}</p>
+          <p className="truncate text-[11.5px] text-muted-foreground">{visit.ownerName}</p>
         </div>
-        <span className="font-head text-[11.5px] text-sub tabular-nums">{formatDate(visit.createdAt, { hour: '2-digit', minute: '2-digit' })}</span>
+        <span className="font-head text-[11.5px] text-muted-foreground tabular-nums">{formatDate(visit.createdAt, { hour: '2-digit', minute: '2-digit' })}</span>
       </div>
-      <p className="mt-2.5 text-[12.5px] text-ink">{visit.service}</p>
-      <p className="mt-0.5 text-[11.5px] text-sub">{visit.staffName}</p>
+      <p className="mt-2.5 text-[12.5px] text-foreground">{visit.service}</p>
+      <p className="mt-0.5 text-[11.5px] text-muted-foreground">{visit.staffName}</p>
       {isTypeVisible && (
         <div className="mt-[9px] flex items-center gap-1.5">
           <Badge variant="outline" className={BADGE_TONE_CLASS_NAMES[VISIT_TYPE_TONES[visit.type]]}>

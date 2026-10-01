@@ -1,12 +1,12 @@
-type MeterTone = 'green' | 'green-soft' | 'blue' | 'dark'
+type MeterTone = 'primary' | 'primary-soft' | 'info' | 'primary-strong'
 
 type MeterSize = 'md' | 'lg'
 
 const TONE_CLASS_NAMES: Record<MeterTone, string> = {
-  green: 'bg-green',
-  'green-soft': 'bg-green-soft',
-  blue: 'bg-blue',
-  dark: 'bg-dark',
+  primary: 'bg-primary',
+  'primary-soft': 'bg-primary-soft',
+  info: 'bg-info',
+  'primary-strong': 'bg-primary-strong',
 }
 
 const SIZE_CLASS_NAMES: Record<MeterSize, string> = {
@@ -20,9 +20,9 @@ type MeterProps = {
   size?: MeterSize
 }
 
-export default function Meter({ percent, tone = 'green', size = 'md' }: MeterProps) {
+export default function Meter({ percent, tone = 'primary', size = 'md' }: MeterProps) {
   return (
-    <div aria-hidden="true" className={`min-w-0 flex-1 rounded-full bg-track ${SIZE_CLASS_NAMES[size]}`}>
+    <div aria-hidden="true" className={`min-w-0 flex-1 rounded-full bg-muted ${SIZE_CLASS_NAMES[size]}`}>
       <div className={`h-full rounded-full ${TONE_CLASS_NAMES[tone]}`} style={{ width: `${percent}%` }} />
     </div>
   )

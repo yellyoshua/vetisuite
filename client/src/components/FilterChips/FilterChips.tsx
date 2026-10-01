@@ -22,7 +22,7 @@ export default function FilterChips({ label, options, value, onChange }: FilterC
             onClick={() => onChange(option.value)}
             className={cn(
               'cursor-pointer rounded-full border px-3 py-1.5 text-xs whitespace-nowrap',
-              isActive ? 'border-transparent bg-green-soft font-semibold text-green' : 'border-line bg-card font-medium text-sub',
+              isActive ? 'border-transparent bg-primary-soft font-semibold text-primary' : 'border-border bg-card font-medium text-muted-foreground',
             )}
           >
             {option.label}

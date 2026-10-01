@@ -59,17 +59,17 @@ export default function OwnerPermissionsEdit({ owner, refetch }: OwnerPermission
       <div className="space-y-6">
         <CustomPageContainer className="p-6">
           <div className="flex items-center gap-4">
-            <Avatar className="size-16 border border-gray-200 dark:border-gray-700">
-              <AvatarFallback className="bg-linear-to-br from-green-400 to-green-600 text-lg font-semibold text-white">
+            <Avatar className="size-16 border border-border">
+              <AvatarFallback className="bg-linear-to-br from-primary to-primary-strong text-lg font-semibold text-primary-strong-foreground">
                 {getInitials(owner.firstName, owner.lastName) || 'D'}
               </AvatarFallback>
             </Avatar>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{fullName}</h2>
+                <h2 className="text-xl font-bold text-foreground">{fullName}</h2>
                 <Badge variant="outline" className="text-xs">Dueño</Badge>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5 mt-1">
+              <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
                 <MailIcon className="w-4 h-4" />
                 {owner.user.email}
               </p>
@@ -79,7 +79,7 @@ export default function OwnerPermissionsEdit({ owner, refetch }: OwnerPermission
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-lg font-semibold text-foreground">
               Módulos y Permisos
             </h3>
             <Badge variant="secondary">
@@ -88,16 +88,16 @@ export default function OwnerPermissionsEdit({ owner, refetch }: OwnerPermission
           </div>
 
           {moduleEntries.length === 0 ? (
-            <CustomPageContainer className="p-8 text-center text-gray-500 dark:text-gray-400">
-              <ShieldCheckIcon className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+            <CustomPageContainer className="p-8 text-center text-muted-foreground">
+              <ShieldCheckIcon className="w-8 h-8 mx-auto mb-2 text-neutral-faint" />
               <p>No tiene permisos asignados actualmente.</p>
             </CustomPageContainer>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {moduleEntries.map(([moduleName, items]) => (
                 <CustomPageContainer key={moduleName} className="p-5">
-                  <div className="flex items-center justify-between mb-3 border-b border-gray-100 dark:border-gray-800 pb-2">
-                    <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  <div className="flex items-center justify-between mb-3 border-b border-border pb-2">
+                    <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">
                       {moduleName}
                     </h4>
                     <Badge variant="outline" className="text-xs">
@@ -108,7 +108,7 @@ export default function OwnerPermissionsEdit({ owner, refetch }: OwnerPermission
                     {items.map((perm) => (
                       <li
                         key={perm}
-                        className="font-mono text-xs bg-gray-50 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 px-2.5 py-1.5 rounded border border-gray-200/60 dark:border-gray-700 select-all"
+                        className="font-mono text-xs bg-muted text-foreground px-2.5 py-1.5 rounded border border-border/60 select-all"
                       >
                         {perm}
                       </li>
@@ -123,7 +123,7 @@ export default function OwnerPermissionsEdit({ owner, refetch }: OwnerPermission
         <CustomPageContainer className="p-6">
           <Form onSubmit={form.handleSubmit} className="space-y-6">
             {form.error && form.error.message && (
-              <div role="alert" className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400">
+              <div role="alert" className="p-4 rounded-lg bg-danger-soft border border-danger/30 text-sm text-danger">
                 {form.error.message}
               </div>
             )}
@@ -135,7 +135,7 @@ export default function OwnerPermissionsEdit({ owner, refetch }: OwnerPermission
               description="Define los identificadores de permisos con formato rol::modulo::general"
             />
 
-            <div className="flex gap-3 justify-end items-center pt-4 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex gap-3 justify-end items-center pt-4 border-t border-border">
               <Button
                 type="submit"
                 disabled={form.isSubmitting}

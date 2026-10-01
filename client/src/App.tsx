@@ -8,10 +8,10 @@ export default function App() {
     <>
       <Authorization />
       <Toaster position="top-right" closeButton={true} icons={{
-        success: <CheckCircleIcon className="w-5 h-5 text-green-500" />,
-        error: <XCircleIcon className="w-5 h-5 text-red-500" />,
-        warning: <TriangleAlertIcon className="w-5 h-5 text-yellow-500" />,
-        info: <InfoIcon className="w-5 h-5 text-blue-500" />,
+        success: <CheckCircleIcon className="w-5 h-5 text-primary" />,
+        error: <XCircleIcon className="w-5 h-5 text-danger" />,
+        warning: <TriangleAlertIcon className="w-5 h-5 text-warning" />,
+        info: <InfoIcon className="w-5 h-5 text-info" />,
       }} duration={5000} richColors={true} />
       <ConfirmationDialog />
     </>

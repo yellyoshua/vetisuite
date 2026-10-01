@@ -10,8 +10,8 @@ export const APPOINTMENT_STATUS_LABELS: Record<(typeof APPOINTMENT_STATUS_VALUES
 }
 
 export const APPOINTMENT_STATUS_TONES: Record<(typeof APPOINTMENT_STATUS_VALUES)[number], BadgeTone> = {
-  pending: 'amber',
-  confirmed: 'green',
-  completed: 'blue',
-  cancelled: 'gray',
+  pending: 'warning',
+  confirmed: 'primary',
+  completed: 'info',
+  cancelled: 'neutral',
 }

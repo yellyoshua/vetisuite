@@ -47,13 +47,13 @@ function PermissionRow({ control, index, onRemove, error }: PermissionRowProps) 
           size="icon"
           onClick={() => onRemove(index)}
           aria-label="Eliminar permiso"
-          className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive cursor-pointer"
+          className="h-9 w-9 shrink-0 text-muted-foreground hover:text-danger cursor-pointer"
         >
           <Trash2Icon className="h-4 w-4" />
         </Button>
       </div>
       {error && error.message && (
-        <p className="text-sm font-medium text-destructive">{error.message}</p>
+        <p className="text-sm font-medium text-danger">{error.message}</p>
       )}
     </div>
   )

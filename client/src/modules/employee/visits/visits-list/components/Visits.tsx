@@ -55,7 +55,7 @@ export default function Visits({ scope, visits, refetch }: VisitsProps) {
             />
           </div>
           <OptionSelect label="Responsable" value={query.staff || ''} options={staffOptions} onChange={(staff) => changeQuery({ staff })} />
-          <span className="text-xs text-sub tabular-nums sm:ml-auto">
+          <span className="text-xs text-muted-foreground tabular-nums sm:ml-auto">
             {scopedVisits.length - billableCount} visitas abiertas · {billableCount} listas para facturar
           </span>
         </div>

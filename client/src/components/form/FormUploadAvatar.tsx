@@ -96,10 +96,10 @@ export function FormUploadAvatar<TValues extends FieldValues>({ className, contr
 
             <div className="flex flex-col items-center text-center">
               <div className="relative inline-flex" aria-live="polite">
-                <div className="absolute inset-0 rounded-full bg-linear-to-br from-blue-400/20 to-blue-600/20 blur-xl" />
+                <div className="absolute inset-0 rounded-full bg-linear-to-br from-primary/20 to-primary-strong/20 blur-xl" />
                 <Avatar className="relative h-28 w-28 border-4 border-background shadow-lg ring-1 ring-border/60">
                   {avatarSrc && <AvatarImage src={avatarSrc} alt={label || 'Foto de perfil'} className="object-cover" />}
-                  <AvatarFallback className="bg-linear-to-br from-blue-400 to-blue-600 text-white">
+                  <AvatarFallback className="bg-linear-to-br from-primary to-primary-strong text-primary-strong-foreground">
                     <UserRound className="h-11 w-11" />
                   </AvatarFallback>
                 </Avatar>
@@ -117,7 +117,7 @@ export function FormUploadAvatar<TValues extends FieldValues>({ className, contr
                     size="icon-sm"
                     disabled={isDisabled}
                     onClick={handleRemove}
-                    className="absolute -top-1 -right-1 h-9 w-9 cursor-pointer rounded-full border-border bg-background/95 text-muted-foreground shadow-md hover:bg-background hover:text-destructive"
+                    className="absolute -top-1 -right-1 h-9 w-9 cursor-pointer rounded-full border-border bg-background/95 text-muted-foreground shadow-md hover:bg-background hover:text-danger"
                     aria-label="Quitar foto de perfil"
                   >
                     <Trash2 className="h-4 w-4" />

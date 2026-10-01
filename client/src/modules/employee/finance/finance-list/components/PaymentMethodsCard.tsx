@@ -21,7 +21,7 @@ export default function PaymentMethodsCard({ collectedTotal, paymentShares }: Pa
     <CustomPageContainer className="p-5">
       <h2 className="m-0 font-head text-[15px] font-semibold">Cobros por método</h2>
       <DonutChart total={formatCurrency(collectedTotal)} unit="cobrado" segments={segments} totalSize="sm" />
-      <p className="mt-4 border-t border-line-soft pt-3.5 text-[11.5px] text-sub">
+      <p className="mt-4 border-t border-accent pt-3.5 text-[11.5px] text-muted-foreground">
         Solo lectura: un cobro se registra al pagar una factura en Cuentas y facturas.
       </p>
     </CustomPageContainer>

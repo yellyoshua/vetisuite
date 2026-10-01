@@ -43,7 +43,7 @@ export default function SuperadminEdit({ superadmin }: SuperadminEditProps) {
     <CustomPage title="Editar Super Admin" description="Consulta y modifica los datos del super admin" goBackPath="/superadmins">
       <div className="space-y-6">
         <CustomPageContainer>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             Información Básica
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -55,26 +55,26 @@ export default function SuperadminEdit({ superadmin }: SuperadminEditProps) {
         </CustomPageContainer>
 
         <CustomPageContainer>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             Estado de la Cuenta
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+            <div className="flex items-center gap-3 p-4 rounded-lg bg-muted">
               {superadmin.user.disabled
-                ? <LockIcon className="w-6 h-6 text-red-600 dark:text-red-400" />
-                : <LockOpenIcon className="w-6 h-6 text-green-600 dark:text-green-400" />}
+                ? <LockIcon className="w-6 h-6 text-danger" />
+                : <LockOpenIcon className="w-6 h-6 text-primary" />}
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">Estado</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{superadmin.user.disabled ? 'Bloqueado' : 'Activo'}</p>
+                <p className="text-sm font-medium text-foreground">Estado</p>
+                <p className="text-xs text-muted-foreground">{superadmin.user.disabled ? 'Bloqueado' : 'Activo'}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+            <div className="flex items-center gap-3 p-4 rounded-lg bg-muted">
               {superadmin.user.emailConfirmed
-                ? <CheckCircleIcon className="w-6 h-6 text-green-600 dark:text-green-400" />
-                : <XCircleIcon className="w-6 h-6 text-gray-400" />}
+                ? <CheckCircleIcon className="w-6 h-6 text-primary" />
+                : <XCircleIcon className="w-6 h-6 text-neutral-faint" />}
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">Email Verificado</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{superadmin.user.emailConfirmed ? 'Verificado' : 'No verificado'}</p>
+                <p className="text-sm font-medium text-foreground">Email Verificado</p>
+                <p className="text-xs text-muted-foreground">{superadmin.user.emailConfirmed ? 'Verificado' : 'No verificado'}</p>
               </div>
             </div>
           </div>
@@ -83,7 +83,7 @@ export default function SuperadminEdit({ superadmin }: SuperadminEditProps) {
         <CustomPageContainer className="p-6">
           <Avatar className="size-16 mb-6">
             <AvatarImage src={getPictureSrc(superadmin.avatar)} alt={`Foto de ${fullName}`} />
-            <AvatarFallback className="bg-linear-to-br from-blue-400 to-blue-600 text-lg font-semibold text-white">
+            <AvatarFallback className="bg-linear-to-br from-info/70 to-info text-lg font-semibold text-primary-strong-foreground">
               {getInitials(superadmin.firstName, superadmin.lastName)}
             </AvatarFallback>
           </Avatar>
@@ -104,7 +104,7 @@ export default function SuperadminEdit({ superadmin }: SuperadminEditProps) {
             </div>
 
             <div className="flex gap-3 justify-end">
-              <button type="submit" disabled={form.isSubmitting} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors cursor-pointer">
+              <button type="submit" disabled={form.isSubmitting} className="px-6 py-2 bg-primary hover:bg-primary/90 disabled:bg-neutral-faint text-primary-foreground rounded-lg transition-colors cursor-pointer">
                 {form.isSubmitting ? 'Actualizando...' : 'Guardar'}
               </button>
             </div>
@@ -118,8 +118,8 @@ export default function SuperadminEdit({ superadmin }: SuperadminEditProps) {
 function InfoItem({ label, value }: InfoItemProps) {
   return (
     <div>
-      <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="text-base font-medium text-gray-900 dark:text-white mt-1">{value}</p>
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="text-base font-medium text-foreground mt-1">{value}</p>
     </div>
   )
 }

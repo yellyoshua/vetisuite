@@ -34,7 +34,7 @@ export default function PasswordInput<TValues extends FieldValues>({ control, na
           type="button"
           onClick={() => setVisible((current) => !current)}
           aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-faint hover:text-muted-foreground"
         >
           <ToggleIcon className="h-5 w-5" aria-hidden="true" />
         </button>

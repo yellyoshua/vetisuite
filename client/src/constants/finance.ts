@@ -26,16 +26,16 @@ export const FINANCE_PAYMENT_METHOD_LABELS: Record<(typeof FINANCE_PAYMENT_METHO
 }
 
 export const FINANCE_PAYMENT_METHOD_TONES: Record<(typeof FINANCE_PAYMENT_METHOD_VALUES)[number], DonutTone> = {
-  cash: 'green',
-  card: 'blue',
-  transfer: 'amber',
+  cash: 'primary',
+  card: 'info',
+  transfer: 'warning',
 }
 
 export const FINANCE_TREND_VALUES = ['up', 'down'] as const
 
 export const FINANCE_TREND_CLASS_NAMES: Record<(typeof FINANCE_TREND_VALUES)[number], string> = {
-  up: 'text-green',
-  down: 'text-red',
+  up: 'text-primary',
+  down: 'text-danger',
 }
 
 export const DEFAULT_FINANCE_PERIOD: (typeof FINANCE_PERIOD_VALUES)[number] = 'month'

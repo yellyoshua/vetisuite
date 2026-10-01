@@ -65,14 +65,14 @@ export default function Clients({ clients }: ClientsProps) {
                 <CustomTooltip content="Mascotas">
                   <Button asChild variant="outline" size="icon">
                     <Link to={`/clients/${client.id}/patients`} aria-label={`Ver mascotas de ${client.name}`}>
-                      <PawPrintIcon className="w-4 h-4 text-green" />
+                      <PawPrintIcon className="w-4 h-4 text-primary" />
                     </Link>
                   </Button>
                 </CustomTooltip>
                 <CustomTooltip content="Editar">
                   <Button asChild variant="outline" size="icon">
                     <Link to={`/clients/${client.id}/edit`} aria-label={`Editar a ${client.name}`}>
-                      <PencilIcon className="w-4 h-4 text-blue" />
+                      <PencilIcon className="w-4 h-4 text-info" />
                     </Link>
                   </Button>
                 </CustomTooltip>

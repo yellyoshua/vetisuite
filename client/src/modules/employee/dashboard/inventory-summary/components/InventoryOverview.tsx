@@ -6,13 +6,13 @@ import SummaryListPanels, { type ListPanelDefinition } from '@/modules/employee/
 import type { InventoryKpiKey, InventoryPanelKey } from '@/modules/employee/dashboard/dashboard.schema'
 
 const KPIS: KpiDefinition<InventoryKpiKey>[] = [
-  { key: 'stockAlerts', label: 'Alertas de stock', icon: PackageIcon, tone: 'amber' },
-  { key: 'inventoryValue', label: 'Valor del inventario', icon: BoxesIcon, tone: 'green' },
+  { key: 'stockAlerts', label: 'Alertas de stock', icon: PackageIcon, tone: 'warning' },
+  { key: 'inventoryValue', label: 'Valor del inventario', icon: BoxesIcon, tone: 'primary' },
 ]
 
 const PANELS: ListPanelDefinition<InventoryPanelKey>[] = [
-  { key: 'stockAlerts', title: 'Alertas de inventario', icon: PackageIcon, tone: 'amber' },
-  { key: 'consumptionByArea', title: 'Consumo por área', icon: ArrowLeftRightIcon, tone: 'blue' },
+  { key: 'stockAlerts', title: 'Alertas de inventario', icon: PackageIcon, tone: 'warning' },
+  { key: 'consumptionByArea', title: 'Consumo por área', icon: ArrowLeftRightIcon, tone: 'info' },
 ]
 
 type InventoryOverviewProps = {

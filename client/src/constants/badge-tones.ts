@@ -1,9 +1,9 @@
-export type BadgeTone = 'green' | 'amber' | 'red' | 'blue' | 'gray'
+export type BadgeTone = 'primary' | 'warning' | 'danger' | 'info' | 'neutral'
 
 export const BADGE_TONE_CLASS_NAMES: Record<BadgeTone, string> = {
-  green: 'border-transparent bg-green-soft text-green',
-  amber: 'border-transparent bg-amber-soft text-amber',
-  red: 'border-transparent bg-red-soft text-red',
-  blue: 'border-transparent bg-blue-soft text-blue',
-  gray: 'border-transparent bg-gray-soft text-sub',
+  primary: 'border-transparent bg-primary-soft text-primary',
+  warning: 'border-transparent bg-warning-soft text-warning',
+  danger: 'border-transparent bg-danger-soft text-danger',
+  info: 'border-transparent bg-info-soft text-info',
+  neutral: 'border-transparent bg-neutral-soft text-muted-foreground',
 }

@@ -34,8 +34,8 @@ export default function SettingsForm({ formId, section, refetch }: SettingsFormP
     <>
       <CustomPageContainer className="p-5">
         <Form id={formId} onSubmit={form.handleSubmit} onReset={(event) => { event.preventDefault(); form.reset(values) }}>
-          <h2 className="m-0 font-head text-[15px] font-semibold text-ink">{section.title}</h2>
-          <p className="mt-[3px] max-w-[70ch] text-[12.5px] text-pretty text-sub">{section.description}</p>
+          <h2 className="m-0 font-head text-[15px] font-semibold text-foreground">{section.title}</h2>
+          <p className="mt-[3px] max-w-[70ch] text-[12.5px] text-pretty text-muted-foreground">{section.description}</p>
           <div className="@container mt-[18px] grid grid-cols-[repeat(auto-fit,minmax(min(190px,100%),1fr))] gap-3">
             {section.fields.map((field) => (
               <div key={field.name} className={field.isWide ? 'min-w-0 @min-[392px]:col-span-2' : 'min-w-0'}>
@@ -57,7 +57,7 @@ export default function SettingsForm({ formId, section, refetch }: SettingsFormP
                   <FormInput control={form.control} name={`fields.${field.name}`} label={field.label} type={field.type} />
                 )}
                 {field.note && (
-                  <p className="mt-[5px] flex items-center gap-[5px] text-[11px] text-sub">
+                  <p className="mt-[5px] flex items-center gap-[5px] text-[11px] text-muted-foreground">
                     <LockIcon className="size-[11px]" aria-hidden="true" />
                     {field.note}
                   </p>
@@ -66,7 +66,7 @@ export default function SettingsForm({ formId, section, refetch }: SettingsFormP
             ))}
           </div>
           {section.toggles.length > 0 && (
-            <div className="mt-[18px] flex flex-col gap-3.5 border-t border-line-soft pt-4">
+            <div className="mt-[18px] flex flex-col gap-3.5 border-t border-accent pt-4">
               {section.toggles.map((toggle) => (
                 <FormSwitch key={toggle.name} control={form.control} name={`toggles.${toggle.name}`} label={toggle.label} hint={toggle.hint} />
               ))}
@@ -75,7 +75,7 @@ export default function SettingsForm({ formId, section, refetch }: SettingsFormP
         </Form>
       </CustomPageContainer>
       <CustomPageContainer className="sticky bottom-0 flex flex-wrap items-center gap-3 px-4 py-3">
-        <span className="flex items-center gap-[7px] text-xs text-sub">
+        <span className="flex items-center gap-[7px] text-xs text-muted-foreground">
           <InfoIcon className="size-3.5" aria-hidden="true" />
           Los cambios se aplican a todos los módulos en cuanto guardas.
         </span>

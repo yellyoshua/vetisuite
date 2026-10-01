@@ -53,7 +53,7 @@ export default function CreateSuperadminForm() {
           </div>
 
           <div className="flex gap-3 justify-end mt-6">
-            <button type="submit" disabled={form.isSubmitting} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors">
+            <button type="submit" disabled={form.isSubmitting} className="px-6 py-2 bg-primary hover:bg-primary/90 disabled:bg-neutral-faint text-primary-foreground rounded-lg transition-colors">
               {form.isSubmitting ? 'Creando...' : 'Guardar'}
             </button>
           </div>

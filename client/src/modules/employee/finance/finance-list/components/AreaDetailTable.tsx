@@ -15,7 +15,7 @@ const COLUMNS = [
   { key: 'delta', header: 'Var. vs periodo anterior', alignClassName: 'text-right' },
 ]
 
-const BODY_CELL_CLASS_NAME = 'border-b border-line-soft px-5 py-3 text-right text-[13px] tabular-nums'
+const BODY_CELL_CLASS_NAME = 'border-b border-accent px-5 py-3 text-right text-[13px] tabular-nums'
 
 const TOTAL_CELL_CLASS_NAME = 'px-5 py-[13px] text-right text-[13px] tabular-nums'
 
@@ -32,7 +32,7 @@ export default function AreaDetailTable({ areas, totals }: AreaDetailTableProps)
             <th
               key={column.key}
               scope="col"
-              className={`border-y border-line px-5 py-[11px] font-body text-[11px] font-semibold tracking-[0.4px] whitespace-nowrap text-sub uppercase ${column.alignClassName}`}
+              className={`border-y border-border px-5 py-[11px] font-body text-[11px] font-semibold tracking-[0.4px] whitespace-nowrap text-muted-foreground uppercase ${column.alignClassName}`}
             >
               {column.header}
             </th>
@@ -42,12 +42,12 @@ export default function AreaDetailTable({ areas, totals }: AreaDetailTableProps)
       <tbody>
         {areas.map((area) => (
           <tr key={area.name}>
-            <th scope="row" className="border-b border-line-soft px-5 py-3 text-left font-head text-[13.5px] font-semibold whitespace-nowrap">
+            <th scope="row" className="border-b border-accent px-5 py-3 text-left font-head text-[13.5px] font-semibold whitespace-nowrap">
               {area.name}
             </th>
             <td className={BODY_CELL_CLASS_NAME}>{area.invoiceCount}</td>
             <td className={BODY_CELL_CLASS_NAME}>{formatCurrency(area.amount)}</td>
-            <td className={`${BODY_CELL_CLASS_NAME} text-sub`}>{area.share}%</td>
+            <td className={`${BODY_CELL_CLASS_NAME} text-muted-foreground`}>{area.share}%</td>
             <td className={`${BODY_CELL_CLASS_NAME} font-semibold ${FINANCE_TREND_CLASS_NAMES[area.trend]}`}>{formatDelta(area.delta)}</td>
           </tr>
         ))}
@@ -59,7 +59,7 @@ export default function AreaDetailTable({ areas, totals }: AreaDetailTableProps)
           </th>
           <td className={`${TOTAL_CELL_CLASS_NAME} font-bold`}>{totals.invoiceCount}</td>
           <td className={`${TOTAL_CELL_CLASS_NAME} font-bold`}>{formatCurrency(totals.amount)}</td>
-          <td className={`${TOTAL_CELL_CLASS_NAME} text-sub`}>{totals.share}%</td>
+          <td className={`${TOTAL_CELL_CLASS_NAME} text-muted-foreground`}>{totals.share}%</td>
           <td className={`${TOTAL_CELL_CLASS_NAME} font-bold ${FINANCE_TREND_CLASS_NAMES[totals.trend]}`}>{formatDelta(totals.delta)}</td>
         </tr>
       </tfoot>

@@ -6,15 +6,15 @@ import SummaryListPanels, { type ListPanelDefinition } from '@/modules/employee/
 import type { BillingKpiKey, BillingPanelKey } from '@/modules/employee/dashboard/dashboard.schema'
 
 const KPIS: KpiDefinition<BillingKpiKey>[] = [
-  { key: 'todayRevenue', label: 'Ingresos de hoy', icon: ReceiptIcon, tone: 'dark' },
-  { key: 'openAccounts', label: 'Cuentas abiertas', icon: FolderOpenIcon, tone: 'blue' },
-  { key: 'receivables', label: 'Por cobrar', icon: CircleAlertIcon, tone: 'red' },
-  { key: 'averageTicket', label: 'Ticket promedio', icon: WalletIcon, tone: 'green' },
+  { key: 'todayRevenue', label: 'Ingresos de hoy', icon: ReceiptIcon, tone: 'primary-strong' },
+  { key: 'openAccounts', label: 'Cuentas abiertas', icon: FolderOpenIcon, tone: 'info' },
+  { key: 'receivables', label: 'Por cobrar', icon: CircleAlertIcon, tone: 'danger' },
+  { key: 'averageTicket', label: 'Ticket promedio', icon: WalletIcon, tone: 'primary' },
 ]
 
 const PANELS: ListPanelDefinition<BillingPanelKey>[] = [
-  { key: 'accountsToClose', title: 'Cuentas por cerrar', icon: FolderOpenIcon, tone: 'amber' },
-  { key: 'pendingCollections', title: 'Cobros pendientes', icon: CircleAlertIcon, tone: 'red' },
+  { key: 'accountsToClose', title: 'Cuentas por cerrar', icon: FolderOpenIcon, tone: 'warning' },
+  { key: 'pendingCollections', title: 'Cobros pendientes', icon: CircleAlertIcon, tone: 'danger' },
 ]
 
 type BillingOverviewProps = {

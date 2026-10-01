@@ -227,6 +227,8 @@ presente se queda con el control — el hook no navega ni resetea detrás de él
 
 ### UI
 
+- Antes de crear o modificar UI, leé [design.md](./design.md). Si cambiás un token de
+  `src/globals.css` o las dimensiones de un componente, actualizá la guía en el mismo cambio.
 - Tailwind como única solución de estilos; iconos `lucide-react` con import explícito.
 - `<img>` nativo contra `/api/files/…`; no hay optimizador.
 - Accesibilidad no es opcional: HTML semántico, `label` en cada input, ARIA donde aplique, foco

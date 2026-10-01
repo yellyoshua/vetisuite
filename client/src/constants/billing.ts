@@ -9,9 +9,9 @@ export const BILLING_STATUS_LABELS: Record<(typeof BILLING_STATUS_VALUES)[number
 }
 
 export const BILLING_STATUS_TONES: Record<(typeof BILLING_STATUS_VALUES)[number], BadgeTone> = {
-  open: 'amber',
-  receivable: 'red',
-  paid: 'green',
+  open: 'warning',
+  receivable: 'danger',
+  paid: 'primary',
 }
 
 export const BILLING_DOCUMENT_KIND_VALUES = ['account', 'invoice'] as const

@@ -20,9 +20,9 @@ export const VISIT_ADVANCE_VARIANTS: Record<AdvanceableVisitStatus, ComponentPro
 }
 
 export const VISIT_STATUS_DOT_CLASS_NAMES: Record<VisitStatusValue, string> = {
-  pending: 'bg-amber',
-  'in-progress': 'bg-blue',
-  done: 'bg-green',
+  pending: 'bg-warning',
+  'in-progress': 'bg-info',
+  done: 'bg-primary',
 }
 
 export const VISIT_TYPE_VALUES = ['ambulatory', 'grooming', 'laboratory'] as const
@@ -36,9 +36,9 @@ export const VISIT_TYPE_LABELS: Record<VisitTypeValue, string> = {
 }
 
 export const VISIT_TYPE_TONES: Record<VisitTypeValue, BadgeTone> = {
-  ambulatory: 'blue',
-  grooming: 'amber',
-  laboratory: 'green',
+  ambulatory: 'info',
+  grooming: 'warning',
+  laboratory: 'primary',
 }
 
 export const VISIT_TYPE_ICONS: Record<VisitTypeValue, LucideIcon> = {

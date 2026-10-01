@@ -17,8 +17,8 @@ export default function SwitchField({ label, hint, checked, ariaLabel, onChecked
     <div className="flex items-start gap-3">
       <Switch id={id} checked={checked} aria-label={ariaLabel} onCheckedChange={onCheckedChange} className="mt-0.5" />
       <Label htmlFor={id} className="flex-col items-start gap-0.5">
-        <span className="text-[13.5px] font-semibold text-ink">{label}</span>
-        {hint && <span className="text-xs font-normal text-sub">{hint}</span>}
+        <span className="text-[13.5px] font-semibold text-foreground">{label}</span>
+        {hint && <span className="text-xs font-normal text-muted-foreground">{hint}</span>}
       </Label>
     </div>
   )

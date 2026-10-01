@@ -64,6 +64,6 @@ export const BOOKING_TOGGLE_HINTS: Record<(typeof BOOKING_TOGGLE_VALUES)[number]
 type ScheduleExceptionKind = 'closed' | 'reduced-hours'
 
 export const SCHEDULE_EXCEPTION_KIND_TONES: Record<ScheduleExceptionKind, BadgeTone> = {
-  closed: 'red',
-  'reduced-hours': 'amber',
+  closed: 'danger',
+  'reduced-hours': 'warning',
 }

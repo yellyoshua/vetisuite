@@ -10,8 +10,8 @@ export const GROOMING_STATUS_LABELS: Record<(typeof GROOMING_STATUS_VALUES)[numb
 }
 
 export const GROOMING_STATUS_TONES: Record<(typeof GROOMING_STATUS_VALUES)[number], BadgeTone> = {
-  pending: 'amber',
-  'in-progress': 'blue',
-  finished: 'green',
-  delivered: 'gray',
+  pending: 'warning',
+  'in-progress': 'info',
+  finished: 'primary',
+  delivered: 'neutral',
 }

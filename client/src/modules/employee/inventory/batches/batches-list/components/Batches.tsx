@@ -76,7 +76,7 @@ export default function Batches({ batches }: BatchesProps) {
         <CustomTable.TBody>
           {batches.map((batch) => (
             <CustomTable.TableRow key={batch.id}>
-              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{batch.productName}</span><span className="text-sub">{PRODUCT_CATEGORY_LABELS[batch.category]}</span></span></CustomTable.TBodyItem>
+              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{batch.productName}</span><span className="text-muted-foreground">{PRODUCT_CATEGORY_LABELS[batch.category]}</span></span></CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{batch.code}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{batch.quantity}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{formatDate(`${batch.receivedAt}T00:00:00`, { day: '2-digit', month: 'short', year: 'numeric' })}</CustomTable.TBodyItem>

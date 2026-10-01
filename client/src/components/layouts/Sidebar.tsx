@@ -24,7 +24,7 @@ type BrandMarkProps = {
 
 function BrandMark({ title, subtitle, isCollapsed }: BrandMarkProps) {
   const iconMark = (
-    <span className="flex size-[34px] shrink-0 items-center justify-center rounded-control bg-white/12 text-white">
+    <span className="flex size-[34px] shrink-0 items-center justify-center rounded-control bg-primary-strong-foreground/12 text-primary-strong-foreground">
       <PawPrintIcon className="size-[18px]" aria-hidden="true" />
     </span>
   )
@@ -41,8 +41,8 @@ function BrandMark({ title, subtitle, isCollapsed }: BrandMarkProps) {
     <div className="flex items-center gap-2 px-5 pt-6 pb-5">
       {iconMark}
       <div>
-        <p className="font-head text-[15px] font-bold tracking-[-0.2px] text-white">{title}</p>
-        <p className="text-[10.5px] text-white/55">{subtitle}</p>
+        <p className="font-head text-[15px] font-bold tracking-[-0.2px] text-primary-strong-foreground">{title}</p>
+        <p className="text-[10.5px] text-primary-strong-foreground/55">{subtitle}</p>
       </div>
     </div>
   )
@@ -58,7 +58,7 @@ type SidebarLinkProps = {
 
 function SidebarLink({ entry, badge, isActive, isCollapsed, onNavigate }: SidebarLinkProps) {
   const EntryIcon = entry.icon
-  const stateClassName = isActive ? 'bg-white/11 font-semibold text-white' : 'font-normal text-white/62'
+  const stateClassName = isActive ? 'bg-primary-strong-foreground/11 font-semibold text-primary-strong-foreground' : 'font-normal text-primary-strong-foreground/62'
   const layoutClassName = isCollapsed ? 'justify-center px-0 py-[11px]' : 'justify-start px-3 py-[9px]'
 
   return (
@@ -68,17 +68,17 @@ function SidebarLink({ entry, badge, isActive, isCollapsed, onNavigate }: Sideba
           onClick={onNavigate}
           aria-current={isActive ? 'page' : undefined}
           aria-label={isCollapsed ? entry.label : undefined}
-          className={`relative mb-1 flex w-full items-center gap-3 rounded-control text-left text-[13.5px] focus-visible:outline-white ${stateClassName} ${layoutClassName}`}
+          className={`relative mb-1 flex w-full items-center gap-3 rounded-control text-left text-[13.5px] focus-visible:outline-primary-strong-foreground ${stateClassName} ${layoutClassName}`}
         >
           <EntryIcon className="size-[17px]" aria-hidden="true" />
           {!isCollapsed && <span className="min-w-0 flex-1">{entry.label}</span>}
           {badge > 0 && !isCollapsed && (
-            <span className="rounded-full bg-amber px-[7px] py-px text-[10px] font-bold text-white tabular-nums">
+            <span className="rounded-full bg-warning px-[7px] py-px text-[10px] font-bold text-primary-foreground tabular-nums">
               {badge}
             </span>
           )}
           {badge > 0 && isCollapsed && (
-            <span className="absolute top-[7px] right-3 size-2 rounded-full bg-amber">
+            <span className="absolute top-[7px] right-3 size-2 rounded-full bg-warning">
               <span className="sr-only">{badge} abiertas</span>
             </span>
           )}
@@ -105,7 +105,7 @@ export default function Sidebar({
     <aside
       id="staff-sidebar"
       inert={isInert}
-      className={`fixed inset-y-0 left-0 z-[70] flex shrink-0 flex-col bg-dark text-white shadow-drawer transition-[width,transform] duration-200 ease-in-out motion-reduce:transition-none lg:static lg:z-auto lg:translate-x-0 lg:shadow-none ${isCollapsed ? 'w-[72px]' : 'w-[232px]'} ${isDrawerOpen ? 'translate-x-0' : '-translate-x-[102%]'}`}
+      className={`fixed inset-y-0 left-0 z-[70] flex shrink-0 flex-col bg-primary-strong text-primary-strong-foreground shadow-drawer transition-[width,transform] duration-200 ease-in-out motion-reduce:transition-none lg:static lg:z-auto lg:translate-x-0 lg:shadow-none ${isCollapsed ? 'w-[72px]' : 'w-[232px]'} ${isDrawerOpen ? 'translate-x-0' : '-translate-x-[102%]'}`}
     >
       <BrandMark title={brandTitle} subtitle={brandSubtitle} isCollapsed={isCollapsed} />
 
@@ -129,7 +129,7 @@ export default function Sidebar({
             aria-label={isCollapsed ? collapseLabel : undefined}
             aria-expanded={!isCollapsed}
             aria-controls="staff-sidebar"
-            className={`mt-3 mb-5 flex cursor-pointer items-center justify-center gap-2 rounded-control border-0 bg-white/6 py-2.5 font-body text-[12.5px] text-white/65 focus-visible:outline-white ${isCollapsed ? 'mx-2' : 'mx-3'}`}
+            className={`mt-3 mb-5 flex cursor-pointer items-center justify-center gap-2 rounded-control border-0 bg-primary-strong-foreground/6 py-2.5 font-body text-[12.5px] text-primary-strong-foreground/65 focus-visible:outline-primary-strong-foreground ${isCollapsed ? 'mx-2' : 'mx-3'}`}
           >
             {isCollapsed ? <ChevronsRightIcon className="size-4" aria-hidden="true" /> : <ChevronsLeftIcon className="size-4" aria-hidden="true" />}
             {!isCollapsed && 'Minimizar'}

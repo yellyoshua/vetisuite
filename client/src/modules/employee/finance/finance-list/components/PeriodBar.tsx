@@ -13,14 +13,14 @@ type PeriodBarProps = {
   onChange: (key: FinanceQueryKey, value: string) => void
 }
 
-const ACTIVE_PERIOD_CLASS_NAME = 'bg-dark font-semibold text-white'
+const ACTIVE_PERIOD_CLASS_NAME = 'bg-primary-strong font-semibold text-primary-strong-foreground'
 
-const INACTIVE_PERIOD_CLASS_NAME = 'bg-transparent font-medium text-sub'
+const INACTIVE_PERIOD_CLASS_NAME = 'bg-transparent font-medium text-muted-foreground'
 
 export default function PeriodBar({ query, onChange }: PeriodBarProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div role="group" aria-label="Periodo" className="flex max-w-full flex-wrap items-center gap-0.5 rounded-control border border-line bg-card p-[3px]">
+      <div role="group" aria-label="Periodo" className="flex max-w-full flex-wrap items-center gap-0.5 rounded-control border border-border bg-card p-[3px]">
         {FINANCE_PERIOD_VALUES.map((period) => (
           <button
             key={period}
@@ -36,7 +36,7 @@ export default function PeriodBar({ query, onChange }: PeriodBarProps) {
       <div className="w-[150px]">
         <Input type="date" aria-label="Desde" value={query.from} onChange={(event) => onChange('from', event.target.value)} />
       </div>
-      <span className="text-xs text-sub">a</span>
+      <span className="text-xs text-muted-foreground">a</span>
       <div className="w-[150px]">
         <Input type="date" aria-label="Hasta" value={query.to} onChange={(event) => onChange('to', event.target.value)} />
       </div>

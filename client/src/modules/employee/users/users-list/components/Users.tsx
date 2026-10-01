@@ -72,7 +72,7 @@ export default function Users({ users }: UsersProps) {
         <CustomTable.TBody>
           {users.map((user) => (
             <CustomTable.TableRow key={user.id}>
-              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{user.name}</span><span className="text-sub">{user.email}</span></span></CustomTable.TBodyItem>
+              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{user.name}</span><span className="text-muted-foreground">{user.email}</span></span></CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{USER_ROLE_LABELS[user.role]}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{user.moduleNames.join(', ')}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{user.lastAccessLabel}</CustomTable.TBodyItem>

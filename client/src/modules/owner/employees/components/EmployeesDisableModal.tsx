@@ -29,10 +29,10 @@ function EmployeesDisableModal({ onClose, refetch, titleId }: EmployeesDisableMo
 
   return (
     <div className="p-6">
-      <h2 id={titleId} className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+      <h2 id={titleId} className="text-xl font-bold text-foreground mb-4">
         {isDisabling ? 'Bloquear cuenta' : 'Habilitar cuenta'}
       </h2>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+      <p className="text-sm text-muted-foreground mb-6">
         {isDisabling
           ? 'El empleado perderá el acceso al sistema. ¿Deseas continuar?'
           : 'El empleado recuperará el acceso al sistema. ¿Deseas continuar?'}
@@ -54,6 +54,6 @@ function EmployeesDisableModal({ onClose, refetch, titleId }: EmployeesDisableMo
   )
 }
 
-EmployeesDisableModal.modalClassName = 'bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto'
+EmployeesDisableModal.modalClassName = 'bg-card rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto'
 
 export default withModalFromQuery(EmployeesDisableModal, EMPLOYEES_DISABLE_MODAL)

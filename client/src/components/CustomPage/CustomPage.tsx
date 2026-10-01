@@ -26,8 +26,8 @@ export default function CustomPage({ className, children, title, description, go
     <div className={twMerge('space-y-6 mb-10', className)}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+          <p className="text-muted-foreground mt-1">
             {description}
           </p>
         </div>
@@ -37,7 +37,7 @@ export default function CustomPage({ className, children, title, description, go
             variant="destructive" size="icon-lg" aria-label="Regresar"
             className="cursor-pointer shrink-0"
             onClick={() => (goBackPath ? navigate(goBackPath) : navigate(-1))}>
-            <ArrowLeftIcon className="text-white" />
+            <ArrowLeftIcon className="text-primary-foreground" />
           </Button>}
         </div>
       </div>
@@ -48,7 +48,7 @@ export default function CustomPage({ className, children, title, description, go
 
 export function CustomPageContainer({ children, className = '' }: CustomPageContainerProps) {
   return (
-    <div className={twMerge('bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700', className)}>
+    <div className={twMerge('bg-card rounded-xl p-4 shadow-sm border border-border', className)}>
       {children}
     </div>
   )

@@ -13,10 +13,10 @@ import SummaryPanel from '@/modules/employee/dashboard/components/SummaryPanel'
 import type { AgendaEntry, DemandHour, ReceptionKpiKey, ReceptionSummary } from '@/modules/employee/dashboard/dashboard.schema'
 
 const KPIS: KpiDefinition<ReceptionKpiKey>[] = [
-  { key: 'todayAppointments', label: 'Citas de hoy', icon: CalendarDaysIcon, tone: 'green' },
-  { key: 'confirmed', label: 'Confirmadas', icon: CheckIcon, tone: 'green' },
-  { key: 'pending', label: 'Pendientes', icon: ClockIcon, tone: 'amber' },
-  { key: 'attendance', label: 'Asistencia', icon: TrendingUpIcon, tone: 'blue' },
+  { key: 'todayAppointments', label: 'Citas de hoy', icon: CalendarDaysIcon, tone: 'primary' },
+  { key: 'confirmed', label: 'Confirmadas', icon: CheckIcon, tone: 'primary' },
+  { key: 'pending', label: 'Pendientes', icon: ClockIcon, tone: 'warning' },
+  { key: 'attendance', label: 'Asistencia', icon: TrendingUpIcon, tone: 'info' },
 ]
 
 function TodayStatusChart({ statuses }: { statuses: ReceptionSummary['todayStatuses'] }) {
@@ -26,8 +26,8 @@ function TodayStatusChart({ statuses }: { statuses: ReceptionSummary['todayStatu
       unit="citas"
       segments={statuses.segments}
       legendFooter={
-        <p className="flex items-center gap-2 border-t border-line-soft pt-2 text-[12.5px]">
-          <span className="flex-1 text-sub">Canceladas y no asistió</span>
+        <p className="flex items-center gap-2 border-t border-accent pt-2 text-[12.5px]">
+          <span className="flex-1 text-muted-foreground">Canceladas y no asistió</span>
           <b className="tabular-nums">{statuses.cancelledOrNoShow}</b>
         </p>
       }
@@ -40,7 +40,7 @@ function DemandHours({ hours }: { hours: DemandHour[] }) {
     <ul className="mt-4 flex flex-col gap-[11px]">
       {hours.map((hour) => (
         <li key={hour.label} className="flex items-center gap-2.5">
-          <span className="w-[52px] text-[11.5px] text-sub tabular-nums">{hour.label}</span>
+          <span className="w-[52px] text-[11.5px] text-muted-foreground tabular-nums">{hour.label}</span>
           <Meter percent={hour.percent} />
           <span className="w-6 text-right text-[11.5px] font-semibold tabular-nums">{hour.value}</span>
         </li>
@@ -57,13 +57,13 @@ function TodayAgenda({ entries }: { entries: AgendaEntry[] }) {
   return (
     <ul className="mt-2.5">
       {entries.map((entry) => (
-        <li key={entry.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line-soft py-[11px]">
-          <span className="w-11 font-head text-[13px] font-semibold text-ink tabular-nums">{entry.time}</span>
+        <li key={entry.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-accent py-[11px]">
+          <span className="w-11 font-head text-[13px] font-semibold text-foreground tabular-nums">{entry.time}</span>
           <div className="min-w-0 flex-1">
-            <p className="text-[13.5px] font-semibold text-ink">
-              {entry.patientName} <span className="font-normal text-sub">· {entry.ownerName}</span>
+            <p className="text-[13.5px] font-semibold text-foreground">
+              {entry.patientName} <span className="font-normal text-muted-foreground">· {entry.ownerName}</span>
             </p>
-            <p className="text-[12px] text-sub">{entry.detail}</p>
+            <p className="text-[12px] text-muted-foreground">{entry.detail}</p>
           </div>
           <Badge variant="outline" className={BADGE_TONE_CLASS_NAMES[entry.tone]}>{entry.status}</Badge>
         </li>

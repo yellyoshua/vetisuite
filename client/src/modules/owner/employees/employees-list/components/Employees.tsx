@@ -30,7 +30,7 @@ export default function Employees({ employees, refetch }: EmployeesProps) {
       title="Empleados"
       description="Gestiona los empleados de tu clínica"
       actions={
-        <Link to="/employees/create" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+        <Link to="/employees/create" className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors">
           <PlusIcon className="w-5 h-5" />
           Crear Empleado
         </Link>
@@ -38,7 +38,7 @@ export default function Employees({ employees, refetch }: EmployeesProps) {
     >
       <CustomPageContainer>
         <div className="relative">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-faint w-5 h-5" />
 
           <input
             type="text"
@@ -46,7 +46,7 @@ export default function Employees({ employees, refetch }: EmployeesProps) {
             placeholder="Buscar por nombre o apellido..."
             defaultValue={query.search || ''}
             onChange={({ target }) => search(target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+            className="w-full pl-10 pr-4 py-2 bg-muted border border-border rounded-lg focus:ring-2 focus:ring-ring text-foreground"
           />
         </div>
       </CustomPageContainer>
@@ -70,15 +70,15 @@ export default function Employees({ employees, refetch }: EmployeesProps) {
               <CustomTable.TableRow key={employee.id}>
                 <CustomTable.TBodyItem>{formatDate(employee.createdAt)}</CustomTable.TBodyItem>
                 <CustomTable.TBodyItem className="flex items-center gap-3">
-                  <Avatar className="size-9 border border-gray-200 dark:border-gray-700">
+                  <Avatar className="size-9 border border-border">
                     <AvatarImage src={getPictureSrc(employee.avatar)} alt={`Foto de ${fullName}`} />
-                    <AvatarFallback className="bg-linear-to-br from-green-400 to-green-600 text-xs font-semibold text-white">
+                    <AvatarFallback className="bg-linear-to-br from-primary to-primary-strong text-xs font-semibold text-primary-strong-foreground">
                       {getInitials(employee.firstName, employee.lastName) || 'E'}
                     </AvatarFallback>
                   </Avatar>
                   <span className="flex min-w-0 flex-col text-left">
                     <span className="leading-5">{employee.firstName}</span>
-                    <span className="leading-5 text-gray-600 dark:text-gray-300">{employee.lastName}</span>
+                    <span className="leading-5 text-muted-foreground">{employee.lastName}</span>
                   </span>
                 </CustomTable.TBodyItem>
                 <CustomTable.TBodyItem>{employeePositionMap[employee.position]}</CustomTable.TBodyItem>
@@ -86,12 +86,12 @@ export default function Employees({ employees, refetch }: EmployeesProps) {
                 <CustomTable.TBodyItem className="flex flex-col gap-2">
                   {
                     employee.user.emailConfirmed ? (
-                      <Badge variant="outline" className="text-green-600 border-green-600 dark:text-white dark:border-green-600 dark:bg-green-600">
+                      <Badge variant="outline" className="text-primary border-primary">
                         <BadgeCheckIcon />
                         Verificado
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="text-red-600 border-red-600 dark:text-white dark:border-red-600 dark:bg-red-600">
+                      <Badge variant="outline" className="text-danger border-danger">
                         <BadgeCheckIcon />
                         No Verificado
                       </Badge>
@@ -99,7 +99,7 @@ export default function Employees({ employees, refetch }: EmployeesProps) {
                   }
                   {
                     employee.user.disabled && (
-                      <Badge variant="outline" className="text-red-600 border-red-600 dark:text-white dark:border-red-600 dark:bg-red-600">
+                      <Badge variant="outline" className="text-danger border-danger">
                         <LockIcon />
                         Bloqueado
                       </Badge>
@@ -109,13 +109,13 @@ export default function Employees({ employees, refetch }: EmployeesProps) {
                 <CustomTable.TBodyItem type="actions">
                   <Button asChild variant="outline" size="icon" className="cursor-pointer">
                     <Link to={`/employees/${employee.id}/edit`} aria-label={`Editar a ${fullName}`}>
-                      <PencilIcon className="w-4 h-4 text-blue-500" />
+                      <PencilIcon className="w-4 h-4 text-info" />
                     </Link>
                   </Button>
                   <CustomTooltip content="Permisos">
                     <Button asChild variant="outline" size="icon" className="cursor-pointer">
                       <Link to={`/employees/${employee.id}/permissions`} aria-label={`Gestionar permisos de ${fullName}`}>
-                        <KeyRoundIcon className="w-4 h-4 text-amber-500" />
+                        <KeyRoundIcon className="w-4 h-4 text-warning" />
                       </Link>
                     </Button>
                   </CustomTooltip>
@@ -128,8 +128,8 @@ export default function Employees({ employees, refetch }: EmployeesProps) {
                   >
                     {
                       employee.user.disabled
-                        ? <LockOpenIcon className="w-4 h-4 text-green-500" />
-                        : <LockIcon className="w-4 h-4 text-red-500" />
+                        ? <LockOpenIcon className="w-4 h-4 text-primary" />
+                        : <LockIcon className="w-4 h-4 text-danger" />
                     }
                   </Button>
                 </CustomTable.TBodyItem>

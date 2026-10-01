@@ -6,14 +6,14 @@ import SummaryListPanels, { type ListPanelDefinition } from '@/modules/employee/
 import type { CareKpiKey, CarePanelKey } from '@/modules/employee/dashboard/dashboard.schema'
 
 const KPIS: KpiDefinition<CareKpiKey>[] = [
-  { key: 'waiting', label: 'En espera', icon: ClipboardListIcon, tone: 'amber' },
-  { key: 'inConsultation', label: 'En consulta', icon: ActivityIcon, tone: 'blue' },
-  { key: 'dischargedToday', label: 'Altas de hoy', icon: CheckIcon, tone: 'green' },
+  { key: 'waiting', label: 'En espera', icon: ClipboardListIcon, tone: 'warning' },
+  { key: 'inConsultation', label: 'En consulta', icon: ActivityIcon, tone: 'info' },
+  { key: 'dischargedToday', label: 'Altas de hoy', icon: CheckIcon, tone: 'primary' },
 ]
 
 const PANELS: ListPanelDefinition<CarePanelKey>[] = [
-  { key: 'ongoingConsultations', title: 'Consultas en curso', icon: ActivityIcon, tone: 'blue' },
-  { key: 'referrals', title: 'Derivaciones desde la consulta', icon: GitBranchIcon, tone: 'green' },
+  { key: 'ongoingConsultations', title: 'Consultas en curso', icon: ActivityIcon, tone: 'info' },
+  { key: 'referrals', title: 'Derivaciones desde la consulta', icon: GitBranchIcon, tone: 'primary' },
 ]
 
 type CareOverviewProps = {

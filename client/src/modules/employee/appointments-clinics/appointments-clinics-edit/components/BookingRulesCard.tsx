@@ -34,7 +34,7 @@ export default function BookingRulesCard({ control }: BookingRulesCardProps) {
           />
         ))}
       </div>
-      <div className="mt-[18px] flex flex-col gap-3.5 border-t border-line-soft pt-4">
+      <div className="mt-[18px] flex flex-col gap-3.5 border-t border-accent pt-4">
         {BOOKING_TOGGLE_VALUES.map((toggle) => (
           <FormSwitch
             key={toggle}

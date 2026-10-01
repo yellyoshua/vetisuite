@@ -74,7 +74,7 @@ export default function Grooming({ services }: GroomingProps) {
         <CustomTable.TBody>
           {services.map((service) => (
             <CustomTable.TableRow key={service.id}>
-              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{service.patientName}</span><span className="text-sub">{service.ownerName}</span></span></CustomTable.TBodyItem>
+              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{service.patientName}</span><span className="text-muted-foreground">{service.ownerName}</span></span></CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{service.serviceName}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{service.stylistName}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{service.checkInTime ? formatDate(service.checkInTime, { hour: '2-digit', minute: '2-digit' }) : '—'}</CustomTable.TBodyItem>

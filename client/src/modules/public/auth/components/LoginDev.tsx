@@ -73,22 +73,22 @@ export default function LoginDev() {
   }
 
   return (
-    <section aria-labelledby="login-dev-title" className="w-full max-w-5xl bg-white rounded-3xl shadow-xl p-6 md:p-10">
-      <h2 id="login-dev-title" className="text-lg font-bold text-gray-800 mb-4">Cuentas demo</h2>
+    <section aria-labelledby="login-dev-title" className="w-full max-w-5xl bg-card rounded-3xl shadow-xl p-6 md:p-10">
+      <h2 id="login-dev-title" className="text-lg font-bold text-foreground mb-4">Cuentas demo</h2>
 
       {error && (
-        <p role="alert" className="text-sm text-red-600 text-center mb-4">{error}</p>
+        <p role="alert" className="text-sm text-danger text-center mb-4">{error}</p>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {DEMO_ORGANIZATIONS.map((organization) => (
           <div key={organization.name}>
-            <h3 className="text-sm font-semibold text-gray-800 mb-2">{organization.name}</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-2">{organization.name}</h3>
 
             <div className="space-y-3">
               {organization.roles.map((role) => (
                 <div key={role.label}>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-600 mb-1.5">{role.label}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">{role.label}</p>
 
                   <ul className="space-y-2">
                     {role.accounts.map((account) => (
@@ -98,12 +98,12 @@ export default function LoginDev() {
                           onClick={() => signIn(account.email)}
                           disabled={pendingEmail !== null}
                           aria-busy={pendingEmail === account.email}
-                          className="w-full min-h-12 touch-manipulation text-left bg-white border-2 border-gray-300 hover:border-green rounded-xl px-3 py-2 transition-colors shadow-[0_2px_0_rgba(0,0,0,0.08)] disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="w-full min-h-12 touch-manipulation text-left bg-card border-2 border-border hover:border-primary rounded-xl px-3 py-2 transition-colors shadow-[0_2px_0_var(--neutral-shade)] shadow-neutral-shade/8 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                          <span className="block text-sm font-semibold text-gray-800">
+                          <span className="block text-sm font-semibold text-foreground">
                             {pendingEmail === account.email ? 'Ingresando…' : account.name}
                           </span>
-                          <span className="block text-xs text-gray-600 break-all">{account.email}</span>
+                          <span className="block text-xs text-muted-foreground break-all">{account.email}</span>
                         </button>
                       </li>
                     ))}

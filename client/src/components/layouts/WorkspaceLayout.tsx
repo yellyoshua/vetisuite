@@ -106,7 +106,7 @@ export default function WorkspaceLayout({
   return (
     <div
       onKeyDown={closeOnEscape}
-      className="flex h-dvh w-full overflow-hidden bg-bg font-body text-ink"
+      className="flex h-dvh w-full overflow-hidden bg-background font-body text-foreground"
     >
       <Sidebar
         workspace={workspace}
@@ -122,7 +122,7 @@ export default function WorkspaceLayout({
       />
 
       <div inert={!isDesktop && isDrawerOpen} className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="relative z-50 flex h-14 shrink-0 items-center gap-2.5 border-b border-line bg-card px-5">
+        <header className="relative z-50 flex h-14 shrink-0 items-center gap-2.5 border-b border-border bg-card px-5">
           {!isDesktop && (
             <CustomTooltip content="Abrir menú">
                 <button
@@ -131,7 +131,7 @@ export default function WorkspaceLayout({
                   aria-label="Abrir menú"
                   aria-expanded={isDrawerOpen}
                   aria-controls="staff-sidebar"
-                  className="flex size-[34px] cursor-pointer items-center justify-center rounded-control border-0 bg-transparent text-ink"
+                  className="flex size-[34px] cursor-pointer items-center justify-center rounded-control border-0 bg-transparent text-foreground"
                 >
                   <MenuIcon className="size-5" aria-hidden="true" />
                 </button>
@@ -147,7 +147,7 @@ export default function WorkspaceLayout({
               onSelect={selectWorkspace}
             />
             {layout.error && (
-              <p role="alert" className="text-xs text-red">
+              <p role="alert" className="text-xs text-danger">
                 {layout.error}
               </p>
             )}
@@ -174,7 +174,7 @@ export default function WorkspaceLayout({
         <div
           aria-hidden="true"
           onClick={closeOverlays}
-          className={`fixed inset-0 z-[45] ${!isDesktop && isDrawerOpen ? 'bg-shade/55' : 'bg-transparent'}`}
+          className={`fixed inset-0 z-[45] ${!isDesktop && isDrawerOpen ? 'bg-neutral-shade/55' : 'bg-transparent'}`}
         />
       )}
 

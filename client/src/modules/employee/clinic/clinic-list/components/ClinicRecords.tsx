@@ -73,7 +73,7 @@ export default function ClinicRecords({ records }: ClinicRecordsProps) {
         <CustomTable.TBody>
           {records.map((record) => (
             <CustomTable.TableRow key={record.id}>
-              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{record.patientName}</span><span className="text-sub">{record.ownerName}</span></span></CustomTable.TBodyItem>
+              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{record.patientName}</span><span className="text-muted-foreground">{record.ownerName}</span></span></CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{record.title}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{formatDate(record.createdAt, { day: '2-digit', month: 'short', year: 'numeric' })} · {formatDate(record.createdAt, { hour: '2-digit', minute: '2-digit' })}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{record.responsible}</CustomTable.TBodyItem>

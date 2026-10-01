@@ -6,15 +6,15 @@ import SummaryListPanels, { type ListPanelDefinition } from '@/modules/employee/
 import type { AdministrationKpiKey, AdministrationPanelKey } from '@/modules/employee/dashboard/dashboard.schema'
 
 const KPIS: KpiDefinition<AdministrationKpiKey>[] = [
-  { key: 'activeUsers', label: 'Usuarios activos', icon: UsersIcon, tone: 'green' },
-  { key: 'roles', label: 'Roles definidos', icon: ShieldCheckIcon, tone: 'blue' },
-  { key: 'todayLogins', label: 'Accesos de hoy', icon: LogInIcon, tone: 'sub' },
-  { key: 'enabledModules', label: 'Módulos habilitados', icon: LayoutGridIcon, tone: 'green' },
+  { key: 'activeUsers', label: 'Usuarios activos', icon: UsersIcon, tone: 'primary' },
+  { key: 'roles', label: 'Roles definidos', icon: ShieldCheckIcon, tone: 'info' },
+  { key: 'todayLogins', label: 'Accesos de hoy', icon: LogInIcon, tone: 'muted' },
+  { key: 'enabledModules', label: 'Módulos habilitados', icon: LayoutGridIcon, tone: 'primary' },
 ]
 
 const PANELS: ListPanelDefinition<AdministrationPanelKey>[] = [
-  { key: 'rolePermissions', title: 'Permisos por rol', icon: ShieldCheckIcon, tone: 'blue' },
-  { key: 'recentLogins', title: 'Accesos recientes', icon: LogInIcon, tone: 'sub' },
+  { key: 'rolePermissions', title: 'Permisos por rol', icon: ShieldCheckIcon, tone: 'info' },
+  { key: 'recentLogins', title: 'Accesos recientes', icon: LogInIcon, tone: 'muted' },
 ]
 
 type AdministrationOverviewProps = {

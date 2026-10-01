@@ -24,11 +24,11 @@ export default function VisitBoardColumn({
   onAdvance,
 }: VisitBoardColumnProps) {
   return (
-    <section className="rounded-card border border-line bg-card p-3.5">
+    <section className="rounded-card border border-border bg-card p-3.5">
       <div className="flex items-center gap-2 px-0.5 pt-0.5 pb-3">
         <span aria-hidden="true" className={`size-[9px] shrink-0 rounded-full ${VISIT_STATUS_DOT_CLASS_NAMES[status]}`} />
-        <h2 className="m-0 min-w-0 flex-1 font-head text-[13px] font-semibold tracking-[0.2px] text-sub uppercase">{label}</h2>
-        <span className="font-head text-[12.5px] font-bold text-ink tabular-nums">{visits.length}</span>
+        <h2 className="m-0 min-w-0 flex-1 font-head text-[13px] font-semibold tracking-[0.2px] text-muted-foreground uppercase">{label}</h2>
+        <span className="font-head text-[12.5px] font-bold text-foreground tabular-nums">{visits.length}</span>
         {status === 'pending' && (
           <Button variant="secondary" size="icon-sm" aria-label="Añadir a esta etapa" disabled>
             <PlusIcon />
@@ -36,7 +36,7 @@ export default function VisitBoardColumn({
         )}
       </div>
       {visits.length === 0 && (
-        <p className="rounded-row border border-dashed border-line px-3 py-5 text-center text-xs text-sub">
+        <p className="rounded-row border border-dashed border-border px-3 py-5 text-center text-xs text-muted-foreground">
           Sin pacientes en esta etapa
         </p>
       )}

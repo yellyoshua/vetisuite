@@ -28,7 +28,7 @@ export default function Superadmins({ superadmins, refetch }: SuperadminsProps) 
       title="Super Admins"
       description="Gestiona los super administradores de la plataforma"
       actions={
-        <Link to="/superadmins/create" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+        <Link to="/superadmins/create" className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors">
           <PlusIcon className="w-5 h-5" />
           Crear Super Admin
         </Link>
@@ -36,7 +36,7 @@ export default function Superadmins({ superadmins, refetch }: SuperadminsProps) 
     >
       <CustomPageContainer>
         <div className="relative">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-faint w-5 h-5" />
 
           <input
             type="text"
@@ -44,7 +44,7 @@ export default function Superadmins({ superadmins, refetch }: SuperadminsProps) 
             placeholder="Buscar por nombre..."
             defaultValue={query.search || ''}
             onChange={({ target }) => search(target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+            className="w-full pl-10 pr-4 py-2 bg-muted border border-border rounded-lg focus:ring-2 focus:ring-ring text-foreground"
           />
         </div>
       </CustomPageContainer>
@@ -65,9 +65,9 @@ export default function Superadmins({ superadmins, refetch }: SuperadminsProps) 
             return (
               <CustomTable.TableRow key={superadmin.id}>
                 <CustomTable.TBodyItem className="flex items-center gap-3">
-                  <Avatar className="size-9 border border-gray-200 dark:border-gray-700">
+                  <Avatar className="size-9 border border-border">
                     <AvatarImage src={getPictureSrc(superadmin.avatar)} alt={`Foto de ${fullName}`} />
-                    <AvatarFallback className="bg-linear-to-br from-blue-400 to-blue-600 text-xs font-semibold text-white">
+                    <AvatarFallback className="bg-linear-to-br from-info/70 to-info text-xs font-semibold text-primary-strong-foreground">
                       {getInitials(superadmin.firstName, superadmin.lastName)}
                     </AvatarFallback>
                   </Avatar>
@@ -76,12 +76,12 @@ export default function Superadmins({ superadmins, refetch }: SuperadminsProps) 
                 <CustomTable.TBodyItem>{superadmin.user.email}</CustomTable.TBodyItem>
                 <CustomTable.TBodyItem className="flex justify-center">
                   {superadmin.user.disabled ? (
-                    <Badge variant="outline" className="text-red-600 border-red-600 dark:text-white dark:border-red-600 dark:bg-red-600">
+                    <Badge variant="outline" className="text-danger border-danger">
                       <LockIcon />
                       Bloqueado
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className="text-green-600 border-green-600 dark:text-white dark:border-green-600 dark:bg-green-600">
+                    <Badge variant="outline" className="text-primary border-primary">
                       <LockOpenIcon />
                       Activo
                     </Badge>
@@ -91,14 +91,14 @@ export default function Superadmins({ superadmins, refetch }: SuperadminsProps) 
                   <CustomTooltip content="Editar super admin">
                     <Button asChild variant="outline" size="icon" className="cursor-pointer">
                       <Link to={`/superadmins/${superadmin.id}/edit`} aria-label={`Editar a ${fullName}`}>
-                        <PencilIcon className="w-4 h-4 text-blue-500" />
+                        <PencilIcon className="w-4 h-4 text-info" />
                       </Link>
                     </Button>
                   </CustomTooltip>
                   <CustomTooltip content="Permisos">
                     <Button asChild variant="outline" size="icon" className="cursor-pointer">
                       <Link to={`/superadmins/${superadmin.id}/permissions`} aria-label={`Gestionar permisos de ${fullName}`}>
-                        <KeyRoundIcon className="w-4 h-4 text-amber-500" />
+                        <KeyRoundIcon className="w-4 h-4 text-warning" />
                       </Link>
                     </Button>
                   </CustomTooltip>
@@ -112,8 +112,8 @@ export default function Superadmins({ superadmins, refetch }: SuperadminsProps) 
                     >
                       {
                         superadmin.user.disabled
-                          ? <LockOpenIcon className="w-4 h-4 text-green-500" />
-                          : <LockIcon className="w-4 h-4 text-red-500" />
+                          ? <LockOpenIcon className="w-4 h-4 text-primary" />
+                          : <LockIcon className="w-4 h-4 text-danger" />
                       }
                     </Button>
                   </CustomTooltip>

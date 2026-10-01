@@ -16,10 +16,10 @@ export default function Sessions({ sessions, refetch }: SessionsProps) {
     >
       {sessions.length === 0
         ? <CustomPageContainer>
-          <p className="text-gray-600 dark:text-gray-400">No hay sesiones activas en tu cuenta.</p>
+          <p className="text-muted-foreground">No hay sesiones activas en tu cuenta.</p>
         </CustomPageContainer>
         : <CustomPageContainer className="p-0">
-          <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+          <ul className="divide-y divide-border">
             {sessions.map((session, index) => <SessionRow key={session.id} session={session} position={index + 1} total={sessions.length} refetch={refetch} />)}
           </ul>
         </CustomPageContainer>}

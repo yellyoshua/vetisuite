@@ -75,12 +75,12 @@ export default function AvailabilityForm({ availability, exceptions, refetchAvai
         <BookableServicesCard form={form} services={availability.services} />
         <ScheduleExceptionsCard exceptions={exceptions} refetch={refetchExceptions} />
         {form.error?.message && (
-          <p role="alert" className="rounded-card border border-red bg-red-soft px-4 py-3 text-xs text-red">
+          <p role="alert" className="rounded-card border border-danger bg-danger-soft px-4 py-3 text-xs text-danger">
             {form.error.message}
           </p>
         )}
-        <div className="sticky bottom-0 flex flex-wrap items-center gap-3 rounded-card border border-line bg-card px-4 py-3">
-          <p className="flex items-center gap-[7px] text-xs text-sub">
+        <div className="sticky bottom-0 flex flex-wrap items-center gap-3 rounded-card border border-border bg-card px-4 py-3">
+          <p className="flex items-center gap-[7px] text-xs text-muted-foreground">
             <InfoIcon className="size-3.5" aria-hidden="true" />
             Los cambios afectan a la agenda de Recepción y al portal de reservas.
           </p>

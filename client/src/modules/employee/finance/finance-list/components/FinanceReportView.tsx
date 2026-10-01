@@ -19,10 +19,10 @@ type KpiCardDefinition = {
 }
 
 const KPI_CARDS: KpiCardDefinition[] = [
-  { metric: 'income', label: 'Ingresos del mes', icon: WalletIcon, tone: 'green' },
-  { metric: 'profit', label: 'Utilidad', icon: TrendingUpIcon, tone: 'green' },
-  { metric: 'vat', label: 'IVA por declarar', icon: PercentIcon, tone: 'amber' },
-  { metric: 'receivable', label: 'Por cobrar', icon: CircleAlertIcon, tone: 'red' },
+  { metric: 'income', label: 'Ingresos del mes', icon: WalletIcon, tone: 'primary' },
+  { metric: 'profit', label: 'Utilidad', icon: TrendingUpIcon, tone: 'primary' },
+  { metric: 'vat', label: 'IVA por declarar', icon: PercentIcon, tone: 'warning' },
+  { metric: 'receivable', label: 'Por cobrar', icon: CircleAlertIcon, tone: 'danger' },
 ]
 
 function formatKpiDetail(metric: FinanceKpiKey, kpi: FinanceKpi, periodLabel: string): string {

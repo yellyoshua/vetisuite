@@ -27,22 +27,22 @@ export default function SignInForm() {
 
   return (
     <>
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Iniciar Sesión</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-6">Iniciar Sesión</h1>
 
-      <div className="bg-white border-2 border-gray-300 rounded-2xl p-4 mb-6 flex items-start shadow-[0_3px_0_rgba(0,0,0,0.08)]">
-        <ShieldCheck className="h-5 w-5 text-gray-800 mr-3 mt-0.5 shrink-0" aria-hidden="true" />
-        <p className="text-sm text-gray-700">
+      <div className="bg-card border-2 border-border rounded-2xl p-4 mb-6 flex items-start shadow-[0_3px_0_var(--neutral-shade)] shadow-neutral-shade/8">
+        <ShieldCheck className="h-5 w-5 text-foreground mr-3 mt-0.5 shrink-0" aria-hidden="true" />
+        <p className="text-sm text-muted-foreground">
           Inicia sesión para garantizar una experiencia segura y personalizada.
         </p>
       </div>
 
-      <div className="flex bg-white border-2 border-gray-300 rounded-2xl p-1.5 mb-6 shadow-[0_3px_0_rgba(0,0,0,0.08)]">
-        <span className="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold text-center bg-green text-white shadow-[0_2px_0_rgba(0,0,0,0.2)]">
+      <div className="flex bg-card border-2 border-border rounded-2xl p-1.5 mb-6 shadow-[0_3px_0_var(--neutral-shade)] shadow-neutral-shade/8">
+        <span className="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold text-center bg-primary text-primary-foreground shadow-[0_2px_0_var(--neutral-shade)] shadow-neutral-shade/20">
           Iniciar Sesión
         </span>
         <a
           href={SIGNUP_URL}
-          className="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-colors text-center text-gray-600 hover:text-gray-900"
+          className="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-colors text-center text-muted-foreground hover:text-foreground"
         >
           Crear cuenta
         </a>
@@ -68,28 +68,28 @@ export default function SignInForm() {
         />
 
         <div className="text-right">
-          <Link to="/reset-password" className="text-sm text-gray-600 hover:text-gray-900 font-medium">
+          <Link to="/reset-password" className="text-sm text-muted-foreground hover:text-foreground font-medium">
             ¿Olvidaste tu contraseña?
           </Link>
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 text-center">{error.message}</p>
+          <p className="text-sm text-danger text-center">{error.message}</p>
         )}
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-12 bg-green hover:bg-green/90 text-white font-semibold transition-colors rounded-xl shadow-[0_3px_0_rgba(0,0,0,0.18)] disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-colors rounded-xl shadow-[0_3px_0_var(--neutral-shade)] shadow-neutral-shade/18 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Ingresando…' : 'Iniciar Sesión'}
         </button>
 
       </Form>
 
-      <div className="mt-6 text-center text-sm text-gray-600">
+      <div className="mt-6 text-center text-sm text-muted-foreground">
         ¿Aún no tienes cuenta?{' '}
-        <a href={SIGNUP_URL} className="text-blue-600 hover:text-blue-700 font-semibold">
+        <a href={SIGNUP_URL} className="text-primary hover:text-primary/80 font-semibold">
           Crear cuenta
         </a>
       </div>

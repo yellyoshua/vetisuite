@@ -26,14 +26,14 @@ export default function SessionRow({ session, position, total, refetch }: Sessio
     <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-gray-900 dark:text-white">{device}</span>
+          <span className="text-sm font-medium text-foreground">{device}</span>
           {session.isCurrent
-            ? <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded-full">
+            ? <span className="px-2 py-0.5 bg-info-soft text-info text-xs font-medium rounded-full">
               Actual
             </span>
             : null}
         </div>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Inicio: {startedAt}</p>
+        <p className="text-sm text-muted-foreground mt-1">Inicio: {startedAt}</p>
       </div>
       <Button
         type="button"

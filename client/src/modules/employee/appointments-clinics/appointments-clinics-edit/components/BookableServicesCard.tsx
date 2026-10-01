@@ -23,14 +23,14 @@ type BookableServicesCardProps = {
 
 function ServiceRow({ service, serviceIndex, form }: ServiceRowProps) {
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-line-soft py-3">
+    <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-accent py-3">
       <div className="min-w-0 flex-[1_1_200px]">
-        <p className="font-head text-[13.5px] font-semibold text-ink">{service.name}</p>
-        <p className="mt-px text-[11.5px] text-sub">{service.area}</p>
+        <p className="font-head text-[13.5px] font-semibold text-foreground">{service.name}</p>
+        <p className="mt-px text-[11.5px] text-muted-foreground">{service.area}</p>
       </div>
       <div className="flex min-w-[100px] flex-[0_1_120px] flex-col gap-0.5">
-        <span className="font-head text-[13.5px] font-semibold text-ink tabular-nums">{formatCurrency(service.price)}</span>
-        <span className="flex items-center gap-1 text-[10.5px] text-sub">
+        <span className="font-head text-[13.5px] font-semibold text-foreground tabular-nums">{formatCurrency(service.price)}</span>
+        <span className="flex items-center gap-1 text-[10.5px] text-muted-foreground">
           <LockIcon className="size-[11px]" aria-hidden="true" />
           desde Catálogo
         </span>

@@ -9,7 +9,7 @@ export const CLINIC_RECORD_STATUS_LABELS: Record<(typeof CLINIC_RECORD_STATUS_VA
 }
 
 export const CLINIC_RECORD_STATUS_TONES: Record<(typeof CLINIC_RECORD_STATUS_VALUES)[number], BadgeTone> = {
-  'in-progress': 'blue',
-  requested: 'amber',
-  result: 'green',
+  'in-progress': 'info',
+  requested: 'warning',
+  result: 'primary',
 }

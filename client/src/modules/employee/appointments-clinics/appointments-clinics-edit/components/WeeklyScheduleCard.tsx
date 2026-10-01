@@ -59,7 +59,7 @@ function TimeBlockRow({ day, dayIndex, form, block, blockIndex }: TimeBlockRowPr
           onChange={(event) => form.setValue(`days.${dayIndex}.blocks.${blockIndex}.from`, event.target.value, DIRTY)}
         />
       </div>
-      <span className="text-xs text-sub">a</span>
+      <span className="text-xs text-muted-foreground">a</span>
       <div className="w-[110px]">
         <Input
           type="time"
@@ -69,7 +69,7 @@ function TimeBlockRow({ day, dayIndex, form, block, blockIndex }: TimeBlockRowPr
           onChange={(event) => form.setValue(`days.${dayIndex}.blocks.${blockIndex}.to`, event.target.value, DIRTY)}
         />
       </div>
-      <span className="ml-0.5 text-[11.5px] text-sub">{TIME_BLOCK_TAGS[blockIndex]}</span>
+      <span className="ml-0.5 text-[11.5px] text-muted-foreground">{TIME_BLOCK_TAGS[blockIndex]}</span>
       {canRemoveBlock(day) && (
         <CustomTooltip content="Quitar bloque">
           <Button
@@ -113,7 +113,7 @@ function ScheduleDayRow({ day, dayIndex, form }: DayProps) {
   const dayError = form.formState.errors.days?.[dayIndex]
 
   return (
-    <div className="border-t border-line-soft py-3">
+    <div className="border-t border-accent py-3">
       <div className="flex flex-wrap items-start gap-3">
         <div className="min-w-0 flex-[1_1_170px] pt-1.5">
           <SwitchField
@@ -124,13 +124,13 @@ function ScheduleDayRow({ day, dayIndex, form }: DayProps) {
         </div>
         {day.isOpen && <ScheduleDayBlocks day={day} dayIndex={dayIndex} form={form} />}
         {!day.isOpen && (
-          <p className="flex-[1_1_300px] pt-2 text-[12.5px] text-sub">
+          <p className="flex-[1_1_300px] pt-2 text-[12.5px] text-muted-foreground">
             Cerrado · el portal no ofrece horas y la agenda bloquea las citas nuevas.
           </p>
         )}
       </div>
       {dayError?.message && (
-        <p role="alert" className="mt-2 text-xs text-red">{dayError.message}</p>
+        <p role="alert" className="mt-2 text-xs text-danger">{dayError.message}</p>
       )}
     </div>
   )
@@ -166,14 +166,14 @@ export default function WeeklyScheduleCard({ form, initialDays }: WeeklySchedule
           </div>
         }
       />
-      <div className="mt-[18px] flex flex-wrap gap-3 pb-2 text-[11px] font-semibold tracking-[0.4px] text-sub uppercase">
+      <div className="mt-[18px] flex flex-wrap gap-3 pb-2 text-[11px] font-semibold tracking-[0.4px] text-muted-foreground uppercase">
         <span className="min-w-0 flex-[1_1_170px]">Día</span>
         <span className="min-w-0 flex-[2_1_300px]">Bloques de atención</span>
       </div>
       {days.map((day, dayIndex) => (
         <ScheduleDayRow key={day.weekday} day={day} dayIndex={dayIndex} form={form} />
       ))}
-      <p className="mt-3.5 flex flex-wrap items-center gap-2 border-t border-line-soft pt-3.5 text-xs text-sub">
+      <p className="mt-3.5 flex flex-wrap items-center gap-2 border-t border-accent pt-3.5 text-xs text-muted-foreground">
         <ClockIcon className="size-3.5" aria-hidden="true" />
         <span>
           {weeklySummary.hours} h de atención a la semana · {weeklySummary.openDays} días abiertos · capacidad estimada

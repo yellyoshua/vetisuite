@@ -33,12 +33,12 @@ export default function RecoveryPassword({ token }: RecoveryPasswordProps) {
   if (!token) {
     return (
       <TokenFlowCard>
-        <div className="w-28 h-28 mx-auto mb-8 bg-slate-100 rounded-full flex items-center justify-center text-6xl">🤔</div>
-        <h1 className="text-3xl font-black text-slate-800 mb-4 tracking-tight">Enlace inválido</h1>
-        <p className="text-lg text-slate-500 mb-10 font-bold">
+        <div className="w-28 h-28 mx-auto mb-8 bg-muted rounded-full flex items-center justify-center text-6xl">🤔</div>
+        <h1 className="text-3xl font-black text-foreground mb-4 tracking-tight">Enlace inválido</h1>
+        <p className="text-lg text-muted-foreground mb-10 font-bold">
           El enlace de restablecimiento no es válido o ha expirado.
         </p>
-        <Link to="/" className="inline-block bg-slate-200 text-slate-800 font-bold px-10 py-4 rounded-xl w-full">
+        <Link to="/" className="inline-block bg-muted text-foreground font-bold px-10 py-4 rounded-xl w-full">
           Volver al inicio
         </Link>
       </TokenFlowCard>
@@ -47,9 +47,9 @@ export default function RecoveryPassword({ token }: RecoveryPasswordProps) {
 
   return (
     <TokenFlowCard>
-      <div className="w-28 h-28 mx-auto mb-8 bg-amber-100 rounded-full flex items-center justify-center text-6xl">🔑</div>
-      <h1 className="text-3xl font-black text-slate-800 mb-2 tracking-tight">Nueva contraseña</h1>
-      <p className="text-base text-slate-500 mb-8 font-semibold">
+      <div className="w-28 h-28 mx-auto mb-8 bg-warning-soft rounded-full flex items-center justify-center text-6xl">🔑</div>
+      <h1 className="text-3xl font-black text-foreground mb-2 tracking-tight">Nueva contraseña</h1>
+      <p className="text-base text-muted-foreground mb-8 font-semibold">
         Elige una contraseña segura para tu cuenta.
       </p>
 
@@ -72,13 +72,13 @@ export default function RecoveryPassword({ token }: RecoveryPasswordProps) {
         />
 
         {error && (
-          <p className="text-destructive text-sm font-semibold text-center">{error.message}</p>
+          <p className="text-danger text-sm font-semibold text-center">{error.message}</p>
         )}
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-slate-900 text-white font-bold px-10 py-4 rounded-xl hover:bg-slate-800 transition-all hover:-translate-y-1 shadow-md mt-2 disabled:opacity-60 disabled:cursor-not-allowed">
+          className="w-full bg-primary-strong text-primary-strong-foreground font-bold px-10 py-4 rounded-xl hover:bg-primary-strong/90 transition-all hover:-translate-y-1 shadow-md mt-2 disabled:opacity-60 disabled:cursor-not-allowed">
           {isSubmitting ? 'Procesando...' : 'Restablecer contraseña →'}
         </button>
 
@@ -89,8 +89,8 @@ export default function RecoveryPassword({ token }: RecoveryPasswordProps) {
 
 function TokenFlowCard({ children }: TokenFlowCardProps) {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-      <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-sm p-10 text-center border-2 border-b-[6px] border-slate-200">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="max-w-md w-full bg-card rounded-[2.5rem] shadow-sm p-10 text-center border-2 border-b-[6px] border-border">
         {children}
       </div>
     </div>

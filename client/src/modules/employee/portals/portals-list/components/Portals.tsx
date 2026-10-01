@@ -73,7 +73,7 @@ export default function Portals({ portals }: PortalsProps) {
             <CustomTable.TableRow key={portal.id}>
               <CustomTable.TBodyItem className="flex flex-col">
                 <span className="font-medium">{portal.name}</span>
-                <span className="text-sub">{portal.slug}</span>
+                <span className="text-muted-foreground">{portal.slug}</span>
               </CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{PORTAL_PURPOSE_LABELS[portal.purpose]}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{SPACE_GROUPED_NUMBER.format(portal.bookedAppointments)}</CustomTable.TBodyItem>

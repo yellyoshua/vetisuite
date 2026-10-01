@@ -20,10 +20,10 @@ export const PRODUCT_STATUS_LABELS: Record<(typeof PRODUCT_STATUS_VALUES)[number
 }
 
 export const PRODUCT_STATUS_TONES: Record<(typeof PRODUCT_STATUS_VALUES)[number], BadgeTone> = {
-  available: 'green',
-  expiring: 'amber',
-  'low-stock': 'red',
-  expired: 'red',
+  available: 'primary',
+  expiring: 'warning',
+  'low-stock': 'danger',
+  expired: 'danger',
 }
 
 export const EXPIRY_STATUS_VALUES = ['valid', 'expiring', 'expired'] as const
@@ -35,9 +35,9 @@ export const EXPIRY_STATUS_LABELS: Record<(typeof EXPIRY_STATUS_VALUES)[number],
 }
 
 export const EXPIRY_STATUS_TONES: Record<(typeof EXPIRY_STATUS_VALUES)[number], BadgeTone> = {
-  valid: 'green',
-  expiring: 'amber',
-  expired: 'red',
+  valid: 'primary',
+  expiring: 'warning',
+  expired: 'danger',
 }
 
 export const MOVEMENT_TYPE_VALUES = ['in', 'out', 'write-off'] as const
@@ -49,9 +49,9 @@ export const MOVEMENT_TYPE_LABELS: Record<(typeof MOVEMENT_TYPE_VALUES)[number],
 }
 
 export const MOVEMENT_TYPE_TONES: Record<(typeof MOVEMENT_TYPE_VALUES)[number], BadgeTone> = {
-  in: 'green',
-  out: 'amber',
-  'write-off': 'red',
+  in: 'primary',
+  out: 'warning',
+  'write-off': 'danger',
 }
 
 export const MOVEMENT_TYPE_SIGNS: Record<(typeof MOVEMENT_TYPE_VALUES)[number], string> = {

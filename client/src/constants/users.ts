@@ -17,6 +17,6 @@ export const USER_STATUS_LABELS: Record<(typeof USER_STATUS_VALUES)[number], str
 }
 
 export const USER_STATUS_TONES: Record<(typeof USER_STATUS_VALUES)[number], BadgeTone> = {
-  active: 'green',
-  suspended: 'gray',
+  active: 'primary',
+  suspended: 'neutral',
 }

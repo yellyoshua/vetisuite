@@ -65,7 +65,7 @@ export function withModalFromQuery<TProps extends object>(ModalComponent: ModalC
       <div
         role="presentation"
         onClick={handleClose}
-        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-neutral-shade/50 flex items-center justify-center z-50 p-4"
       >
         <div
           ref={panelRef}
@@ -73,7 +73,7 @@ export function withModalFromQuery<TProps extends object>(ModalComponent: ModalC
           aria-labelledby={titleId}
           tabIndex={-1}
           onClick={(event) => event.stopPropagation()}
-          className={ModalComponent.modalClassName || 'bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto'}
+          className={ModalComponent.modalClassName || 'bg-card rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto'}
         >
           <ModalComponent
             {...props}

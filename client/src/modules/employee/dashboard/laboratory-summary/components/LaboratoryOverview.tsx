@@ -6,14 +6,14 @@ import SummaryListPanels, { type ListPanelDefinition } from '@/modules/employee/
 import type { LaboratoryKpiKey, LaboratoryPanelKey } from '@/modules/employee/dashboard/dashboard.schema'
 
 const KPIS: KpiDefinition<LaboratoryKpiKey>[] = [
-  { key: 'openOrders', label: 'Órdenes abiertas', icon: FlaskConicalIcon, tone: 'amber' },
-  { key: 'inAnalysis', label: 'En análisis', icon: ActivityIcon, tone: 'blue' },
-  { key: 'todayResults', label: 'Resultados de hoy', icon: FileCheckIcon, tone: 'green' },
+  { key: 'openOrders', label: 'Órdenes abiertas', icon: FlaskConicalIcon, tone: 'warning' },
+  { key: 'inAnalysis', label: 'En análisis', icon: ActivityIcon, tone: 'info' },
+  { key: 'todayResults', label: 'Resultados de hoy', icon: FileCheckIcon, tone: 'primary' },
 ]
 
 const PANELS: ListPanelDefinition<LaboratoryPanelKey>[] = [
-  { key: 'pendingOrders', title: 'Órdenes por resolver', icon: FlaskConicalIcon, tone: 'amber' },
-  { key: 'topExams', title: 'Exámenes más solicitados', icon: TrendingUpIcon, tone: 'green' },
+  { key: 'pendingOrders', title: 'Órdenes por resolver', icon: FlaskConicalIcon, tone: 'warning' },
+  { key: 'topExams', title: 'Exámenes más solicitados', icon: TrendingUpIcon, tone: 'primary' },
 ]
 
 type LaboratoryOverviewProps = {

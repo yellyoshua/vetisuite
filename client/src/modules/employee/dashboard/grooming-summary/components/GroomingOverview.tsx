@@ -6,15 +6,15 @@ import SummaryListPanels, { type ListPanelDefinition } from '@/modules/employee/
 import type { GroomingKpiKey, GroomingPanelKey } from '@/modules/employee/dashboard/dashboard.schema'
 
 const KPIS: KpiDefinition<GroomingKpiKey>[] = [
-  { key: 'todayServices', label: 'Servicios de hoy', icon: ScissorsIcon, tone: 'amber' },
-  { key: 'inProgress', label: 'En proceso', icon: ActivityIcon, tone: 'blue' },
-  { key: 'finished', label: 'Terminados', icon: CheckIcon, tone: 'green' },
-  { key: 'averageTicket', label: 'Ticket promedio', icon: WalletIcon, tone: 'sub' },
+  { key: 'todayServices', label: 'Servicios de hoy', icon: ScissorsIcon, tone: 'warning' },
+  { key: 'inProgress', label: 'En proceso', icon: ActivityIcon, tone: 'info' },
+  { key: 'finished', label: 'Terminados', icon: CheckIcon, tone: 'primary' },
+  { key: 'averageTicket', label: 'Ticket promedio', icon: WalletIcon, tone: 'muted' },
 ]
 
 const PANELS: ListPanelDefinition<GroomingPanelKey>[] = [
-  { key: 'groomingRoom', title: 'En la sala de estética', icon: ScissorsIcon, tone: 'amber' },
-  { key: 'topServices', title: 'Servicios más pedidos', icon: TrendingUpIcon, tone: 'green' },
+  { key: 'groomingRoom', title: 'En la sala de estética', icon: ScissorsIcon, tone: 'warning' },
+  { key: 'topServices', title: 'Servicios más pedidos', icon: TrendingUpIcon, tone: 'primary' },
 ]
 
 type GroomingOverviewProps = {

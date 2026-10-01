@@ -80,7 +80,7 @@ export default function Products({ products }: ProductsProps) {
 
             return (
               <CustomTable.TableRow key={product.id}>
-                <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{product.name}</span><span className="text-sub">{PRODUCT_CATEGORY_LABELS[product.category]}</span></span></CustomTable.TBodyItem>
+                <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{product.name}</span><span className="text-muted-foreground">{PRODUCT_CATEGORY_LABELS[product.category]}</span></span></CustomTable.TBodyItem>
                 <CustomTable.TBodyItem>{formatCurrency(product.price)}</CustomTable.TBodyItem>
                 <CustomTable.TBodyItem>{product.stock} / mín. {product.minStock}</CustomTable.TBodyItem>
                 <CustomTable.TBodyItem>{product.expiry ? formatDate(`${product.expiry}T00:00:00`, { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</CustomTable.TBodyItem>

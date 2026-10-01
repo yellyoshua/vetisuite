@@ -32,7 +32,7 @@ export default function EditProfileForm({ profile, refetch }: EditProfileFormPro
     <CustomPageContainer className="p-6">
       <Form onSubmit={form.handleSubmit} className="space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
             Información de cuenta
           </h3>
           <FormUploadAvatar
@@ -66,7 +66,7 @@ export default function EditProfileForm({ profile, refetch }: EditProfileFormPro
         </div>
 
         <div className="flex gap-3 justify-end">
-          <button type="submit" disabled={form.isSubmitting} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors cursor-pointer">
+          <button type="submit" disabled={form.isSubmitting} className="px-6 py-2 bg-primary hover:bg-primary/90 disabled:bg-neutral-faint text-primary-foreground rounded-lg transition-colors cursor-pointer">
             {form.isSubmitting ? 'Actualizando...' : 'Guardar cambios'}
           </button>
         </div>

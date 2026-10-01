@@ -134,7 +134,7 @@ export function FormUploadFiles<TValues extends FieldValues>({
           className={cn(
             'border border-dashed border-border bg-muted/20 backdrop-blur-sm transition-colors',
             currentSize.panel,
-            (fieldState.invalid || uploadError) && 'border-destructive/60',
+            (fieldState.invalid || uploadError) && 'border-danger/60',
             isDisabled && 'opacity-80',
           )}
         >

@@ -88,7 +88,7 @@ export default function BillingDocuments({ documents }: BillingDocumentsProps) {
         <CustomTable.TBody>
           {documents.map((billingDocument) => (
             <CustomTable.TableRow key={billingDocument.id}>
-              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{billingDocument.clientName}</span><span className="text-sub">{formatReference(billingDocument)}</span></span></CustomTable.TBodyItem>
+              <CustomTable.TBodyItem><span className="flex flex-col"><span className="font-medium">{billingDocument.clientName}</span><span className="text-muted-foreground">{formatReference(billingDocument)}</span></span></CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{formatChargeCount(billingDocument.chargeCount)}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{formatCurrency(billingDocument.total)}</CustomTable.TBodyItem>
               <CustomTable.TBodyItem>{formatDate(billingDocument.createdAt, { day: '2-digit', month: 'short', year: 'numeric' })}</CustomTable.TBodyItem>

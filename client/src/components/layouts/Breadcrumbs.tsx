@@ -41,7 +41,7 @@ export default function Breadcrumbs({ pathname, workspace, activeEntry }: Breadc
   return (
     <nav
       aria-label="Migas de pan"
-      className="flex h-[38px] shrink-0 items-center overflow-x-auto border-b border-line bg-card px-5"
+      className="flex h-[38px] shrink-0 items-center overflow-x-auto border-b border-border bg-card px-5"
     >
       <ol className="flex items-center gap-2">
         {crumbs.map((crumb, index) => {
@@ -50,16 +50,16 @@ export default function Breadcrumbs({ pathname, workspace, activeEntry }: Breadc
           return (
           <li key={crumb.path} className="flex shrink-0 items-center gap-2">
             {index > 0 && (
-              <span className="text-line">
+              <span className="text-border">
                 <ChevronRightIcon className="size-[13px]" aria-hidden="true" />
               </span>
             )}
             {crumb.isCurrent ? (
               <span
                 aria-current="page"
-                className="flex items-center gap-1.5 font-head text-[12.5px] font-semibold text-ink"
+                className="flex items-center gap-1.5 font-head text-[12.5px] font-semibold text-foreground"
               >
-                <span className="text-green">
+                <span className="text-primary">
                   <CrumbIcon className="size-[13px]" aria-hidden="true" />
                 </span>
                 {crumb.label}
@@ -68,7 +68,7 @@ export default function Breadcrumbs({ pathname, workspace, activeEntry }: Breadc
               <CustomTooltip content={`Ir a ${crumb.label}`}>
                   <Link
                     to={crumb.path}
-                    className="flex items-center gap-1.5 text-[12.5px] font-medium text-sub"
+                    className="flex items-center gap-1.5 text-[12.5px] font-medium text-muted-foreground"
                   >
                     <CrumbIcon className="size-[13px]" aria-hidden="true" />
                     {crumb.label}
