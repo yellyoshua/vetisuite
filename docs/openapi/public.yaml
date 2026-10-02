@@ -5,8 +5,8 @@ info:
 paths:
   /api/oauth/vetisuite/authorize:
     get:
-      operationId: oauth-vetisuite-authorize.get
       tags: [public]
+      operationId: oauth-vetisuite-authorize.get
       parameters:
         - name: code
           in: query
@@ -16,14 +16,13 @@ paths:
             minLength: 1
         - name: state
           in: query
-          required: false
           schema:
             type: string
             maxLength: 255
   /api/oauth/vetisuite/token:
     post:
-      operationId: oauth-vetisuite-token.post
       tags: [public]
+      operationId: oauth-vetisuite-token.post
       requestBody:
         required: true
         content:
@@ -39,13 +38,11 @@ paths:
                   minLength: 1
                 redirect_uri:
                   type: string
-              required:
-                - grant_type
-                - code
+              required: [grant_type, code]
   /api/public/auth/email-verification:
     post:
-      operationId: public-auth-email-verification.post
       tags: [public]
+      operationId: public-auth-email-verification.post
       requestBody:
         required: true
         content:
@@ -56,12 +53,11 @@ paths:
                 token:
                   type: string
                   minLength: 1
-              required:
-                - token
+              required: [token]
   /api/public/auth/forgot-password:
     post:
-      operationId: public-auth-forgot-password.post
       tags: [public]
+      operationId: public-auth-forgot-password.post
       requestBody:
         required: true
         content:
@@ -72,12 +68,11 @@ paths:
                 email:
                   type: string
                   format: email
-              required:
-                - email
+              required: [email]
   /api/public/auth/recovery-password:
     post:
-      operationId: public-auth-recovery-password.post
       tags: [public]
+      operationId: public-auth-recovery-password.post
       requestBody:
         required: true
         content:
@@ -94,14 +89,11 @@ paths:
                 confirmPassword:
                   type: string
                   minLength: 1
-              required:
-                - token
-                - password
-                - confirmPassword
+              required: [token, password, confirmPassword]
   /api/public/auth/signin:
     post:
-      operationId: public-auth-signin.post
       tags: [public]
+      operationId: public-auth-signin.post
       requestBody:
         required: true
         content:
@@ -119,13 +111,11 @@ paths:
                 state:
                   type: string
                   maxLength: 255
-              required:
-                - email
-                - password
+              required: [email, password]
   /api/public/auth/signup:
     post:
-      operationId: public-auth-signup.post
       tags: [public]
+      operationId: public-auth-signup.post
       requestBody:
         required: true
         content:
@@ -153,9 +143,4 @@ paths:
                 state:
                   type: string
                   maxLength: 255
-              required:
-                - organizationName
-                - firstName
-                - lastName
-                - email
-                - password
+              required: [organizationName, firstName, lastName, email, password]

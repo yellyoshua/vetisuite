@@ -5,14 +5,189 @@ info:
 security:
   - vetisuiteSession: []
 paths:
+  /api/files/{path}:
+    get:
+      tags: [owner]
+      operationId: files.find
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/appointments-availability:
+    get:
+      tags: [owner]
+      operationId: appointments-availability.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+    put:
+      tags: [owner]
+      operationId: appointments-availability.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                week:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      weekday:
+                        type: string
+                        enum: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+                      enabled:
+                        type: boolean
+                      ranges:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            start:
+                              type: string
+                              pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+                            end:
+                              type: string
+                              pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+                          required: [start, end]
+                    required: [enabled, ranges]
+                overrides:
+                  default: []
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      date:
+                        type: string
+                        pattern: '^\d{4}-\d{2}-\d{2}$'
+                      label:
+                        type: string
+                        minLength: 1
+                      ranges:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            start:
+                              type: string
+                              pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+                            end:
+                              type: string
+                              pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+                          required: [start, end]
+                    required: [date, label, ranges]
+                slotMinutes:
+                  type: integer
+                  exclusiveMinimum: 0
+                bufferBefore:
+                  default: 0
+                  type: integer
+                  minimum: 0
+                bufferAfter:
+                  default: 0
+                  type: integer
+                  minimum: 0
+                minNoticeHours:
+                  default: 0
+                  type: integer
+                  minimum: 0
+                maxAdvanceDays:
+                  type: integer
+                  exclusiveMinimum: 0
+                maxPerDay:
+                  default: 0
+                  type: integer
+                  minimum: 0
+                onlineBooking:
+                  type: boolean
+                autoConfirm:
+                  type: boolean
+              required: [week, slotMinutes, maxAdvanceDays, onlineBooking, autoConfirm]
+  /api/appointments-count:
+    get:
+      tags: [owner]
+      operationId: appointments-count.find
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, completed, cancelled]
+        - name: vet
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: patient
+          in: query
+          schema:
+            type: string
+            format: uuid
+  /api/appointments:
+    get:
+      tags: [owner]
+      operationId: appointments.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: patient
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: vet
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, completed, cancelled]
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
   /api/auth-logout:
     post:
       tags: [owner]
       operationId: auth-logout.create
-  /api/clients:
+  /api/billing-count:
     get:
       tags: [owner]
-      operationId: clients.find
+      operationId: billing-count.find
       parameters:
         - name: id
           in: query
@@ -24,62 +199,60 @@ paths:
           schema:
             type: string
             maxLength: 100
-    post:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, receivable, paid]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [open-account, overdue, paid-today]
+  /api/billing:
+    get:
       tags: [owner]
-      operationId: clients.create
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  minLength: 2
-                phone:
-                  type: string
-                  minLength: 6
-                email:
-                  type: [string, "null"]
-                  format: email
-              required:
-                - name
-                - phone
-    put:
-      tags: [owner]
-      operationId: clients.update
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: string
-                  format: uuid
-                name:
-                  type: string
-                  minLength: 2
-                phone:
-                  type: string
-                  minLength: 6
-                email:
-                  type: [string, "null"]
-                  format: email
-              required:
-                - id
-    delete:
-      tags: [owner]
-      operationId: clients.remove
+      operationId: billing.find
       parameters:
         - name: id
           in: query
-          required: true
           schema:
             type: string
             format: uuid
+        - name: page
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            default: 10
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: order
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum: [asc, desc]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, receivable, paid]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [open-account, overdue, paid-today]
   /api/clients-count:
     get:
       tags: [owner]
@@ -91,6 +264,16 @@ paths:
             type: string
             maxLength: 100
   /api/clients-patients:
+    delete:
+      tags: [owner]
+      operationId: clients-patients.remove
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
     get:
       tags: [owner]
       operationId: clients-patients.find
@@ -134,14 +317,11 @@ paths:
                   maxLength: 100
                 sex:
                   type: [string, "null"]
-                  enum: [male, female]
+                  enum: [male, female, null]
                 birthDate:
                   type: [string, "null"]
                   format: date
-              required:
-                - client
-                - name
-                - species
+              required: [client, name, species]
     put:
       tags: [owner]
       operationId: clients-patients.update
@@ -166,15 +346,15 @@ paths:
                   maxLength: 100
                 sex:
                   type: [string, "null"]
-                  enum: [male, female]
+                  enum: [male, female, null]
                 birthDate:
                   type: [string, "null"]
                   format: date
-              required:
-                - id
+              required: [id]
+  /api/clients:
     delete:
       tags: [owner]
-      operationId: clients-patients.remove
+      operationId: clients.remove
       parameters:
         - name: id
           in: query
@@ -182,6 +362,220 @@ paths:
           schema:
             type: string
             format: uuid
+    get:
+      tags: [owner]
+      operationId: clients.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+    post:
+      tags: [owner]
+      operationId: clients.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                phone:
+                  type: string
+                  minLength: 6
+                email:
+                  type: [string, "null"]
+                  format: email
+              required: [name, phone]
+    put:
+      tags: [owner]
+      operationId: clients.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                  minLength: 2
+                phone:
+                  type: string
+                  minLength: 6
+                email:
+                  type: [string, "null"]
+                  format: email
+              required: [id]
+  /api/clinic-count:
+    get:
+      tags: [owner]
+      operationId: clinic-count.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: kind
+          in: query
+          schema:
+            type: string
+            enum: [consultation, lab-order, prescription]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [in-progress, requested, result]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [pending-result, resolved-today]
+  /api/clinic:
+    get:
+      tags: [owner]
+      operationId: clinic.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            default: 10
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: order
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum: [asc, desc]
+        - name: kind
+          in: query
+          schema:
+            type: string
+            enum: [consultation, lab-order, prescription]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [in-progress, requested, result]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [pending-result, resolved-today]
+  /api/dashboard-administration:
+    get:
+      tags: [owner]
+      operationId: dashboard-administration.find
+  /api/dashboard-billing:
+    get:
+      tags: [owner]
+      operationId: dashboard-billing.find
+  /api/dashboard-care:
+    get:
+      tags: [owner]
+      operationId: dashboard-care.find
+  /api/dashboard-grooming:
+    get:
+      tags: [owner]
+      operationId: dashboard-grooming.find
+  /api/dashboard-inventory:
+    get:
+      tags: [owner]
+      operationId: dashboard-inventory.find
+  /api/dashboard-laboratory:
+    get:
+      tags: [owner]
+      operationId: dashboard-laboratory.find
+  /api/dashboard-marketing:
+    get:
+      tags: [owner]
+      operationId: dashboard-marketing.find
+  /api/dashboard-reception:
+    get:
+      tags: [owner]
+      operationId: dashboard-reception.find
+  /api/employees-disable:
+    put:
+      tags: [owner]
+      operationId: employees-disable.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                disabled:
+                  type: boolean
+              required: [id, disabled]
+  /api/employees-permissions:
+    get:
+      tags: [owner]
+      operationId: employees-permissions.find
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+    put:
+      tags: [owner]
+      operationId: employees-permissions.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                permissions:
+                  type: array
+                  items:
+                    type: string
+              required: [id, permissions]
   /api/employees:
     get:
       tags: [owner]
@@ -226,13 +620,8 @@ paths:
                   enum: [veterinarian, groomer, receptionist]
                 color:
                   type: [string, "null"]
-                  pattern: "^#[0-9a-fA-F]{6}$"
-              required:
-                - firstName
-                - lastName
-                - email
-                - password
-                - position
+                  pattern: '^#[0-9a-fA-F]{6}$'
+              required: [firstName, lastName, email, password, position]
     put:
       tags: [owner]
       operationId: employees.update
@@ -259,13 +648,85 @@ paths:
                   enum: [veterinarian, groomer, receptionist]
                 color:
                   type: [string, "null"]
-                  pattern: "^#[0-9a-fA-F]{6}$"
-              required:
-                - id
-  /api/employees-disable:
+                  pattern: '^#[0-9a-fA-F]{6}$'
+              required: [id]
+  /api/finance:
+    get:
+      tags: [owner]
+      operationId: finance.find
+      parameters:
+        - name: period
+          in: query
+          schema:
+            default: month
+            type: string
+            enum: [month, quarter, year, custom]
+        - name: from
+          in: query
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: to
+          in: query
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: comparison
+          in: query
+          schema:
+            default: previous-month
+            type: string
+            enum: [none, previous-month, previous-year]
+  /api/inventory-count:
+    get:
+      tags: [owner]
+      operationId: inventory-count.find
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [vaccines, medications, grooming, food, supplies]
+        - name: status
+          in: query
+          schema:
+            type: string
+  /api/inventory:
+    get:
+      tags: [owner]
+      operationId: inventory.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [vaccines, medications, grooming, food, supplies]
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: status
+          in: query
+          schema:
+            type: string
+  /api/organization:
+    get:
+      tags: [owner]
+      operationId: organization.find
     put:
       tags: [owner]
-      operationId: employees-disable.update
+      operationId: organization.update
       requestBody:
         required: true
         content:
@@ -273,18 +734,117 @@ paths:
             schema:
               type: object
               properties:
-                id:
+                timezone:
                   type: string
-                  format: uuid
-                disabled:
-                  type: boolean
-              required:
-                - id
-                - disabled
-  /api/employees-permissions:
+              required: [timezone]
+  /api/portals-count:
     get:
       tags: [owner]
-      operationId: employees-permissions.find
+      operationId: portals-count.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: purpose
+          in: query
+          schema:
+            type: string
+            enum: [booking, capture]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, published]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [published, drafts]
+  /api/portals:
+    get:
+      tags: [owner]
+      operationId: portals.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: purpose
+          in: query
+          schema:
+            type: string
+            enum: [booking, capture]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, published]
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: order
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum: [asc, desc]
+        - name: page
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            default: 10
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [published, drafts]
+  /api/profile-email-verification:
+    post:
+      tags: [owner]
+      operationId: profile-email-verification.create
+  /api/profile-password:
+    put:
+      tags: [owner]
+      operationId: profile-password.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentPassword:
+                  type: string
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 6
+                confirmPassword:
+                  type: string
+                  minLength: 1
+              required: [currentPassword, password, confirmPassword]
+  /api/profile-sessions:
+    delete:
+      tags: [owner]
+      operationId: profile-sessions.remove
       parameters:
         - name: id
           in: query
@@ -292,37 +852,9 @@ paths:
           schema:
             type: string
             format: uuid
-    put:
-      tags: [owner]
-      operationId: employees-permissions.update
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: string
-                  format: uuid
-                permissions:
-                  type: array
-                  items:
-                    type: string
-                    pattern: "^(superadmin|owner|employee)::[a-z0-9-]+::general$"
-              required:
-                - id
-                - permissions
-  /api/files/{path}:
     get:
       tags: [owner]
-      operationId: files.find
-      parameters:
-        - name: path
-          in: path
-          required: true
-          schema:
-            type: string
+      operationId: profile-sessions.find
   /api/profile:
     get:
       tags: [owner]
@@ -357,52 +889,7 @@ paths:
                   type: [string, "null"]
                 occupation:
                   type: [string, "null"]
-              required:
-                - firstName
-                - lastName
-                - email
-  /api/profile-email-verification:
-    post:
-      tags: [owner]
-      operationId: profile-email-verification.create
-  /api/profile-password:
-    put:
-      tags: [owner]
-      operationId: profile-password.update
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                currentPassword:
-                  type: string
-                  minLength: 1
-                password:
-                  type: string
-                  minLength: 6
-                confirmPassword:
-                  type: string
-                  minLength: 1
-              required:
-                - currentPassword
-                - password
-                - confirmPassword
-  /api/profile-sessions:
-    get:
-      tags: [owner]
-      operationId: profile-sessions.find
-    delete:
-      tags: [owner]
-      operationId: profile-sessions.remove
-      parameters:
-        - name: id
-          in: query
-          required: true
-          schema:
-            type: string
-            format: uuid
+              required: [firstName, lastName, email]
   /api/uploads:
     post:
       tags: [owner]
@@ -420,19 +907,169 @@ paths:
                   maxLength: 255
                 size:
                   type: integer
-                  minimum: 1
+                  exclusiveMinimum: 0
                   maximum: 10485760
                 type:
                   type: string
                   maxLength: 255
-              required:
-                - name
-                - size
+              required: [name, size]
+  /api/visits-count:
+    get:
+      tags: [owner]
+      operationId: visits-count.find
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [ambulatory, grooming, laboratory]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in-progress, done]
+        - name: staff
+          in: query
+          schema:
+            type: string
+  /api/visits-grooming-count:
+    get:
+      tags: [owner]
+      operationId: visits-grooming-count.find
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in-progress, finished, delivered]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [undelivered, delivered]
+  /api/visits-grooming:
+    get:
+      tags: [owner]
+      operationId: visits-grooming.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            default: 10
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: order
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum: [asc, desc]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in-progress, finished, delivered]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [undelivered, delivered]
+  /api/visits-status:
+    put:
+      tags: [owner]
+      operationId: visits-status.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                status:
+                  type: string
+                  enum: [in-progress, done]
+              required: [id]
+  /api/visits:
+    get:
+      tags: [owner]
+      operationId: visits.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            default: 10
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: order
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum: [asc, desc]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [ambulatory, grooming, laboratory]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in-progress, done]
+        - name: staff
+          in: query
+          schema:
+            type: string
 components:
   securitySchemes:
     vetisuiteSession:
       type: apiKey
       in: cookie
       name: vetisuite_session
-      x-httpOnly: true
-      x-sameSite: lax

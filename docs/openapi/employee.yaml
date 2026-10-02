@@ -5,14 +5,189 @@ info:
 security:
   - vetisuiteSession: []
 paths:
+  /api/files/{path}:
+    get:
+      tags: [employee]
+      operationId: files.find
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/appointments-availability:
+    get:
+      tags: [employee]
+      operationId: appointments-availability.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+    put:
+      tags: [employee]
+      operationId: appointments-availability.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                week:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      weekday:
+                        type: string
+                        enum: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+                      enabled:
+                        type: boolean
+                      ranges:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            start:
+                              type: string
+                              pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+                            end:
+                              type: string
+                              pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+                          required: [start, end]
+                    required: [enabled, ranges]
+                overrides:
+                  default: []
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      date:
+                        type: string
+                        pattern: '^\d{4}-\d{2}-\d{2}$'
+                      label:
+                        type: string
+                        minLength: 1
+                      ranges:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            start:
+                              type: string
+                              pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+                            end:
+                              type: string
+                              pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+                          required: [start, end]
+                    required: [date, label, ranges]
+                slotMinutes:
+                  type: integer
+                  exclusiveMinimum: 0
+                bufferBefore:
+                  default: 0
+                  type: integer
+                  minimum: 0
+                bufferAfter:
+                  default: 0
+                  type: integer
+                  minimum: 0
+                minNoticeHours:
+                  default: 0
+                  type: integer
+                  minimum: 0
+                maxAdvanceDays:
+                  type: integer
+                  exclusiveMinimum: 0
+                maxPerDay:
+                  default: 0
+                  type: integer
+                  minimum: 0
+                onlineBooking:
+                  type: boolean
+                autoConfirm:
+                  type: boolean
+              required: [week, slotMinutes, maxAdvanceDays, onlineBooking, autoConfirm]
+  /api/appointments-count:
+    get:
+      tags: [employee]
+      operationId: appointments-count.find
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, completed, cancelled]
+        - name: vet
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: patient
+          in: query
+          schema:
+            type: string
+            format: uuid
+  /api/appointments:
+    get:
+      tags: [employee]
+      operationId: appointments.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: patient
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: vet
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, completed, cancelled]
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
   /api/auth-logout:
     post:
       tags: [employee]
       operationId: auth-logout.create
-  /api/clients:
+  /api/billing-count:
     get:
       tags: [employee]
-      operationId: clients.find
+      operationId: billing-count.find
       parameters:
         - name: id
           in: query
@@ -24,52 +199,60 @@ paths:
           schema:
             type: string
             maxLength: 100
-    post:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, receivable, paid]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [open-account, overdue, paid-today]
+  /api/billing:
+    get:
       tags: [employee]
-      operationId: clients.create
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  minLength: 2
-                phone:
-                  type: string
-                  minLength: 6
-                email:
-                  type: [string, "null"]
-                  format: email
-              required:
-                - name
-                - phone
-    put:
-      tags: [employee]
-      operationId: clients.update
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: string
-                  format: uuid
-                name:
-                  type: string
-                  minLength: 2
-                phone:
-                  type: string
-                  minLength: 6
-                email:
-                  type: [string, "null"]
-                  format: email
-              required:
-                - id
+      operationId: billing.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            default: 10
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: order
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum: [asc, desc]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, receivable, paid]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [open-account, overdue, paid-today]
   /api/clients-count:
     get:
       tags: [employee]
@@ -124,14 +307,11 @@ paths:
                   maxLength: 100
                 sex:
                   type: [string, "null"]
-                  enum: [male, female]
+                  enum: [male, female, null]
                 birthDate:
                   type: [string, "null"]
                   format: date
-              required:
-                - client
-                - name
-                - species
+              required: [client, name, species]
     put:
       tags: [employee]
       operationId: clients-patients.update
@@ -156,22 +336,381 @@ paths:
                   maxLength: 100
                 sex:
                   type: [string, "null"]
-                  enum: [male, female]
+                  enum: [male, female, null]
                 birthDate:
                   type: [string, "null"]
                   format: date
-              required:
-                - id
-  /api/files/{path}:
+              required: [id]
+  /api/clients:
     get:
       tags: [employee]
-      operationId: files.find
+      operationId: clients.find
       parameters:
-        - name: path
-          in: path
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+    post:
+      tags: [employee]
+      operationId: clients.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                phone:
+                  type: string
+                  minLength: 6
+                email:
+                  type: [string, "null"]
+                  format: email
+              required: [name, phone]
+    put:
+      tags: [employee]
+      operationId: clients.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                  minLength: 2
+                phone:
+                  type: string
+                  minLength: 6
+                email:
+                  type: [string, "null"]
+                  format: email
+              required: [id]
+  /api/clinic-count:
+    get:
+      tags: [employee]
+      operationId: clinic-count.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: kind
+          in: query
+          schema:
+            type: string
+            enum: [consultation, lab-order, prescription]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [in-progress, requested, result]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [pending-result, resolved-today]
+  /api/clinic:
+    get:
+      tags: [employee]
+      operationId: clinic.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            default: 10
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: order
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum: [asc, desc]
+        - name: kind
+          in: query
+          schema:
+            type: string
+            enum: [consultation, lab-order, prescription]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [in-progress, requested, result]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [pending-result, resolved-today]
+  /api/dashboard-billing:
+    get:
+      tags: [employee]
+      operationId: dashboard-billing.find
+  /api/dashboard-care:
+    get:
+      tags: [employee]
+      operationId: dashboard-care.find
+  /api/dashboard-grooming:
+    get:
+      tags: [employee]
+      operationId: dashboard-grooming.find
+  /api/dashboard-inventory:
+    get:
+      tags: [employee]
+      operationId: dashboard-inventory.find
+  /api/dashboard-laboratory:
+    get:
+      tags: [employee]
+      operationId: dashboard-laboratory.find
+  /api/dashboard-marketing:
+    get:
+      tags: [employee]
+      operationId: dashboard-marketing.find
+  /api/dashboard-reception:
+    get:
+      tags: [employee]
+      operationId: dashboard-reception.find
+  /api/finance:
+    get:
+      tags: [employee]
+      operationId: finance.find
+      parameters:
+        - name: period
+          in: query
+          schema:
+            default: month
+            type: string
+            enum: [month, quarter, year, custom]
+        - name: from
+          in: query
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: to
+          in: query
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: comparison
+          in: query
+          schema:
+            default: previous-month
+            type: string
+            enum: [none, previous-month, previous-year]
+  /api/inventory-count:
+    get:
+      tags: [employee]
+      operationId: inventory-count.find
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [vaccines, medications, grooming, food, supplies]
+        - name: status
+          in: query
+          schema:
+            type: string
+  /api/inventory:
+    get:
+      tags: [employee]
+      operationId: inventory.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [vaccines, medications, grooming, food, supplies]
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: status
+          in: query
+          schema:
+            type: string
+  /api/organization:
+    get:
+      tags: [employee]
+      operationId: organization.find
+    put:
+      tags: [employee]
+      operationId: organization.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timezone:
+                  type: string
+              required: [timezone]
+  /api/portals-count:
+    get:
+      tags: [employee]
+      operationId: portals-count.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: purpose
+          in: query
+          schema:
+            type: string
+            enum: [booking, capture]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, published]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [published, drafts]
+  /api/portals:
+    get:
+      tags: [employee]
+      operationId: portals.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: purpose
+          in: query
+          schema:
+            type: string
+            enum: [booking, capture]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, published]
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: order
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum: [asc, desc]
+        - name: page
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            default: 10
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [published, drafts]
+  /api/profile-email-verification:
+    post:
+      tags: [employee]
+      operationId: profile-email-verification.create
+  /api/profile-password:
+    put:
+      tags: [employee]
+      operationId: profile-password.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentPassword:
+                  type: string
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 6
+                confirmPassword:
+                  type: string
+                  minLength: 1
+              required: [currentPassword, password, confirmPassword]
+  /api/profile-sessions:
+    delete:
+      tags: [employee]
+      operationId: profile-sessions.remove
+      parameters:
+        - name: id
+          in: query
           required: true
           schema:
             type: string
+            format: uuid
+    get:
+      tags: [employee]
+      operationId: profile-sessions.find
   /api/profile:
     get:
       tags: [employee]
@@ -199,52 +738,7 @@ paths:
                   format: email
                 phone:
                   type: [string, "null"]
-              required:
-                - firstName
-                - lastName
-                - email
-  /api/profile-email-verification:
-    post:
-      tags: [employee]
-      operationId: profile-email-verification.create
-  /api/profile-password:
-    put:
-      tags: [employee]
-      operationId: profile-password.update
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                currentPassword:
-                  type: string
-                  minLength: 1
-                password:
-                  type: string
-                  minLength: 6
-                confirmPassword:
-                  type: string
-                  minLength: 1
-              required:
-                - currentPassword
-                - password
-                - confirmPassword
-  /api/profile-sessions:
-    get:
-      tags: [employee]
-      operationId: profile-sessions.find
-    delete:
-      tags: [employee]
-      operationId: profile-sessions.remove
-      parameters:
-        - name: id
-          in: query
-          required: true
-          schema:
-            type: string
-            format: uuid
+              required: [firstName, lastName, email]
   /api/uploads:
     post:
       tags: [employee]
@@ -262,19 +756,169 @@ paths:
                   maxLength: 255
                 size:
                   type: integer
-                  minimum: 1
+                  exclusiveMinimum: 0
                   maximum: 10485760
                 type:
                   type: string
                   maxLength: 255
-              required:
-                - name
-                - size
+              required: [name, size]
+  /api/visits-count:
+    get:
+      tags: [employee]
+      operationId: visits-count.find
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [ambulatory, grooming, laboratory]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in-progress, done]
+        - name: staff
+          in: query
+          schema:
+            type: string
+  /api/visits-grooming-count:
+    get:
+      tags: [employee]
+      operationId: visits-grooming-count.find
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in-progress, finished, delivered]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [undelivered, delivered]
+  /api/visits-grooming:
+    get:
+      tags: [employee]
+      operationId: visits-grooming.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            default: 10
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: order
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum: [asc, desc]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in-progress, finished, delivered]
+        - name: preset
+          in: query
+          schema:
+            type: string
+            enum: [undelivered, delivered]
+  /api/visits-status:
+    put:
+      tags: [employee]
+      operationId: visits-status.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                status:
+                  type: string
+                  enum: [in-progress, done]
+              required: [id]
+  /api/visits:
+    get:
+      tags: [employee]
+      operationId: visits.find
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            default: 10
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: order
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum: [asc, desc]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [ambulatory, grooming, laboratory]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in-progress, done]
+        - name: staff
+          in: query
+          schema:
+            type: string
 components:
   securitySchemes:
     vetisuiteSession:
       type: apiKey
       in: cookie
       name: vetisuite_session
-      x-httpOnly: true
-      x-sameSite: lax
