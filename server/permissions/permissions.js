@@ -46,5 +46,10 @@ import './visits-count/visits-count.permissions.js';
 import './visits-grooming/visits-grooming.permissions.js';
 import './visits-grooming-count/visits-grooming-count.permissions.js';
 import './visits-status/visits-status.permissions.js';
+import './whatsapp-account/whatsapp-account.permissions.js';
+import './whatsapp-analytics/whatsapp-analytics.permissions.js';
+import './whatsapp-connection/whatsapp-connection.permissions.js';
+import './whatsapp-messages/whatsapp-messages.permissions.js';
+import './whatsapp-templates/whatsapp-templates.permissions.js';
 
 export default permissions;

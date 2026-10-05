@@ -250,6 +250,7 @@ En orden: CORS → request-id → contexto de sesión → rate limit → guardia
 El server publica con `server/utils/events.js`, que expone **un evento por key** para que el nombre
 de la tarea se escriba una sola vez. Nunca lanza, pero devuelve si el mensaje salió. Por ejemplo:
 `email-account-manager` (todos los correos de cuenta, una cola discriminada por `detail.action`) y
+`whatsapp-utility-message` (un mensaje utility de WhatsApp por evento, enviado con `@vetisuite/whatsapp`) y
 tareas en background para procesamiento asíncrono desacoplado.
 
 **El server no manda correos.** No hay cliente de mail ni templates en `server/`: publica el evento

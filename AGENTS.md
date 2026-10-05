@@ -21,7 +21,8 @@ Aplica a todo el monorepo.
 6. **Fallar fuerte.** Nada de `null` silencioso ni optional chaining defensivo sobre lo que una capa
    anterior garantiza. Si es `null` es un bug y tiene que explotar.
 7. **Duplicar entre apps es la regla.** `client/`, `landing/`, `server/` y `cloudtasks/` no
-   comparten código salvo `@vetisuite/database`. Si dos apps necesitan lo mismo, se copia.
+   comparten código salvo `@vetisuite/database` y `@vetisuite/whatsapp` (una integración con un
+   tercero que `server/` y las tasks tienen que hablar igual). Si dos apps necesitan lo mismo, se copia.
 
 ## Monorepo
 
@@ -31,7 +32,7 @@ Bun workspaces:
 client/      SPA de los paneles (Vite + React Router) — app.dominio.com
 server/      API Nitro (h3) — api.dominio.com
 landing/     marketing estático (Astro) — dominio.com
-packages/    paquetes Node/Bun: database (Drizzle: schemas, migraciones y conexión)
+packages/    paquetes Node/Bun: database (Drizzle: schemas, migraciones y conexión) y whatsapp (Meta Cloud API)
 cloudtasks/  handlers SQS → Lambda (uno por carpeta, con su build y su .env)
 infrastructure/  un deploy por componente
 .semaphore/  CI y promotions

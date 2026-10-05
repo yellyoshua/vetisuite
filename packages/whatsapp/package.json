@@ -1,0 +1,19 @@
+{
+  "name": "@vetisuite/whatsapp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*.js": "./src/*.ts"
+  },
+  "scripts": {
+    "build": "echo no build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "typescript": "^7.0.2",
+    "vitest": "4.1.10"
+  }
+}

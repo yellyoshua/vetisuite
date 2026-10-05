@@ -82,3 +82,25 @@ export const rejectionReason = pgEnum('rejection_reason', [
 ])
 
 export const accountTokenType = pgEnum('account_token_type', ['email_confirmation', 'password_reset'])
+
+export const whatsappAccountStatus = pgEnum('whatsapp_account_status', ['active', 'reauth_required'])
+
+export const whatsappTemplateCategory = pgEnum('whatsapp_template_category', ['utility', 'marketing', 'authentication'])
+
+export const whatsappTemplateStatus = pgEnum('whatsapp_template_status', [
+  'pending',
+  'approved',
+  'rejected',
+  'paused',
+  'disabled',
+])
+
+export const whatsappMessageDirection = pgEnum('whatsapp_message_direction', ['outbound', 'inbound'])
+
+export const whatsappMessageStatus = pgEnum('whatsapp_message_status', [
+  'queued',
+  'sent',
+  'delivered',
+  'read',
+  'failed',
+])

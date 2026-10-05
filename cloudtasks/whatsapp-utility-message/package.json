@@ -1,0 +1,21 @@
+{
+  "name": "@vetisuite/whatsapp-utility-message",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo no build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "typescript": "^7.0.2",
+    "vitest": "4.1.10"
+  },
+  "dependencies": {
+    "@vetisuite/database": "workspace:*",
+    "@vetisuite/whatsapp": "workspace:*",
+    "zod": "^4.6.5"
+  }
+}

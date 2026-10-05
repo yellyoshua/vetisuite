@@ -1,4 +1,4 @@
-import { ArrowLeftRightIcon, Building2Icon, CalendarClockIcon, CalendarDaysIcon, ClipboardListIcon, ConciergeBellIcon, FlaskConicalIcon, GlobeIcon, LayoutDashboardIcon, MegaphoneIcon, PackageIcon, ReceiptIcon, ScissorsIcon, SettingsIcon, ShieldCheckIcon, SlidersHorizontalIcon, StethoscopeIcon, UserCogIcon, UserRoundIcon, UsersIcon, WalletIcon, type LucideIcon } from 'lucide-react'
+import { ArrowLeftRightIcon, Building2Icon, CalendarClockIcon, CalendarDaysIcon, ClipboardListIcon, ConciergeBellIcon, FlaskConicalIcon, GlobeIcon, LayoutDashboardIcon, MegaphoneIcon, MessageCircleIcon, PackageIcon, ReceiptIcon, ScissorsIcon, SettingsIcon, ShieldCheckIcon, SlidersHorizontalIcon, StethoscopeIcon, UserCogIcon, UserRoundIcon, UsersIcon, WalletIcon, type LucideIcon } from 'lucide-react'
 
 export type WorkspaceId =
   | 'marketing'
@@ -43,6 +43,7 @@ export const WORKSPACES: Workspace[] = [
       { label: SUMMARY_LABEL, path: '/marketing', icon: SUMMARY_ICON },
       CLIENTS_ENTRY,
       { label: 'Portales', path: '/portals', icon: GlobeIcon },
+      { label: 'WhatsApp', path: '/whatsapp', icon: MessageCircleIcon },
       { label: 'Disponibilidad de la clínica', path: '/appointments-clinics', icon: SlidersHorizontalIcon },
     ],
   },

@@ -32,4 +32,5 @@ Diseñada para el equipo de ingeniería, DevOps y arquitectura de software. Deta
 - [**Aplicación Cliente**](./technical/03-client.md): SPA en React, Vite y Tailwind.
 - [**Servidor API**](./technical/04-server-nitro.md): Endpoints y servicios en Nitro y Drizzle.
 - [**Modelo de Datos**](./technical/08-data-model.md): Esquemas de bases de datos PostgreSQL.
+- [**Integración con WhatsApp Business**](./technical/09-whatsapp.md): Modelo de proveedor de Meta, analítica, cola de mensajes utility y webhooks.
 - [**Infraestructura y Despliegue**](./technical/infrastructure/00-overview.md): Terraform, AWS Lambda, Amplify y CI/CD.

@@ -12,7 +12,7 @@ ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
 PREFIX="vetisuite-${APP_ENV}"
 REPOSITORY="vetisuite/${APP_ENV}-api-server"
 FUNCTION="${PREFIX}-api-server"
-QUEUE="${PREFIX}-cloudtask-email-account-manager"
+TASKS="email-account-manager whatsapp-utility-message"
 BUCKET="${PREFIX}-storage"
 ALARMS_TOPIC="arn:aws:sns:${AWS_REGION}:${ACCOUNT}:${PREFIX}-alarms"
 TAGS_KV="Key=organization,Value=vetisuite Key=environment,Value=${APP_ENV}"
@@ -25,8 +25,12 @@ ecr () {
 }
 
 sqs () {
-  aws sqs create-queue --region "$AWS_REGION" --queue-name "${QUEUE}-dlq" --attributes MessageRetentionPeriod=1209600 --tags "$TAGS_MAP"
-  aws sqs create-queue --region "$AWS_REGION" --queue-name "$QUEUE" --attributes "{\"VisibilityTimeout\":\"360\",\"MessageRetentionPeriod\":\"345600\",\"RedrivePolicy\":\"{\\\"deadLetterTargetArn\\\":\\\"arn:aws:sqs:${AWS_REGION}:${ACCOUNT}:${QUEUE}-dlq\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}" --tags "$TAGS_MAP"
+  for task in $TASKS; do
+    queue="${PREFIX}-cloudtask-${task}"
+
+    aws sqs create-queue --region "$AWS_REGION" --queue-name "${queue}-dlq" --attributes MessageRetentionPeriod=1209600 --tags "$TAGS_MAP"
+    aws sqs create-queue --region "$AWS_REGION" --queue-name "$queue" --attributes "{\"VisibilityTimeout\":\"360\",\"MessageRetentionPeriod\":\"345600\",\"RedrivePolicy\":\"{\\\"deadLetterTargetArn\\\":\\\"arn:aws:sqs:${AWS_REGION}:${ACCOUNT}:${queue}-dlq\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}" --tags "$TAGS_MAP"
+  done
 }
 
 iam () {
@@ -92,7 +96,11 @@ alarms () {
   aws logs put-metric-filter --region "$AWS_REGION" --log-group-name "/aws/lambda/${FUNCTION}" --filter-name "${FUNCTION}-errors" --filter-pattern '{ $.level = "error" }' --metric-transformations "metricName=ApiServerErrors,metricNamespace=vetisuite/${APP_ENV},metricValue=1,defaultValue=0"
   aws cloudwatch put-metric-alarm --region "$AWS_REGION" --alarm-name "${FUNCTION}-errors" --namespace "vetisuite/${APP_ENV}" --metric-name ApiServerErrors --statistic Sum --period 60 --evaluation-periods 1 --threshold 1 --comparison-operator GreaterThanOrEqualToThreshold --treat-missing-data notBreaching --alarm-actions "$ALARMS_TOPIC"
   aws cloudwatch put-metric-alarm --region "$AWS_REGION" --alarm-name "${FUNCTION}-lambda-errors" --namespace AWS/Lambda --metric-name Errors --dimensions "Name=FunctionName,Value=${FUNCTION}" --statistic Sum --period 60 --evaluation-periods 1 --threshold 1 --comparison-operator GreaterThanOrEqualToThreshold --treat-missing-data notBreaching --alarm-actions "$ALARMS_TOPIC"
-  aws cloudwatch put-metric-alarm --region "$AWS_REGION" --alarm-name "${QUEUE}-dlq" --namespace AWS/SQS --metric-name ApproximateNumberOfMessagesVisible --dimensions "Name=QueueName,Value=${QUEUE}-dlq" --statistic Maximum --period 60 --evaluation-periods 1 --threshold 1 --comparison-operator GreaterThanOrEqualToThreshold --treat-missing-data notBreaching --alarm-actions "$ALARMS_TOPIC"
+  for task in $TASKS; do
+    queue="${PREFIX}-cloudtask-${task}"
+
+    aws cloudwatch put-metric-alarm --region "$AWS_REGION" --alarm-name "${queue}-dlq" --namespace AWS/SQS --metric-name ApproximateNumberOfMessagesVisible --dimensions "Name=QueueName,Value=${queue}-dlq" --statistic Maximum --period 60 --evaluation-periods 1 --threshold 1 --comparison-operator GreaterThanOrEqualToThreshold --treat-missing-data notBreaching --alarm-actions "$ALARMS_TOPIC"
+  done
 }
 
 case "${1:-}" in

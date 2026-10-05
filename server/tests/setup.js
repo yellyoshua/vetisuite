@@ -2,7 +2,8 @@ import {afterAll, beforeAll, vi} from 'vitest';
 
 vi.mock('@/utils/events.js', () => ({
   default: {
-    emailAccountManager: {publish: vi.fn().mockResolvedValue(true)}
+    emailAccountManager: {publish: vi.fn().mockResolvedValue(true)},
+    whatsappUtilityMessage: {publish: vi.fn().mockResolvedValue(true)}
   }
 }));
 
@@ -18,6 +19,10 @@ vi.mock('@vetisuite/database/db.js', async () => {
 process.env.APP_ENV = 'development';
 process.env.IS_LOCAL = 'true';
 process.env.JWT_SECRET = 'test-jwt-secret';
+process.env.WHATSAPP_APP_ID = 'test-app-id';
+process.env.WHATSAPP_APP_SECRET = 'test-app-secret';
+process.env.WHATSAPP_VERIFY_TOKEN = 'test-verify-token';
+process.env.WHATSAPP_TOKEN_ENCRYPTION_KEY = Buffer.alloc(32, 7).toString('base64');
 process.env.X_IS_TESTING_MODE = 'true';
 process.env.VETISUITE_API_DOMAIN = 'http://localhost:4000';
 process.env.VETISUITE_APP_DOMAIN = 'http://localhost:5173';

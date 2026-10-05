@@ -74,3 +74,13 @@ cuenta y no está en pkit.
 | 63 | `dashboard-administration.get.js` | `dashboard-administration` | `find` | owner | `[]` | — | gobierno y administración (solo owner) |
 | 64 | `organization.get.js` | `organization` | `find` | owner, employee | `id`, `name`, `timezone` | — | organización = la de la sesión (`profile.organization`); el `id` de la query se ignora |
 | 65 | `organization.put.js` | `organization` | `update` | owner, employee | `timezone` | — | `updateOrganizationSchema`: zona IANA de `Intl.supportedValuesOf('timeZone')` o `UTC`; organización = la de la sesión |
+| 66 | `whatsapp-account.get.js` | `whatsapp-account` | `find` | owner, employee | `[]` | — | pin `{organization: profile.organization}`; proyección sin `accessToken` |
+| 67 | `whatsapp-connection.post.js` | `whatsapp-connection` | `create` | owner, employee | `code`, `wabaId`, `phoneNumberId`, `consentAccepted` | — | `connectWhatsappAccountSchema` (`consentAccepted: true`); organización = la de la sesión; el token se guarda cifrado |
+| 68 | `whatsapp-connection.delete.js` | `whatsapp-connection` | `remove` | owner, employee | `[]` | — | desconecta la cuenta de la organización de la sesión |
+| 69 | `whatsapp-templates.get.js` | `whatsapp-templates` | `find` | owner, employee | `id`, `page`, `limit`, `search`, `order` | — | pin `{organization: profile.organization}` |
+| 70 | `whatsapp-templates.post.js` | `whatsapp-templates` | `create` | owner, employee | `[]` | — | sincroniza las plantillas utility del catálogo; la categoría que fija Meta manda |
+| 71 | `whatsapp-analytics.get.js` | `whatsapp-analytics` | `find` | owner, employee | `days` | — | `whatsappAnalyticsSchema` (7, 14 o 30); organización y zona horaria de la sesión |
+| 72 | `whatsapp-messages.get.js` | `whatsapp-messages` | `find` | owner, employee | `id`, `page`, `limit`, `search`, `order`, `direction`, `status` | — | pin `{organization: profile.organization}`; sin contenido de mensajes |
+| 73 | `whatsapp-messages.post.js` | `whatsapp-messages` | `create` | owner, employee | `client`, `template`, `variables` | **owner, employee**: `assertOrganizationClient` (404) | solo plantillas del catálogo utility y aprobadas como utility; encola en `whatsapp-utility-message` |
+
+Rutas públicas fuera de pkit: `webhooks/whatsapp.get.js` (handshake con `WHATSAPP_VERIFY_TOKEN`) y `webhooks/whatsapp.post.js` (firma HMAC `X-Hub-Signature-256` con el App Secret).

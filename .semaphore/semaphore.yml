@@ -21,6 +21,9 @@ blocks:
         - name: Test server
           commands:
             - bun run test:server
+        - name: Test whatsapp
+          commands:
+            - bun run test:whatsapp
         - name: Build server
           commands:
             - bun run build:server

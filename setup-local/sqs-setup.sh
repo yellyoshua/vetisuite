@@ -7,7 +7,7 @@ export AWS_ACCESS_KEY_ID="test"
 export AWS_SECRET_ACCESS_KEY="test"
 export AWS_PAGER=''
 
-for queue in vetisuite-development-cloudtask-email-account-manager; do
+for queue in vetisuite-development-cloudtask-email-account-manager vetisuite-development-cloudtask-whatsapp-utility-message; do
   aws sqs get-queue-url --queue-name "$queue" >/dev/null 2>&1 \
     && aws sqs delete-queue --queue-url "$(aws sqs get-queue-url --queue-name "$queue" --query QueueUrl --output text)" \
     || true

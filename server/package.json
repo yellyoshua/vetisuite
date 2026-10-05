@@ -21,6 +21,7 @@
     "@aws-sdk/s3-presigned-post": "3.1088.0",
     "@aws-sdk/s3-request-presigner": "3.1088.0",
     "@vetisuite/database": "workspace:*",
+    "@vetisuite/whatsapp": "workspace:*",
     "bcrypt": "6.0.0",
     "date-fns": "4.4.0",
     "dotenv": "17.4.2",

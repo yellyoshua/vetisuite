@@ -33,6 +33,7 @@ import {
   SettingsEditPage,
   UsersListPage,
   VisitsListPage,
+  WhatsappEditPage,
 } from './employee.pages'
 
 const employeeRoutes: RouteObject[] = [
@@ -43,6 +44,7 @@ const employeeRoutes: RouteObject[] = [
       { path: '/marketing', element: <MarketingSummaryPage /> },
       { path: '/portals', element: <PortalsListPage /> },
       { path: '/appointments-clinics', element: <AppointmentsClinicsEditPage /> },
+      { path: '/whatsapp', element: <WhatsappEditPage /> },
       { path: '/reception', element: <ReceptionSummaryPage /> },
       { path: '/appointments', element: <AppointmentsListPage /> },
       { path: '/reception-visits', element: <VisitsListPage scope="all" /> },

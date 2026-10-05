@@ -27,7 +27,12 @@ const jsHygieneRules = {
   'prefer-template': 'error',
   'newline-before-return': 'error',
   quotes: ['error', 'single', { avoidEscape: true }],
-  camelcase: ['error', { allow: ['grant_type', 'redirect_uri', 'expires_in', 'authorize_url'] }],
+  camelcase: ['error', { allow: [
+    'grant_type', 'redirect_uri', 'expires_in', 'authorize_url',
+    // Protocolo de Meta (webhooks y nombres de variables de las plantillas de WhatsApp)
+    'display_phone_number', 'phone_number_id', 'messaging_product', 'message_echoes', 'previous_category', 'new_category',
+    'message_template_name', 'message_template_language', 'client_name', 'pet_name', 'clinic_name',
+  ] }],
   'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
 }
 

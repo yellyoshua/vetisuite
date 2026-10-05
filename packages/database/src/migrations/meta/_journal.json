@@ -15,6 +15,13 @@
       "when": 1790201673966,
       "tag": "0001_ordinary_puma",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791188160888,
+      "tag": "0002_lucky_lake",
+      "breakpoints": true
     }
   ]
 }

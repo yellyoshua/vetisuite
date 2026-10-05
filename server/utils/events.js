@@ -2,7 +2,8 @@ import {SQSClient, SendMessageCommand, GetQueueUrlCommand} from '@aws-sdk/client
 import logger from './logger.js';
 
 const events = {
-  emailAccountManager: {publish: (detail, params) => publish('email-account-manager', detail, params)}
+  emailAccountManager: {publish: (detail, params) => publish('email-account-manager', detail, params)},
+  whatsappUtilityMessage: {publish: (detail, params) => publish('whatsapp-utility-message', detail, params)}
 };
 
 export default events;

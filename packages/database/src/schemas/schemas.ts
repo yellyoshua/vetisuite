@@ -40,3 +40,7 @@ export * from './portals/portals-field.table'
 export * from './portals/portals-field-option.table'
 export * from './portals/portals-submission.table'
 export * from './portals/portals-answer.table'
+
+export * from './whatsapp/whatsapp-accounts.table'
+export * from './whatsapp/whatsapp-templates.table'
+export * from './whatsapp/whatsapp-messages.table'

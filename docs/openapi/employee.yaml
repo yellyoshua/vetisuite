@@ -916,6 +916,122 @@ paths:
           in: query
           schema:
             type: string
+  /api/whatsapp-account:
+    get:
+      tags: [employee]
+      operationId: whatsapp-account.find
+  /api/whatsapp-connection:
+    post:
+      tags: [employee]
+      operationId: whatsapp-connection.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: Código del Embedded Signup de Meta (vive 30 s)
+                wabaId:
+                  type: string
+                  pattern: '^\d{1,32}$'
+                phoneNumberId:
+                  type: string
+                  pattern: '^\d{1,32}$'
+                consentAccepted:
+                  const: true
+              required: [code, wabaId, consentAccepted]
+    delete:
+      tags: [employee]
+      operationId: whatsapp-connection.remove
+  /api/whatsapp-templates:
+    get:
+      tags: [employee]
+      operationId: whatsapp-templates.find
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+    post:
+      tags: [employee]
+      operationId: whatsapp-templates.create
+      description: Sincroniza las plantillas utility del catálogo con la WABA de la clínica.
+  /api/whatsapp-analytics:
+    get:
+      tags: [employee]
+      operationId: whatsapp-analytics.find
+      parameters:
+        - name: days
+          in: query
+          schema:
+            default: 7
+            type: integer
+            enum: [7, 14, 30]
+  /api/whatsapp-messages:
+    get:
+      tags: [employee]
+      operationId: whatsapp-messages.find
+      parameters:
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [outbound, inbound]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [queued, sent, delivered, read, failed]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: order
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum: [asc, desc]
+    post:
+      tags: [employee]
+      operationId: whatsapp-messages.create
+      description: Encola un mensaje utility (solo plantillas aprobadas como utility) en whatsapp-utility-message.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client:
+                  type: string
+                  format: uuid
+                template:
+                  type: string
+                  enum: [appointment_reminder, vaccine_due_reminder]
+                variables:
+                  type: object
+                  additionalProperties:
+                    type: string
+                    maxLength: 100
+              required: [client, template, variables]
 components:
   securitySchemes:
     vetisuiteSession:

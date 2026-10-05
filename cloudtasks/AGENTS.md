@@ -24,6 +24,10 @@ correo llevan su copia del cliente de mail y de sus templates: **no comparten c�
 server**. Tareas críticas como `email-account-manager` sí importan `@vetisuite/database` (conexión + schemas):
 escriben `account_tokens`, y un nombre de columna copiado a mano se desincroniza sin avisar. Sus `.env`
 se cargan en un `env.ts` que se importa primero, porque `@vetisuite/database/db.js` elige driver al importarse.
+`whatsapp-utility-message` (cola de mensajes utility de WhatsApp) también importa `@vetisuite/database` y
+`@vetisuite/whatsapp`: lee la cuenta de la clínica, envía por la Cloud API oficial y escribe el estado del
+mensaje. Corre sus tests con `bun --cwd cloudtasks/whatsapp-utility-message test` y, en local,
+`bun run dev:cloudtasks` la consume (`app.ts` ata cada handler a su cola en una línea).
 El nombre de la cola y la forma del mensaje tienen que coincidir con lo desplegado, y **el
 desajuste no avisa**: un nombre mal armado se pierde en el catch del publish y un payload incompleto
 revienta dentro de la Lambda. Agregar un evento es agregar una key. Detalle en `cloudtasks/README.md`.

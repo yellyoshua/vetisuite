@@ -29,6 +29,7 @@ Cada módulo cuenta con un documento individual e independiente organizado bajo 
 | 08 | **Facturación** | Liquidación de la visita en un solo comprobante con arrastre de deuda previa e IVA. | [Ver Documento](./modules/08-facturacion.md) |
 | 09 | **Finanzas** | Cierre de caja, rentabilidad real de la jornada y distribución de ingresos por servicio. | [Ver Documento](./modules/09-finanzas.md) |
 | 10 | **Portales** | Páginas públicas de reserva online y captura de leads/campañas para la clínica. | [Ver Documento](./modules/10-portales.md) |
+| 11 | **WhatsApp** | Conexión del número de la clínica con la API oficial de Meta: recordatorios utility de citas y vacunas, y analítica de mensajes. | [Ver Documento](./modules/11-whatsapp.md) |
 
 ---
 
